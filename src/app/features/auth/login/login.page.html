@@ -1,0 +1,191 @@
+<ion-content [fullscreen]="true">
+  <!-- Fond dégradé warm -->
+  <div class="min-h-full flex flex-col items-center justify-center px-6 py-12"
+       style="background: linear-gradient(160deg, #FFF8F3 0%, #F8F5F1 60%, #FFF0E6 100%);">
+
+    <!-- ─── Hero / Logo ─────────────────────────────────────────── -->
+    <div class="flex flex-col items-center gap-4 mb-10 w-full max-w-sm">
+
+      <!-- Icône logo cerclée -->
+      <div class="w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg"
+           style="background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));">
+        <i class="pi pi-building text-4xl text-white"></i>
+      </div>
+
+      <!-- Titre -->
+      <div class="text-center">
+        <h1 class="text-2xl font-extrabold tracking-tight"
+            style="color: var(--ion-color-dark);">
+          Matériaux Express
+        </h1>
+        <p class="text-sm mt-1" style="color: var(--ion-color-medium);">
+          La marketplace B2B des matériaux de construction
+        </p>
+      </div>
+    </div>
+
+    <!-- ─── Card formulaire ─────────────────────────────────────── -->
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 flex flex-col gap-6">
+
+      <!-- En-tête card -->
+      <div>
+        <h2 class="text-xl font-bold" style="color: var(--ion-color-dark);">
+          Connexion
+        </h2>
+        <p class="text-sm mt-1" style="color: var(--ion-color-medium);">
+          Accédez à votre espace professionnel
+        </p>
+      </div>
+
+      <!-- ─── Formulaire ───────────────────────────────────────── -->
+      <form [formGroup]="form"
+            (ngSubmit)="submit()"
+            class="flex flex-col gap-5"
+            novalidate>
+
+        <!-- Champ Email -->
+        <div class="flex flex-col gap-1.5">
+          <label for="login-email"
+                 class="text-sm font-semibold"
+                 style="color: var(--ion-color-dark);">
+            Adresse e-mail
+          </label>
+
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+              <i class="pi pi-envelope text-base"
+                 [style.color]="email.invalid && email.touched
+                   ? 'var(--ion-color-danger)'
+                   : 'var(--ion-color-medium)'"></i>
+            </span>
+
+            <input id="login-email"
+                   type="email"
+                   formControlName="email"
+                   placeholder="vous@exemple.com"
+                   autocomplete="email"
+                   class="w-full pl-10 pr-4 py-3 rounded-xl text-sm border outline-none
+                          transition-all duration-200"
+                   [class.border-red-400]="email.invalid && email.touched"
+                   [class.border-gray-200]="!(email.invalid && email.touched)"
+                   [class.ring-2]="email.valid && email.touched"
+                   [class.ring-orange-200]="email.valid && email.touched"
+                   style="color: var(--ion-color-dark); background: #FAFAFA;" />
+          </div>
+
+          <!-- Erreurs email -->
+          @if (email.invalid && email.touched) {
+            <div class="flex items-center gap-1.5 text-xs" style="color: var(--ion-color-danger);">
+              <i class="pi pi-exclamation-circle text-xs"></i>
+              @if (email.errors?.['required']) {
+                <span>L'adresse e-mail est requise</span>
+              } @else if (email.errors?.['email']) {
+                <span>Format d'adresse e-mail invalide</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Champ Mot de passe -->
+        <div class="flex flex-col gap-1.5">
+          <label for="login-password"
+                 class="text-sm font-semibold"
+                 style="color: var(--ion-color-dark);">
+            Mot de passe
+          </label>
+
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+              <i class="pi pi-lock text-base"
+                 [style.color]="password.invalid && password.touched
+                   ? 'var(--ion-color-danger)'
+                   : 'var(--ion-color-medium)'"></i>
+            </span>
+
+            <input id="login-password"
+                   [type]="showPassword() ? 'text' : 'password'"
+                   formControlName="password"
+                   placeholder="••••••••"
+                   autocomplete="current-password"
+                   class="w-full pl-10 pr-12 py-3 rounded-xl text-sm border outline-none
+                          transition-all duration-200"
+                   [class.border-red-400]="password.invalid && password.touched"
+                   [class.border-gray-200]="!(password.invalid && password.touched)"
+                   [class.ring-2]="password.valid && password.touched"
+                   [class.ring-orange-200]="password.valid && password.touched"
+                   style="color: var(--ion-color-dark); background: #FAFAFA;" />
+
+            <!-- Toggle visibilité -->
+            <button type="button"
+                    id="toggle-password-btn"
+                    (click)="togglePassword()"
+                    class="absolute inset-y-0 right-2 flex items-center pr-3.5
+                           transition-opacity duration-200 hover:opacity-70">
+              <i class="pi text-base"
+                 [class.pi-eye]="!showPassword()"
+                 [class.pi-eye-slash]="showPassword()"
+                 style="color: var(--ion-color-medium);"></i>
+            </button>
+          </div>
+
+          <!-- Erreurs password -->
+          @if (password.invalid && password.touched) {
+            <div class="flex items-center gap-1.5 text-xs" style="color: var(--ion-color-danger);">
+              <i class="pi pi-exclamation-circle text-xs"></i>
+              @if (password.errors?.['required']) {
+                <span>Le mot de passe est requis</span>
+              } @else if (password.errors?.['minlength']) {
+                <span>Minimum 6 caractères</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- ─── Bouton Se connecter ─────────────────────────────── -->
+        <button id="login-submit-btn"
+                type="submit"
+                [disabled]="isLoading()"
+                class="w-full !py-3 !rounded-xl font-bold text-sm text-white
+                       flex items-center justify-center gap-2
+                       transition-all duration-200
+                       active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
+                style="background: linear-gradient(135deg,
+                         var(--ion-color-primary),
+                         var(--ion-color-primary-shade));
+                       box-shadow: 0 4px 14px rgba(224, 123, 57, 0.35);">
+
+          @if (isLoading()) {
+            <!-- Loading state -->
+            <i class="pi pi-spin pi-spinner text-base"></i>
+            <span>Connexion en cours…</span>
+          } @else {
+            <i class="pi pi-sign-in text-base"></i>
+            <span>Se connecter</span>
+          }
+        </button>
+
+      </form>
+
+      <!-- ─── Skeleton champ (pendant chargement global) ────────── -->
+      @if (isLoading()) {
+        <div class="flex flex-col gap-3 animate-pulse">
+          <div class="h-3 w-3/4 rounded-full bg-gray-100"></div>
+          <div class="h-3 w-1/2 rounded-full bg-gray-100"></div>
+        </div>
+      }
+
+    </div>
+
+    <!-- ─── Lien inscription ─────────────────────────────────────── -->
+    <p class="mt-8 text-sm text-center" style="color: var(--ion-color-medium);">
+      Pas encore de compte ?&nbsp;
+      <a id="go-to-register"
+         routerLink="/auth/register"
+         class="font-semibold transition-colors duration-200"
+         style="color: var(--ion-color-primary);">
+        S'inscrire
+      </a>
+    </p>
+
+  </div>
+</ion-content>

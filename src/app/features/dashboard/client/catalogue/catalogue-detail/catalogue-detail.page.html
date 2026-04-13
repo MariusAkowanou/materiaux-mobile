@@ -1,0 +1,155 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: var(--color-primary); --color: #fff; --min-height: 56px">
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/dashboard/client/catalogue"
+        style="--color: #fff; --icon-font-size: 20px"
+      />
+    </ion-buttons>
+
+    @if (store.selectedMateriau(); as mat) {
+      <div class="px-2 py-1">
+        <p class="text-[11px] font-normal text-white/70 uppercase tracking-wider leading-none mb-0.5">
+          {{ mat.categorie.nom }}
+        </p>
+        <h1 class="text-[18px] font-extrabold text-white leading-tight truncate">{{ mat.nom }}</h1>
+      </div>
+    } @else if (store.isLoading()) {
+      <div class="px-2 py-1">
+        <ion-skeleton-text [animated]="true" class="h-3 w-24 rounded mb-1" style="--background: rgba(255,255,255,0.3)" />
+        <ion-skeleton-text [animated]="true" class="h-5 w-40 rounded" style="--background: rgba(255,255,255,0.3)" />
+      </div>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (store.isLoading() && !store.selectedMateriau()) {
+    <!-- ── Skeleton detail ── -->
+    <div>
+      <ion-skeleton-text [animated]="true" class="w-full h-52" />
+      <div class="px-4 py-4 flex flex-col gap-3">
+        @for (i of [1,2,3]; track i) {
+          <ion-skeleton-text [animated]="true" class="h-4 rounded" />
+        }
+      </div>
+    </div>
+  } @else if (store.selectedMateriau(); as mat) {
+
+    <!-- ── Image hero ─────────────────────────────────────────────── -->
+    @if (primaryImage(); as imgUrl) {
+      <div class="w-full h-52 overflow-hidden bg-[var(--color-surface)]">
+        <img [src]="imgUrl" [alt]="mat.nom" class="w-full h-full object-cover" />
+      </div>
+    } @else {
+      <div class="w-full h-40 bg-[var(--color-surface)] flex items-center justify-center">
+        <i class="pi pi-box text-[56px]" style="color: var(--color-primary); opacity: 0.3"></i>
+      </div>
+    }
+
+    <!-- ── Galerie miniatures ──────────────────────────────────────── -->
+    @if (mat.images.length > 1) {
+      <div class="flex gap-2 px-4 py-3 overflow-x-auto">
+        @for (img of mat.images; track img.id) {
+          <div class="flex-none w-14 h-14 rounded-xl overflow-hidden border-2"
+               [style.border-color]="img.is_primary ? 'var(--color-primary)' : 'transparent'">
+            <img [src]="img.url" [alt]="mat.nom" class="w-full h-full object-cover" />
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Infos principales ──────────────────────────────────────── -->
+    <div class="px-4 pt-4 pb-2">
+      <div class="flex items-start justify-between gap-2 mb-2">
+        <h2 class="text-[20px] font-extrabold text-gray-800 leading-tight flex-1">{{ mat.nom }}</h2>
+
+        <!-- Transport inclus -->
+        @if (mat.categorie.transport_inclus) {
+          <span class="flex-none flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold">
+            <i class="pi pi-truck text-[10px]"></i> Livraison incluse
+          </span>
+        }
+      </div>
+
+      <!-- Prix indicatif -->
+      @if (mat.prix_indicatif_min != null) {
+        <div class="flex items-baseline gap-1 mb-3">
+          <span class="text-[22px] font-extrabold" style="color: var(--color-primary)">
+            {{ mat.prix_indicatif_min | number:'1.0-0' }}
+          </span>
+          @if (mat.prix_indicatif_max != null && mat.prix_indicatif_max !== mat.prix_indicatif_min) {
+            <span class="text-[15px] font-medium text-gray-400">
+              – {{ mat.prix_indicatif_max | number:'1.0-0' }}
+            </span>
+          }
+          <span class="text-[13px] text-gray-400">FCFA / {{ mat.unite }}</span>
+        </div>
+      }
+
+      <!-- Description -->
+      @if (mat.description) {
+        <p class="text-[14px] text-gray-500 leading-relaxed">{{ mat.description }}</p>
+      }
+    </div>
+
+    <!-- ── Paramètres techniques ──────────────────────────────────── -->
+    @if (mat.parametres?.length) {
+      <div class="mx-4 my-3 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50">
+          <p class="text-[13px] font-bold text-gray-700">Caractéristiques techniques</p>
+        </div>
+        @for (param of mat.parametres; track param.id; let last = $last) {
+          <div class="flex items-center justify-between px-4 py-3"
+               [class.border-b]="!last"
+               [class.border-gray-50]="!last">
+            <span class="text-[13px] text-gray-500">{{ param.nom }}</span>
+            <span class="text-[13px] font-semibold text-gray-800">
+              {{ param.valeur }}{{ param.unite ? ' ' + param.unite : '' }}
+            </span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Offres fournisseurs ─────────────────────────────────────── -->
+    <div class="px-4 mt-4 mb-2">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-[15px] font-bold text-gray-800">Offres disponibles</p>
+        @if (!store.isLoadingOffres()) {
+          <span class="text-[12px] text-gray-400">
+            {{ store.offresPubliques().length }} fournisseur{{ store.offresPubliques().length > 1 ? 's' : '' }}
+          </span>
+        }
+      </div>
+
+      @if (store.isLoadingOffres()) {
+        <div class="flex flex-col gap-3">
+          @for (i of [1,2]; track i) {
+            <div class="h-36 rounded-2xl overflow-hidden">
+              <ion-skeleton-text [animated]="true" class="w-full h-full" />
+            </div>
+          }
+        </div>
+      } @else if (store.offresPubliques().length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
+          <i class="pi pi-shopping-bag text-[36px]"></i>
+          <p class="text-[13px]">Aucune offre disponible pour ce matériau</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3 pb-8">
+          @for (offre of store.offresPubliques(); track offre.id) {
+            <app-offre-card [offre]="offre" (requestQuote)="goToDevis($event)" />
+          }
+        </div>
+      }
+    </div>
+
+  } @else {
+    <!-- ── État d'erreur ── -->
+    <div class="flex flex-col items-center justify-center h-full gap-4 text-gray-400 px-8">
+      <i class="pi pi-exclamation-triangle text-[48px]"></i>
+      <p class="text-[15px] text-center">Matériau introuvable ou indisponible</p>
+    </div>
+  }
+</ion-content>
