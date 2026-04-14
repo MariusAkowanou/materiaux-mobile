@@ -1,0 +1,54 @@
+:host {
+        --ion-background-color: #f8f9fa;
+    }
+
+    .custom-searchbar {
+        padding-top: 0;
+        padding-bottom: 8px;
+        --border-radius: 12px;
+        --box-shadow: none;
+        --background: #f3f4f6;
+    }
+
+    .font-bold {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .text-secondary {
+        color: var(--ion-color-secondary);
+    }
+
+    .materials-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .skeleton-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .skeleton-card {
+        background: white;
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    @media (max-width: 350px) {
+        .materials-grid {
+            grid-template-columns: 1fr;
+        }
+    }

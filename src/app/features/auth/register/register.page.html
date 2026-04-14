@@ -1,38 +1,35 @@
-<ion-content [fullscreen]="true">
-  <!-- Fond dégradé warm -->
-  <div class="min-h-full flex flex-col items-center justify-center px-6 py-12"
-       style="background: linear-gradient(160deg, #FFF8F3 0%, #F8F5F1 60%, #FFF0E6 100%);">
+<ion-content [fullscreen]="true" style="--background: transparent">
+  <!-- Fond dégradé surface warm avec Tailwind -->
+  <div class="flex min-h-full flex-col items-center justify-center bg-gradient-to-br from-[#FFF8F3] via-[#F8F5F1] to-[#FFF0E6] px-6 py-12">
 
-    <!-- ─── Hero / Logo (identique à Login) ─────────────────────────────────────────── -->
-    <div class="flex flex-col items-center gap-4 mb-8 w-full max-w-md animate-fade-in">
+    <!-- ─── Hero / Logo ─────────────────────────────────────────── -->
+    <div class="mb-8 flex w-full max-w-md flex-col items-center gap-4 animate-fade-in">
       
-      <!-- Icône logo cerclée -->
-      <div class="w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg"
-           style="background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));">
+      <!-- Icône logo avec gradient thémé -->
+      <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-primary-dark shadow-xl shadow-primary/20">
         <i class="pi pi-building text-4xl text-white"></i>
       </div>
 
-      <!-- Titre -->
+      <!-- Titre et sous-titre -->
       <div class="text-center">
-        <h1 class="text-2xl font-extrabold tracking-tight"
-            style="color: var(--ion-color-dark);">
-          Matériaux Express
+        <h1 class="text-2xl font-black tracking-tight text-gray-900">
+          Matériaux <span class="text-primary">Express</span>
         </h1>
-        <p class="text-sm mt-1" style="color: var(--ion-color-medium);">
-          Rejoignez la Marketplace B2B de demain
+        <p class="mt-1 text-sm font-medium text-gray-500">
+          Rejoignez la Marketplace B2B du Bénin
         </p>
       </div>
     </div>
 
     <!-- ─── Card formulaire ─────────────────────────────────────── -->
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 flex flex-col gap-6 animate-slide-up">
+    <div class="flex w-full max-w-md flex-col gap-6 rounded-[2rem] bg-white p-8 shadow-2xl shadow-gray-200/50 animate-slide-up">
 
       <!-- En-tête card -->
-      <div>
-        <h2 class="text-xl font-bold" style="color: var(--ion-color-dark);">
+      <div class="flex flex-col gap-1">
+        <h2 class="text-xl font-bold text-gray-900">
           Inscription
         </h2>
-        <p class="text-sm mt-1" style="color: var(--ion-color-medium);">
+        <p class="text-sm font-medium text-gray-400">
           Créez votre compte en quelques secondes
         </p>
       </div>
@@ -47,209 +44,219 @@
         <div class="grid grid-cols-2 gap-3">
           <!-- Champ Prénom -->
           <div class="flex flex-col gap-1.5">
-            <label for="reg-first-name" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
+            <label for="reg-first-name" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
               Prénom
             </label>
-            <input id="reg-first-name" type="text" formControlName="first_name" placeholder="Ex: Jean"
-                   class="w-full px-4 py-3 rounded-xl text-sm border outline-none transition-all duration-200"
-                   [class.border-red-400]="firstName.invalid && firstName.touched"
-                   [class.border-gray-200]="!(firstName.invalid && firstName.touched)"
-                   style="color: var(--ion-color-dark); background: #FAFAFA;" />
+            <input id="reg-first-name" type="text" formControlName="first_name" placeholder="Jean"
+                   class="w-full rounded-xl border-2 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-950 outline-none transition-all duration-200 focus:bg-white"
+                   [class.border-danger/30]="firstName.invalid && firstName.touched"
+                   [class.border-gray-100]="!(firstName.invalid && firstName.touched)"
+                   [class.focus:border-primary]="!(firstName.invalid && firstName.touched)" />
             
             @if (firstName.invalid && firstName.touched) {
-              <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-                <i class="pi pi-exclamation-circle text-[10px]"></i>
-                <span>Requis</span>
-              </div>
+              <p class="px-1 text-[9px] font-bold uppercase tracking-tighter text-danger animate-fade-in">
+                Requis
+              </p>
             }
           </div>
 
           <!-- Champ Nom -->
           <div class="flex flex-col gap-1.5">
-            <label for="reg-last-name" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
+            <label for="reg-last-name" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
               Nom
             </label>
-            <input id="reg-last-name" type="text" formControlName="last_name" placeholder="Ex: Dupont"
-                   class="w-full px-4 py-3 rounded-xl text-sm border outline-none transition-all duration-200"
-                   [class.border-red-400]="lastName.invalid && lastName.touched"
-                   [class.border-gray-200]="!(lastName.invalid && lastName.touched)"
-                   style="color: var(--ion-color-dark); background: #FAFAFA;" />
+            <input id="reg-last-name" type="text" formControlName="last_name" placeholder="Dossou"
+                   class="w-full rounded-xl border-2 bg-gray-50/50 px-4 py-3 text-sm font-medium text-gray-950 outline-none transition-all duration-200 focus:bg-white"
+                   [class.border-danger]="lastName.invalid && lastName.touched"
+                   [class.border-gray-100]="!(lastName.invalid && lastName.touched)"
+                   [class.focus:border-primary]="!(lastName.invalid && lastName.touched)" />
             
             @if (lastName.invalid && lastName.touched) {
-              <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-                <i class="pi pi-exclamation-circle text-[10px]"></i>
-                <span>Requis</span>
-              </div>
+              <p class="px-1 text-[9px] font-bold uppercase tracking-tighter text-danger animate-fade-in">
+                Requis
+              </p>
             }
           </div>
         </div>
 
         <!-- Champ Email -->
         <div class="flex flex-col gap-1.5">
-          <label for="reg-email" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
+          <label for="reg-email" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
             Adresse e-mail
           </label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-              <i class="pi pi-envelope text-base" [style.color]="email.invalid && email.touched ? 'var(--ion-color-danger)' : 'var(--ion-color-medium)'"></i>
+          <div class="group relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+              <i class="pi pi-envelope text-base transition-colors duration-200" 
+                 [class.text-danger]="email.invalid && email.touched"
+                 [class.text-gray-300]="!(email.invalid && email.touched)"
+                 [class.text-primary]="email.valid && email.touched"></i>
             </span>
-            <input id="reg-email" type="email" formControlName="email" placeholder="vous@exemple.com"
-                   class="w-full pl-10 pr-4 py-3 rounded-xl text-sm border outline-none transition-all duration-200"
-                   [class.border-red-400]="email.invalid && email.touched"
-                   [class.border-gray-200]="!(email.invalid && email.touched)"
-                   style="color: var(--ion-color-dark); background: #FAFAFA;" />
+            <input id="reg-email" type="email" formControlName="email" placeholder="contact@exemple.bj"
+                   class="w-full rounded-2xl border-2 bg-gray-50/50 py-3.5 pl-11 pr-4 text-sm font-medium text-gray-950 outline-none transition-all duration-200 focus:bg-white"
+                   [class.border-danger]="email.invalid && email.touched"
+                   [class.border-gray-100]="!(email.invalid && email.touched)"
+                   [class.focus:border-primary]="!(email.invalid && email.touched)" />
           </div>
           
           @if (email.invalid && email.touched) {
-            <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-              <i class="pi pi-exclamation-circle text-[10px]"></i>
-              <span>
-                @if (email.errors?.['required']) { L'e-mail est requis } @else { Format d'adresse e-mail invalide }
-              </span>
-            </div>
+            <p class="px-1 text-[10px] font-bold uppercase tracking-wider text-danger animate-fade-in">
+              @if (email.errors?.['required']) { L'e-mail est requis } @else { Format incorrect }
+            </p>
           }
         </div>
 
         <!-- Champ Téléphone -->
         <div class="flex flex-col gap-1.5">
-          <label for="reg-phone" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
+          <label for="reg-phone" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
             Numéro de téléphone
           </label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-              <i class="pi pi-phone text-base" [style.color]="phone.invalid && phone.touched ? 'var(--ion-color-danger)' : 'var(--ion-color-medium)'"></i>
+          <div class="group relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+              <i class="pi pi-phone text-base transition-colors duration-200" 
+                 [class.text-danger]="phone.invalid && phone.touched"
+                 [class.text-gray-300]="!(phone.invalid && phone.touched)"
+                 [class.text-primary]="phone.valid && phone.touched"></i>
             </span>
-            <input id="reg-phone" type="tel" formControlName="phone" placeholder="+229 00 00 00 00"
-                   class="w-full pl-10 pr-4 py-3 rounded-xl text-sm border outline-none transition-all duration-200"
-                   [class.border-red-400]="phone.invalid && phone.touched"
-                   [class.border-gray-200]="!(phone.invalid && phone.touched)"
-                   style="color: var(--ion-color-dark); background: #FAFAFA;" />
+            <input id="reg-phone" type="tel" formControlName="phone" placeholder="+229 01 00 00 00 00"
+                   class="w-full rounded-2xl border-2 bg-gray-50/50 py-3.5 pl-11 pr-4 text-sm font-medium text-gray-950 outline-none transition-all duration-200 focus:bg-white"
+                   [class.border-danger/30]="phone.invalid && phone.touched"
+                   [class.border-gray-100]="!(phone.invalid && phone.touched)"
+                   [class.focus:border-primary]="!(phone.invalid && phone.touched)" />
           </div>
           
           @if (phone.invalid && phone.touched) {
-            <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-              <i class="pi pi-exclamation-circle text-[10px]"></i>
-              <span>Format de téléphone valide requis</span>
-            </div>
+            <p class="px-1 text-[10px] font-bold uppercase tracking-wider text-danger animate-fade-in">
+              Numéro invalide
+            </p>
           }
         </div>
 
         <!-- Groupe Mots de passe -->
-        <div class="grid grid-cols-1 gap-4 mt-2">
+        <div class="grid grid-cols-1 gap-4 mt-1">
           <!-- Mot de passe -->
           <div class="flex flex-col gap-1.5">
-            <label for="reg-password" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
+            <label for="reg-password" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
               Mot de passe
             </label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                <i class="pi pi-lock text-base" [style.color]="password.invalid && password.touched ? 'var(--ion-color-danger)' : 'var(--ion-color-medium)'"></i>
+            <div class="group relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                <i class="pi pi-lock text-base transition-colors duration-200" 
+                   [class.text-danger]="password.invalid && password.touched"
+                   [class.text-gray-300]="!(password.invalid && password.touched)"
+                   [class.text-primary]="password.valid && password.touched"></i>
               </span>
               <input id="reg-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" placeholder="••••••••"
-                     class="w-full pl-10 pr-12 py-3 rounded-xl text-sm border outline-none transition-all duration-200"
-                     [class.border-red-400]="password.invalid && password.touched"
-                     [class.border-gray-200]="!(password.invalid && password.touched)"
-                     style="color: var(--ion-color-dark); background: #FAFAFA;" />
-              <button type="button" (click)="togglePassword()" class="absolute inset-y-0 right-2 flex items-center pr-3.5 transition-opacity hover:opacity-70">
-                <i class="pi text-base" [class.pi-eye]="!showPassword()" [class.pi-eye-slash]="showPassword()" style="color: var(--ion-color-medium);"></i>
+                     class="w-full rounded-2xl border-2 bg-gray-50/50 py-3.5 pl-11 pr-12 text-sm font-medium text-gray-950 outline-none transition-all duration-200 focus:bg-white"
+                     [class.border-danger]="password.invalid && password.touched"
+                     [class.border-gray-100]="!(password.invalid && password.touched)"
+                     [class.focus:border-primary]="!(password.invalid && password.touched)" />
+              <button type="button" (click)="togglePassword()" class="absolute inset-y-0 right-0 flex items-center !px-4 text-gray-300 transition-colors hover:text-primary">
+                <i class="pi text-lg" [class.pi-eye]="!showPassword()" [class.pi-eye-slash]="showPassword()"></i>
               </button>
             </div>
             
             @if (password.invalid && password.touched) {
-              <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-                <i class="pi pi-exclamation-circle text-[10px]"></i>
-                <span>Minimum 6 caractères</span>
-              </div>
+              <p class="px-1 text-[10px] font-bold uppercase tracking-wider text-danger animate-fade-in">
+                6 caractères min.
+              </p>
             }
           </div>
 
           <!-- Confirmation -->
           <div class="flex flex-col gap-1.5">
-            <label for="reg-confirm" class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
-              Confirmer le mot de passe
+            <label for="reg-confirm" class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+              Confirmation
             </label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                <i class="pi pi-lock text-base" [style.color]="confirmPassword.invalid && confirmPassword.touched ? 'var(--ion-color-danger)' : 'var(--ion-color-medium)'"></i>
+            <div class="group relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                <i class="pi pi-lock text-base transition-colors duration-200" 
+                   [class.text-danger]="confirmPassword.invalid && confirmPassword.touched"
+                   [class.text-gray-300]="!(confirmPassword.invalid && confirmPassword.touched)"
+                   [class.text-primary]="confirmPassword.valid && confirmPassword.touched"></i>
               </span>
               <input id="reg-confirm" [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirm_password" placeholder="••••••••"
-                     class="w-full pl-10 pr-12 py-3 rounded-xl text-sm border outline-none transition-all duration-200"
-                     [class.border-red-400]="confirmPassword.invalid && confirmPassword.touched"
-                     [class.border-gray-200]="!(confirmPassword.invalid && confirmPassword.touched)"
-                     style="color: var(--ion-color-dark); background: #FAFAFA;" />
-              <button type="button" (click)="toggleConfirmPassword()" class="absolute inset-y-0 right-2 flex items-center pr-3.5 transition-opacity hover:opacity-70">
-                <i class="pi text-base" [class.pi-eye]="!showConfirmPassword()" [class.pi-eye-slash]="showConfirmPassword()" style="color: var(--ion-color-medium);"></i>
+                     class="w-full rounded-2xl border-2 bg-gray-50/50 py-3.5 pl-11 pr-12 text-sm font-medium text-gray-950 outline-none transition-all duration-200 focus:bg-white"
+                     [class.border-danger]="confirmPassword.invalid && confirmPassword.touched"
+                     [class.border-gray-100]="!(confirmPassword.invalid && confirmPassword.touched)"
+                     [class.focus:border-primary]="!(confirmPassword.invalid && confirmPassword.touched)" />
+              <button type="button" (click)="toggleConfirmPassword()" class="absolute inset-y-0 right-0 flex items-center !px-4 text-gray-300 transition-colors hover:text-primary">
+                <i class="pi text-lg" [class.pi-eye]="!showConfirmPassword()" [class.pi-eye-slash]="showConfirmPassword()"></i>
               </button>
             </div>
             
             @if (confirmPassword.invalid && confirmPassword.touched) {
-              <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-                <i class="pi pi-exclamation-circle text-[10px]"></i>
-                <span>
-                   @if (confirmPassword.errors?.['required']) { La confirmation est requise } @else { Les mots de passe diffèrent }
-                </span>
-              </div>
+              <p class="px-1 text-[10px] font-bold uppercase tracking-wider text-danger animate-fade-in">
+                 @if (confirmPassword.errors?.['required']) { Requis } @else { Différent }
+              </p>
             }
           </div>
         </div>
-                <!-- Sélection des rôles -->
-        <div class="flex flex-col gap-3 mt-1">
-          <label class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ion-color-medium);">
-            Que souhaitez-vous faire ? <span class="normal-case opacity-70">(Plusieurs choix possibles)</span>
+
+        <!-- Sélection des rôles métier -->
+        <div class="mt-2 flex flex-col gap-3">
+          <label class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+            Votre profil industriel
           </label>
           
           <div class="flex flex-col gap-2">
             @for (role of availableRoles; track role.value) {
               <div (click)="onRoleChange(role.value, !isRoleSelected(role.value))"
-                   class="flex items-center justify-between p-3 rounded-xl border-2 transition-all cursor-pointer select-none"
-                   [class.border-orange-500]="isRoleSelected(role.value)"
-                   [class.bg-orange-50]="isRoleSelected(role.value)"
-                   [class.border-gray-100]="!isRoleSelected(role.value)"
+                   class="group flex items-center justify-between rounded-2xl border-2 p-4 transition-all duration-200 cursor-pointer select-none"
+                   [class.border-primary]="isRoleSelected(role.value)"
+                   [class.bg-primary]="isRoleSelected(role.value)"
+                   [class.border-gray-50]="!isRoleSelected(role.value)"
                    [class.bg-gray-50]="!isRoleSelected(role.value)">
                 
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all"
-                       [class.bg-orange-500]="isRoleSelected(role.value)"
+                <div class="flex items-center gap-4">
+                  <!-- Icône rôle -->
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl text-xl transition-all duration-300"
+                       [class.bg-primary]="isRoleSelected(role.value)"
                        [class.text-white]="isRoleSelected(role.value)"
                        [class.bg-white]="!isRoleSelected(role.value)"
-                       [class.text-gray-400]="!isRoleSelected(role.value)">
+                       [class.text-gray-300]="!isRoleSelected(role.value)"
+                       [class.shadow-lg]="isRoleSelected(role.value)"
+                       [class.shadow-primary]="isRoleSelected(role.value)">
                     <i class="pi" [class]="role.icon"></i>
                   </div>
-                  <div>
-                    <p class="font-bold text-sm" [class.text-orange-950]="isRoleSelected(role.value)" [class.text-gray-700]="!isRoleSelected(role.value)">
+                  
+                  <div class="flex flex-col">
+                    <p class="text-sm font-black uppercase tracking-tight" 
+                       [class.text-primary]="isRoleSelected(role.value)" 
+                       [class.text-gray-500]="!isRoleSelected(role.value)">
                       {{ role.label }}
                     </p>
                   </div>
                 </div>
 
-                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                     [class.bg-orange-500]="isRoleSelected(role.value)"
-                     [class.border-orange-500]="isRoleSelected(role.value)"
-                     [class.border-gray-300]="!isRoleSelected(role.value)">
+                <!-- Checkmark -->
+                <div class="flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all duration-300"
+                     [class.bg-primary]="isRoleSelected(role.value)"
+                     [class.border-primary]="isRoleSelected(role.value)"
+                     [class.border-gray-200]="!isRoleSelected(role.value)">
                   @if (isRoleSelected(role.value)) {
-                    <i class="pi pi-check text-[10px] text-white animate-fade-in"></i>
+                    <i class="pi pi-check text-[10px] font-black text-white animate-fade-in"></i>
                   }
                 </div>
               </div>
             }
           </div>
+          
           @if (roles.invalid && roles.touched) {
-            <div class="flex items-center gap-1 text-[10px]" style="color: var(--ion-color-danger);">
-              <i class="pi pi-exclamation-circle text-[10px]"></i>
-              <span>Sélectionnez au moins un rôle métier</span>
-            </div>
+            <p class="px-1 text-[10px] font-bold uppercase tracking-wider text-danger animate-fade-in">
+              Sélectionnez au moins un métier
+            </p>
           }
         </div>
-        <!-- Bouton Créer mon compte (identique à Login) -->
+
+        <!-- Bouton de soumission -->
         <button id="register-submit-btn" type="submit" [disabled]="isLoading()"
-                class="w-full !py-4 !rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed mt-4 shadow-lg shadow-orange-200"
-                style="background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));">
+                class="mt-4 flex w-full !py-3.5 items-center justify-center gap-3 rounded-2xl bg-gradient-to-br from-primary via-primary-dark to-primary-dark py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-primary/30 transition-all duration-200 hover:brightness-110 active:scale-[0.97] disabled:opacity-50 disabled:grayscale">
           
           @if (isLoading()) {
-            <i class="pi pi-spin pi-spinner text-base"></i>
-            <span>Création en cours…</span>
+            <i class="pi pi-spin pi-spinner text-lg"></i>
+            <span>Création...</span>
           } @else {
-            <i class="pi pi-user-plus text-base"></i>
+            <i class="pi pi-user-plus text-lg"></i>
             <span>Créer mon compte</span>
           }
         </button>
@@ -257,13 +264,14 @@
       </form>
     </div>
 
-    <!-- Lien retour connexion (identique à Login) -->
-    <p class="mt-8 text-sm text-center animate-fade-in" style="color: var(--ion-color-medium);">
-      Vous avez déjà un compte ?&nbsp;
-      <a routerLink="/auth/login" class="font-bold transition-colors duration-200" style="color: var(--ion-color-primary);">
+    <!-- Lien vers connexion -->
+    <p class="mt-8 text-center text-sm font-medium text-gray-400 animate-fade-in">
+      Déjà membre ?&nbsp;
+      <a routerLink="/auth/login" class="font-black text-primary transition-colors hover:text-primary-dark underline underline-offset-4 decoration-primary/20">
         Se connecter
       </a>
     </p>
 
   </div>
 </ion-content>
+

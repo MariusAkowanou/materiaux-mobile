@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   FormBuilder,
   FormGroup,
@@ -16,11 +16,10 @@ import { VerifyOtpDto } from '../../../core/services/api/auth/auth.model';
   templateUrl: './verify-otp.page.html', 
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    IonContent,
-  ],
+    IonContent
+],
 })
 export class VerifyOtpPage {
   private readonly fb = inject(FormBuilder);

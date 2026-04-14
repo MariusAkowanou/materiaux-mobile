@@ -52,6 +52,7 @@ function handleRefresh(
 
       return authApi.refreshToken(refreshToken).pipe(
         switchMap(async (res) => {
+          console.log('[JwtInterceptor] Refresh successful');
           isRefreshing = false;
           await storage.setTokens(res.access_token, res.refresh_token);
           authStore.currentUser.set(res.user);
@@ -60,8 +61,16 @@ function handleRefresh(
         }),
         switchMap((newToken) => next(addToken(req, newToken))),
         catchError((err) => {
+          console.error('[JwtInterceptor] Refresh failed:', err);
           isRefreshing = false;
-          return from(authStore.logout()).pipe(switchMap(() => throwError(() => err)));
+          // On notifie les autres requêtes en attente de l'échec
+          refreshTokenSubject.error(err);
+          // On réinitialise le sujet pour les futures tentatives (après logout/login)
+          refreshTokenSubject = new BehaviorSubject<string | null>(null);
+          
+          return from(authStore.logout()).pipe(
+            switchMap(() => throwError(() => err))
+          );
         }),
       );
     }),

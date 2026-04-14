@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   FormBuilder,
   FormGroup,
@@ -24,11 +24,10 @@ import { UserRole } from '../../../core/services/api/auth/auth.model';
   templateUrl: './register.page.html',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    IonContent,
-  ],
+    IonContent
+],
 })
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);

@@ -20,14 +20,23 @@ export const authGuard: CanActivateFn = (route, state) => {
   return from(storage.getAccessToken()).pipe(
     switchMap(async (token) => {
       if (!token) {
+        console.log('[AuthGuard] No token found, redirecting to login');
         return router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: state.url } });
       }
 
-      await authStore.loadCurrentUser();
-
-      return authStore.currentUser() 
-        ? true 
-        : router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: state.url } });
+      try {
+        await authStore.loadCurrentUser();
+        
+        if (authStore.currentUser()) {
+          return true;
+        } else {
+          console.warn('[AuthGuard] User not loaded after fetch, redirecting to login');
+          return router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: state.url } });
+        }
+      } catch (error) {
+        console.error('[AuthGuard] Error during loadCurrentUser, redirecting to login:', error);
+        return router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: state.url } });
+      }
     }),
   );
 };

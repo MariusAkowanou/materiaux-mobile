@@ -1,17 +1,24 @@
 import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
 @Component({
-  selector: 'app-partenariats',
+  selector: 'app-partenariats.page',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent],
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar],
   template: `
     <ion-header>
       <ion-toolbar>
         <ion-title>Partenariats</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content />
+    <ion-content class="ion-padding">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;">
+        <i class="pi pi-clock" style="font-size:3rem;color:var(--ion-color-medium);"></i>
+        <p style="color:var(--ion-color-medium);text-align:center;margin:0;">
+          <strong>Partenariats</strong><br>En cours de développement
+        </p>
+      </div>
+    </ion-content>
   `,
 })
 export class PartenariatsPage {}

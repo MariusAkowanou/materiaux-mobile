@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { finalize, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { finalize, map, tap, timeout } from 'rxjs/operators';
 import { AuthApiService } from './auth.api.service';
 import { LoginDto, RegisterDto, User, UserRole, VerifyOtpDto } from './auth.model';
 import { StorageService } from '../../local/storage.service';
@@ -90,29 +90,36 @@ export class AuthStore {
   }
 
   async loadCurrentUser(): Promise<void> {
+    // Si déjà en train de charger, on attend le même promise
     if (this.loadPromise) return this.loadPromise;
 
     const token = await this.storage.getAccessToken();
     if (!token) return;
 
-    this.loadPromise = new Promise<void>((resolve) => {
-      this.authApi.getMe().subscribe({
-        next: (user) => {
-          this._currentUser.next(user);
-          this.currentUser.set(user);
-          resolve();
-        },
-        error: async () => {
-          // Si on n'a pas pu charger l'utilisateur, on nettoie
-          // Mais on ne le fait que si on n'a pas déjà un utilisateur (évite de vider sur une erreur passagère)
-          if (!this.currentUser()) {
-            await this.storage.clearTokens();
-          }
-          this.loadPromise = null;
-          resolve();
-        },
-      });
-    });
+    this.loadPromise = (async () => {
+      try {
+        console.log('[AuthStore] Loading current user...');
+        const user = await firstValueFrom(
+          this.authApi.getMe().pipe(timeout(5000))
+        );
+        
+        this._currentUser.next(user);
+        this.currentUser.set(user);
+        console.log('[AuthStore] User loaded:', user.email);
+      } catch (error) {
+        console.error('[AuthStore] Failed to load user:', error);
+        
+        // Si on n'a pas déjà un utilisateur, on nettoie les tokens
+        if (!this.currentUser()) {
+          console.warn('[AuthStore] Clearing tokens due to load failure');
+          await this.storage.clearTokens();
+        }
+        
+        // On réinitialise loadPromise pour permettre une nouvelle tentative plus tard
+        this.loadPromise = null;
+        throw error; // On propage l'erreur pour que le guard puisse décider
+      }
+    })();
 
     return this.loadPromise;
   }

@@ -1,108 +1,156 @@
 import { Routes } from '@angular/router';
-import { DashboardShellComponent } from './dashboard-shell.component';
+import { roleGuard } from '../../core/guards/role.guard';
 
-export const dashboardShellRoutes: Routes = [
+export const DASHBOARD_ROUTES: Routes = [
+  // ─── Route par défaut (CLIENT) ────────────────────────────────────────────
   {
-    path: '',
-    component: DashboardShellComponent,
+    path: 'home',
+    loadComponent: () =>
+      import('../../features/dashboard/client/home/home.page').then(m => m.HomePage),
+  },
+
+  // ─── CLIENT ───────────────────────────────────────────────────────────────
+  {
+    path: 'client',
+    canActivate: [roleGuard],
+    data: { roles: ['CLIENT'] },
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
-
       {
-        path: 'home',
+        path: 'catalogue',
         loadComponent: () =>
-          import('../../features/dashboard/home/home.page').then((m) => m.HomePage),
-      },
-
-      // ── CLIENT ──────────────────────────────────────────────
-      {
-        path: 'client/catalogue',
-        loadComponent: () =>
-          import('../../features/dashboard/client/catalogue/catalogue.page').then((m) => m.CataloguePage),
+          import('../../features/dashboard/client/catalogue/catalogue.page').then(m => m.CataloguePage),
       },
       {
-        path: 'client/catalogue/:id',
+        path: 'devis',
         loadComponent: () =>
-          import('../../features/dashboard/client/catalogue/catalogue-detail/catalogue-detail.page').then((m) => m.CatalogueDetailPage),
+          import('../../features/dashboard/client/devis/devis.page').then(m => m.DevisPage),
       },
       {
-        path: 'client/devis',
+        path: 'commandes',
         loadComponent: () =>
-          import('../../features/dashboard/client/devis/devis.page').then((m) => m.DevisPage),
-      },
-      {
-        path: 'client/commandes',
-        loadComponent: () =>
-          import('../../features/dashboard/client/commandes/commandes.page').then((m) => m.CommandesPage),
-      },
-
-      // ── SUPPLIER ─────────────────────────────────────────────
-      {
-        path: 'supplier/dashboard',
-        loadComponent: () =>
-          import('../../features/dashboard/supplier/dashboard/supplier-dashboard.page').then((m) => m.SupplierDashboardPage),
-      },
-      {
-        path: 'supplier/mes-carrieres',
-        loadComponent: () =>
-          import('../../features/dashboard/supplier/mes-carrieres/mes-carrieres.page').then((m) => m.MesCarrieresPage),
-      },
-      {
-        path: 'supplier/mes-offres',
-        loadComponent: () =>
-          import('../../features/dashboard/supplier/mes-offres/mes-offres.page').then((m) => m.MesOffresPage),
-      },
-
-      // ── TRANSPORTER ──────────────────────────────────────────
-      {
-        path: 'transporter/dashboard',
-        loadComponent: () =>
-          import('../../features/dashboard/transporter/dashboard/transporter-dashboard.page').then((m) => m.TransporterDashboardPage),
-      },
-      {
-        path: 'transporter/mes-courses',
-        loadComponent: () =>
-          import('../../features/dashboard/transporter/mes-courses/mes-courses.page').then((m) => m.MesCoursesPage),
-      },
-      {
-        path: 'transporter/mes-tarifs',
-        loadComponent: () =>
-          import('../../features/dashboard/transporter/mes-tarifs/mes-tarifs.page').then((m) => m.MesTarifsPage),
-      },
-
-      // ── SHARED ───────────────────────────────────────────────
-      {
-        path: 'shared/wallet',
-        loadComponent: () =>
-          import('../../features/dashboard/shared/wallet/wallet.page').then((m) => m.WalletPage),
-      },
-      {
-        path: 'shared/profil',
-        loadComponent: () =>
-          import('../../features/dashboard/shared/profil/profil.page').then((m) => m.ProfilPage),
-      },
-
-      // ── ADMIN ─────────────────────────────────────────────────
-      {
-        path: 'admin/dashboard',
-        loadComponent: () =>
-          import('../../features/dashboard/admin/dashboard/admin-dashboard.page').then((m) => m.AdminDashboardPage),
-      },
-      {
-        path: 'admin/utilisateurs',
-        loadComponent: () =>
-          import('../../features/dashboard/admin/utilisateurs/utilisateurs.page').then((m) => m.UtilisateursPage),
-      },
-      {
-        path: 'admin/retraits',
-        loadComponent: () =>
-          import('../../features/dashboard/admin/retraits/retraits.page').then((m) => m.RetraitsPage),
-      },
-      {
-        path: 'admin/partenariats',
-        loadComponent: () =>
-          import('../../features/dashboard/admin/partenariats/partenariats.page').then((m) => m.PartenariatsPage),
+          import('../../features/dashboard/client/commandes/commandes.page').then(m => m.CommandesPage),
       },
     ],
+  },
+
+  // ─── SUPPLIER ─────────────────────────────────────────────────────────────
+  {
+    path: 'supplier',
+    canActivate: [roleGuard],
+    data: { roles: ['SUPPLIER', 'ADMIN'] },
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('../../features/dashboard/supplier/dashboard/supplier-dashboard.page').then(m => m.SupplierDashboardPage),
+      },
+      {
+        path: 'mes-carrieres',
+        loadComponent: () =>
+          import('../../features/dashboard/supplier/mes-carrieres/mes-carrieres.page').then(m => m.MesCarrieresPage),
+      },
+      {
+        path: 'mes-offres',
+        loadComponent: () =>
+          import('../../features/dashboard/supplier/mes-offres/mes-offres.page').then(m => m.MesOffresPage),
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
+  },
+
+  // ─── TRANSPORTER ──────────────────────────────────────────────────────────
+  {
+    path: 'transporter',
+    canActivate: [roleGuard],
+    data: { roles: ['TRANSPORTER', 'ADMIN'] },
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('../../features/dashboard/transporter/dashboard/transporter-dashboard.page').then(m => m.TransporterDashboardPage),
+      },
+      {
+        path: 'mes-courses',
+        loadComponent: () =>
+          import('../../features/dashboard/transporter/mes-courses/mes-courses.page').then(m => m.MesCoursesPage),
+      },
+      {
+        path: 'mes-tarifs',
+        loadComponent: () =>
+          import('../../features/dashboard/transporter/mes-tarifs/mes-tarifs.page').then(m => m.MesTarifsPage),
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
+  },
+
+  // ─── SHARED (accessible à tous les rôles connectés) ───────────────────────
+  {
+    path: 'shared',
+    children: [
+      {
+        path: 'profil',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/profil/profil.page').then(m => m.ProfilPage),
+      },
+      {
+        path: 'profil/personal-info',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/profil/personal-info/personal-info.page').then(m => m.PersonalInfoPage),
+      },
+      {
+        path: 'wallet',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/wallet/wallet.page').then(m => m.WalletPage),
+      },
+      {
+        path: 'engins',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/engins/engins.page').then(m => m.EnginsPage),
+      },
+    ],
+  },
+
+  // ─── ADMIN ────────────────────────────────────────────────────────────────
+  {
+    path: 'admin',
+    canActivate: [roleGuard],
+    data: { roles: ['ADMIN'] },
+    children: [
+      {
+        path: 'utilisateurs',
+        loadComponent: () =>
+          import('../../features/dashboard/admin/utilisateurs/utilisateurs.page').then(m => m.UtilisateursPage),
+      },
+      {
+        path: 'partenariats',
+        loadComponent: () =>
+          import('../../features/dashboard/admin/partenariats/partenariats.page').then(m => m.PartenariatsPage),
+      },
+      {
+        path: 'retraits',
+        loadComponent: () =>
+          import('../../features/dashboard/admin/retraits/retraits.page').then(m => m.RetraitsPage),
+      },
+      {
+        path: '',
+        redirectTo: 'utilisateurs',
+        pathMatch: 'full',
+      },
+    ],
+  },
+
+  // ─── Fallback ─────────────────────────────────────────────────────────────
+  {
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full',
   },
 ];

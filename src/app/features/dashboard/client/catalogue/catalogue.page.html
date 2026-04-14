@@ -1,137 +1,65 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="[--background:var(--color-primary)] [--color:#fff] [--min-height:56px]">
-    <div class="flex items-center gap-3 px-4 py-2">
-      <!-- Titre -->
-      <div class="flex-1">
-        <p class="text-[11px] font-normal text-white/70 uppercase tracking-wider leading-none mb-0.5">
-          Matériaux Express
-        </p>
-        <h1 class="text-[20px] font-extrabold text-white leading-tight">Catalogue</h1>
-      </div>
-
-      <!-- Filtres actifs (badge catégorie) -->
-      @if (store.selectedCategorie(); as cat) {
-        <button
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20
-                 text-white text-[12px] font-medium active:bg-white/30 transition-colors"
-          (click)="onCategorieSelect(cat)"
-        >
-          {{ cat.nom }}
-          <i class="pi pi-times text-[10px]"></i>
-        </button>
-      }
-    </div>
+  <ion-toolbar color="white">
+    <ion-buttons slot="start">
+      <ion-menu-button color="secondary"></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="font-bold text-secondary">Catalogue</ion-title>
+  </ion-toolbar>
+  <ion-toolbar color="white">
+    <ion-searchbar
+      placeholder="Rechercher un matériau..."
+      animated="true"
+      class="custom-searchbar"
+      (ionInput)="onSearch($event)"
+    ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="[--background:white] bg-white">
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content />
+<ion-content>
+  <!-- Rafraîchissement Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Barre de recherche (sticky) -->
-  <div class="sticky top-0 z-20 px-4 py-3 ">
-    <ion-searchbar
-      [value]="searchValue()"
-      placeholder="Rechercher un matériau…"
-      inputmode="search"
-      [debounce]="300"
-      class="!h-[44px] !p-0 [--background:#ffffff] [--border-radius:14px] 
-             [--box-shadow:0_1px_4px_rgba(0,0,0,0.08)] [--placeholder-color:#9CA3AF] 
-             [--icon-color:var(--color-primary)] [--color:#1F2937] 
-             [--padding-start:0] [--padding-end:0]"
-      (ionInput)="onSearch($event)"
-      (ionClear)="onSearchClear()"
-    />
-  </div>
+  <!-- Filtres par catégorie -->
+  <app-category-filter
+    [categories]="store.categories()"
+    [selectedId]="store.selectedCategorie()?.id || null"
+    (categorySelected)="onCategorySelected($event)"
+  ></app-category-filter>
 
-  <!-- ── Vue CATÉGORIES (aucune catégorie sélectionnée) ────────────── -->
-  @if (!store.selectedCategorie()) {
-    <section class="!px-4 !pb-6 ">
-      
-
-      @if (store.isLoading()) {
-        <!-- Skeleton grille -->
-        <div class="grid grid-cols-3 gap-3">
-          @for (i of [1,2,3,4,5,6]; track i) {
-            <div class="aspect-square rounded-2xl overflow-hidden">
-              <ion-skeleton-text [animated]="true" class="w-full h-full" />
-            </div>
-          }
-        </div>
-      } @else {
-        <p class="text-[12px] text-gray-400 uppercase tracking-wider font-semibold mb-3">
-          Choisissez une catégorie
-        </p>
-        <div class="grid grid-cols-3 gap-3">
-          @for (cat of store.categories(); track cat.id) {
-            <app-categorie-card
-              [categorie]="cat"
-              [selected]="store.selectedCategorie()?.id === cat.id"
-              (select)="onCategorieSelect($event)"
-            />
-          }
-        </div>
-
-        <!-- État vide -->
-        @if (!store.isLoading() && store.categories().length === 0) {
-          <div class="flex flex-col items-center justify-center py-16 gap-3 text-gray-400">
-            <i class="pi pi-inbox text-[40px]"></i>
-            <p class="text-[14px]">Aucune catégorie disponible</p>
+  <div class="ion-padding">
+    <!-- État de chargement -->
+    @if (store.isLoading() && store.materiaux().length === 0) {
+      <div class="skeleton-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="skeleton-card">
+            <ion-skeleton-text animated style="height: 160px; border-radius: 16px; margin-bottom: 8px;"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 80%; height: 20px;"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 50%; height: 16px;"></ion-skeleton-text>
           </div>
-        }
-      }
-    </section>
-  }
-
-  <!-- ── Vue MATÉRIAUX (catégorie sélectionnée) ─────────────────── -->
-  @if (store.selectedCategorie(); as cat) {
-    <section class="px-4 pb-6">
-      <!-- Titre section -->
-      <div class="flex items-center justify-between mb-3">
-        <div>
-          <p class="text-[15px] font-bold text-gray-800">{{ cat.nom }}</p>
-          @if (!store.isLoading()) {
-            <p class="text-[12px] text-gray-400">
-              {{ store.filteredMateriaux().length }} matériau{{ store.filteredMateriaux().length > 1 ? 'x' : '' }}
-            </p>
-          }
-        </div>
-        @if (cat.transport_inclus) {
-          <span class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-medium">
-            <i class="pi pi-truck text-[10px]"></i> Transport inclus
-          </span>
         }
       </div>
+    }
 
-      <!-- Skeleton liste -->
-      @if (store.isLoading()) {
-        <div class="flex flex-col gap-3">
-          @for (i of [1,2,3,4]; track i) {
-            <div class="h-20 rounded-2xl overflow-hidden">
-              <ion-skeleton-text [animated]="true" class="w-full h-full" />
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="flex flex-col gap-3">
-          @for (mat of store.filteredMateriaux(); track mat.id) {
-            <app-materiau-card [materiau]="mat" (select)="goToDetail($event)" />
-          }
-        </div>
+    <!-- Liste vide -->
+    @if (!store.isLoading() && store.filteredMateriaux().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-search" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+        <p>Aucun matériau trouvé pour cette catégorie ou recherche.</p>
+      </div>
+    }
 
-        <!-- État vide -->
-        @if (store.filteredMateriaux().length === 0) {
-          <div class="flex flex-col items-center justify-center py-16 gap-3 text-gray-400">
-            <i class="pi pi-search text-[40px]"></i>
-            <p class="text-[14px]">Aucun matériau trouvé</p>
-            @if (store.searchQuery()) {
-              <p class="text-[12px]">pour « {{ store.searchQuery() }} »</p>
-            }
-          </div>
+    <!-- Grille de matériaux -->
+    @if (store.filteredMateriaux().length > 0) {
+      <div class="materials-grid">
+        @for (materiau of store.filteredMateriaux(); track materiau) {
+          <app-material-card
+            [material]="materiau"
+            (click)="goToDetail(materiau.public_id)"
+          ></app-material-card>
         }
-      }
-    </section>
-  }
+      </div>
+    }
+  </div>
 </ion-content>
-

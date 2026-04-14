@@ -1,0 +1,61 @@
+  <ion-header class="ion-no-border">
+      <ion-toolbar class="[--background:transparent]">
+        <ion-buttons slot="start">
+          <ion-back-button defaultHref="/dashboard/shared/profil" text="" class="text-gray-900"></ion-back-button>
+        </ion-buttons>
+        <ion-title class="text-center font-bold text-gray-900 text-lg tracking-tight px-0">
+          Informations personnelles
+        </ion-title>
+        <!-- Un bouton vide à la fin pour centrer le titre -->
+        <ion-buttons slot="end">
+          <div class="w-12"></div>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="bg-gray-50">
+      <div class="flex flex-col px-6 py-8">
+        
+        <!-- Header -->
+        <div class="mb-8 flex flex-col items-center gap-4">
+          <div class="flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-primary-dark shadow-xl shadow-primary/20">
+            <i class="pi pi-user text-4xl text-white"></i>
+          </div>
+          <div class="text-center">
+            <h2 class="text-xl font-black text-gray-900">John Doe</h2>
+            <p class="text-sm font-medium text-gray-500">Membre depuis Avril 2024</p>
+          </div>
+        </div>
+
+        <div class="rounded-3xl bg-white p-6 shadow-xl shadow-gray-200/50">
+          <h3 class="mb-4 text-xs font-black uppercase tracking-widest text-gray-400">
+            Détails du compte
+          </h3>
+
+          <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-bold text-gray-400">Nom & Prénoms</span>
+              <span class="text-sm font-bold text-gray-900">John Doe</span>
+            </div>
+            
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-bold text-gray-400">Adresse e-mail</span>
+              <span class="text-sm font-bold text-gray-900">john.doe@exemple.com</span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-bold text-gray-400">Numéro de téléphone</span>
+              <span class="text-sm font-bold text-gray-900">+229 01 00 00 00 00</span>
+            </div>
+            
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-bold text-gray-400">Rôle principal</span>
+              <span class="inline-flex w-fit items-center rounded-lg bg-orange-100 px-3 py-1 text-xs font-black uppercase text-orange-700">
+                Client
+              </span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </ion-content>

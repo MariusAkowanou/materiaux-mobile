@@ -1,0 +1,25 @@
+<ion-tabs>
+
+  <ion-router-outlet />
+
+  <!-- Tab Bar avec configuration Ionic via variables arbitraires Tailwind -->
+  <ion-tab-bar slot="bottom" 
+               class="[--background:#0f2318] [--border:1px_solid_rgba(52,211,153,0.12)] pb-[env(safe-area-inset-bottom)]">
+    
+    @for (tab of tabs(); track tab.tab) {
+      <ion-tab-button [tab]="tab.tab" 
+                      [href]="tab.route"
+                      class="[--color:rgba(255,255,255,0.45)] [--color-selected:#34d399] [--ripple-color:rgba(52,211,153,0.15)] transition-colors duration-200">
+        
+        <!-- Icône avec transition de scale lorsqu'elle est sélectionnée -->
+        <i [class]="tab.icon + ' text-[1.35rem] mb-0.5 transition-transform duration-200 [.tab-selected_&]:scale-110 [.tab-selected_&]:text-[#34d399]'"></i>
+        
+        <ion-label class="font-sans text-[0.65rem] font-medium tracking-wide">
+          {{ tab.label }}
+        </ion-label>
+      </ion-tab-button>
+    }
+  </ion-tab-bar>
+
+</ion-tabs>
+

@@ -1,0 +1,42 @@
+<ion-content style="--background: transparent">
+  <!-- Container principal avec gradient et animation d'entrée -->
+  <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#1a3a2a] via-[#0f2318] to-[#0a1a10] px-8 animate-fade-in">
+    
+    <!-- Éléments décoratifs (cercles flous) en arrière-plan -->
+    <div class="pointer-events-none absolute -top-24 -right-24 h-[400px] w-[400px] rounded-full bg-emerald-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-24 h-[300px] w-[300px] rounded-full bg-emerald-500/5 blur-2xl"></div>
+
+    <!-- Section Logo & Branding -->
+    <div class="z-10 flex flex-col items-center gap-4 animate-slide-up">
+      <!-- Logo avec gradient, ombre portée et animation pulse custom -->
+      <div class="flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-[#34d399] via-[#10b981] to-[#059669] shadow-2xl shadow-emerald-500/30 animate-pulse-logo">
+        <i class="pi pi-building text-5xl text-white"></i>
+      </div>
+      
+      <div class="flex flex-col items-center space-y-1">
+        <h1 class="text-3xl font-black tracking-tight text-white uppercase sm:text-4xl">
+          Matériaux <span class="text-primary-light">Express</span>
+        </h1>
+        <p class="text-sm font-medium tracking-widest text-white/50 uppercase">
+          La marketplace B2B du Bénin
+        </p>
+      </div>
+    </div>
+
+    <!-- Loader animé -->
+    <div class="z-10 mt-12 flex flex-col items-center gap-3 animate-slide-up [animation-delay:400ms]">
+      <div class="h-10 w-10 animate-spin rounded-full border-3 border-emerald-500/20 border-t-emerald-400"></div>
+      <p class="text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase">
+        Chargement...
+      </p>
+    </div>
+
+    <!-- Footer branding -->
+    <div class="absolute bottom-8 animate-slide-up [animation-delay:800ms]">
+      <p class="text-[10px] font-medium tracking-widest text-white/20 uppercase">
+        Propulsé par <span class="text-white/40">Sogetrap</span>
+      </p>
+    </div>
+
+  </div>
+</ion-content>
