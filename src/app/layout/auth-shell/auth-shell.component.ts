@@ -8,11 +8,9 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-auth-shell',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet],
+  imports: [IonRouterOutlet],
   template: `
-    <ion-app>
-      <ion-router-outlet />
-    </ion-app>
+    <ion-router-outlet />
   `,
 })
 export class AuthShellComponent {}

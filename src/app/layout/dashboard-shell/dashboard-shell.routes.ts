@@ -13,7 +13,7 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'client',
     canActivate: [roleGuard],
-    data: { roles: ['CLIENT'] },
+   // data: { roles: ['CLIENT'] },
     children: [
       {
         path: 'catalogue',
@@ -91,31 +91,26 @@ export const DASHBOARD_ROUTES: Routes = [
     ],
   },
 
-  // ─── SHARED (accessible à tous les rôles connectés) ───────────────────────
+  // ─── DIRECT ACCESS (accessible à tous les rôles connectés) ────────────────
   {
-    path: 'shared',
-    children: [
-      {
-        path: 'profil',
-        loadComponent: () =>
-          import('../../features/dashboard/shared/profil/profil.page').then(m => m.ProfilPage),
-      },
-      {
-        path: 'profil/personal-info',
-        loadComponent: () =>
-          import('../../features/dashboard/shared/profil/personal-info/personal-info.page').then(m => m.PersonalInfoPage),
-      },
-      {
-        path: 'wallet',
-        loadComponent: () =>
-          import('../../features/dashboard/shared/wallet/wallet.page').then(m => m.WalletPage),
-      },
-      {
-        path: 'engins',
-        loadComponent: () =>
-          import('../../features/dashboard/shared/engins/engins.page').then(m => m.EnginsPage),
-      },
-    ],
+    path: 'profil',
+    loadComponent: () =>
+      import('../../features/dashboard/shared/profil/profil.page').then(m => m.ProfilPage),
+  },
+  {
+    path: 'profil/personal-info',
+    loadComponent: () =>
+      import('../../features/dashboard/shared/profil/personal-info/personal-info.page').then(m => m.PersonalInfoPage),
+  },
+  {
+    path: 'wallet',
+    loadComponent: () =>
+      import('../../features/dashboard/shared/wallet/wallet.page').then(m => m.WalletPage),
+  },
+  {
+    path: 'engins',
+    loadComponent: () =>
+      import('../../features/dashboard/shared/engins/engins.page').then(m => m.EnginsPage),
   },
 
   // ─── ADMIN ────────────────────────────────────────────────────────────────

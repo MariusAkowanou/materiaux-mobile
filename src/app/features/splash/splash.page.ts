@@ -18,6 +18,14 @@ export class SplashPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     console.log('[SplashPage] Initializing...');
+
+    // Si l'utilisateur est déjà chargé (ex: navigation retour ou reload interne),
+    // on évite de remontrer le splash trop longtemps.
+    if (this.authStore.currentUser()) {
+      console.log('[SplashPage] User already loaded, skipping delay.');
+      await this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+      return;
+    }
     
     // On attend la durée minimale
     await this.delay(this.SPLASH_DURATION);
@@ -26,6 +34,7 @@ export class SplashPage implements OnInit {
     
     try {
       // On tente d'aller au dashboard avec un timeout de sécurité
+      // L'authGuard se chargera de vérifier le token et de charger l'user
       const navPromise = this.router.navigateByUrl('/dashboard', { replaceUrl: true });
       
       // Si la navigation prend plus de 5 secondes, on force une redirection vers login

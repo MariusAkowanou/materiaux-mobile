@@ -1,0 +1,136 @@
+<div class="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+  <!-- ── Titre & Description ── -->
+  <div class="flex flex-col gap-1">
+    <h2 class="text-xl font-black text-gray-900">Où livrer vos matériaux ?</h2>
+    <p class="text-xs font-medium text-gray-400">
+      Sélectionnez un lieu dans votre carnet ou saisissez une nouvelle adresse.
+    </p>
+  </div>
+
+  <!-- ── Carnet d'adresses ── -->
+  <div class="flex flex-col gap-3">
+    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+      <i class="pi pi-bookmark-fill text-primary"></i>
+      Carnet d'adresses
+    </p>
+
+    @if (isLoading()) {
+      <div class="flex flex-col gap-3">
+        @for (i of [1,2]; track i) {
+          <div class="h-20 w-full animate-pulse rounded-2xl bg-gray-100"></div>
+        }
+      </div>
+    } @else {
+      @if (addresses().length > 0) {
+        <div class="flex flex-col gap-3">
+          @for (addr of addresses(); track addr.id) {
+            <button 
+              (click)="selectExistingAddress(addr)"
+              class="flex items-center gap-4 rounded-3xl bg-white p-4 text-left shadow-lg shadow-gray-200/50 
+                     transition-all active:scale-[0.98] active:shadow-md group">
+              <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/5 text-primary group-active:bg-primary group-active:text-white transition-colors">
+                <i class="pi pi-map-marker text-lg"></i>
+              </div>
+              <div class="flex flex-col overflow-hidden">
+                <span class="truncate text-sm font-black text-gray-900">{{ addr.name }}</span>
+                <span class="truncate text-[11px] font-bold text-gray-400">{{ addr.formatted_address }}</span>
+              </div>
+              <div class="ml-auto flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-300">
+                <i class="pi pi-chevron-right text-[10px]"></i>
+              </div>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 p-8 text-center bg-white/50">
+          <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-300">
+            <i class="pi pi-map text-3xl"></i>
+          </div>
+          <p class="text-sm font-bold text-gray-400">Votre carnet est vide</p>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ── Bouton d'ajout / Formulaire ── -->
+  <div class="flex flex-col gap-4">
+    <button 
+      (click)="toggleForm()"
+      class="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-primary py-4 text-sm font-black uppercase tracking-widest text-primary transition active:scale-95"
+      [class.hidden]="showForm">
+      <i class="pi pi-plus"></i>
+      Nouvelle adresse
+    </button>
+
+    @if (showForm) {
+      <form [formGroup]="addressForm" (ngSubmit)="submitNewAddress()"
+            class="flex flex-col gap-5 rounded-3xl bg-white p-6 shadow-2xl shadow-gray-200/50 animate-in zoom-in-95 duration-300">
+        
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black uppercase tracking-widest text-primary">Saisie manuelle</h3>
+          <button type="button" (click)="toggleForm()" class="text-gray-400">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <!-- Nom du lieu -->
+          <div class="flex flex-col gap-1.5">
+            <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Nom du lieu (ex: Chantier)</label>
+            <div class="relative">
+              <i class="pi pi-tag absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input 
+                formControlName="name"
+                type="text" 
+                placeholder="Ex: Mon bureau"
+                class="w-full rounded-2xl border-none bg-gray-50 py-4 pl-12 pr-4 text-sm font-bold text-gray-900 outline-none ring-2 ring-gray-100 focus:bg-white focus:ring-primary/20 transition-all">
+            </div>
+          </div>
+
+          <!-- Adresse complète -->
+          <div class="flex flex-col gap-1.5">
+            <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Adresse exacte</label>
+            <div class="relative">
+              <i class="pi pi-directions absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input 
+                #addressInput
+                formControlName="formatted_address"
+                type="text" 
+                placeholder="Rue, Quartier, Ville..."
+                class="w-full rounded-2xl border-none bg-gray-100 py-4 pl-12 pr-4 text-sm font-bold text-gray-900 outline-none ring-2 ring-transparent focus:bg-white focus:ring-primary/20 transition-all">
+            </div>
+          </div>
+
+          <!-- Save to carnet -->
+          <div class="flex items-center gap-3 px-1">
+            <ion-checkbox formControlName="saveToCarnet" mode="md" class="--size: 20px;"></ion-checkbox>
+            <span class="text-xs font-bold text-gray-600">Enregistrer dans mon carnet</span>
+          </div>
+
+          <!-- GPS -->
+          <button 
+            type="button" 
+            (click)="getCurrentPosition()"
+            class="flex items-center justify-center gap-2 !rounded-xl bg-secondary/10 !py-3 text-[10px] font-black uppercase tracking-wider text-secondary transition active:scale-95">
+            <i class="pi pi-compass"></i>
+            Utiliser ma position actuelle
+          </button>
+        </div>
+
+        <button 
+          type="submit"
+          [disabled]="addressForm.invalid || isAdding()"
+          class="mt-2 flex w-full items-center justify-center gap-2 !rounded-2xl bg-primary !py-5 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 transition active:scale-95 disabled:opacity-50">
+          @if (isAdding()) {
+            <ion-spinner name="crescent" class="h-4 w-4"></ion-spinner>
+          } @else {
+            <span>Valider l'adresse</span>
+            <i class="pi pi-arrow-right"></i>
+          }
+        </button>
+      </form>
+    }
+  </div>
+
+</div>

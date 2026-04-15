@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { finalize, map, tap, timeout } from 'rxjs/operators';
 import { AuthApiService } from './auth.api.service';
-import { LoginDto, RegisterDto, User, UserRole, VerifyOtpDto } from './auth.model';
+import { LoginDto, RegisterDto, UpdateProfileDto, User, UserRole, VerifyOtpDto } from './auth.model';
 import { StorageService } from '../../local/storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -125,6 +125,17 @@ export class AuthStore {
   }
 
   hasRole(role: UserRole): boolean {
-    return this.userRoles().includes(role);
+    return this.primaryRole() === role || this.userRoles().includes(role);
+  }
+
+  updateProfile(dto: UpdateProfileDto): Observable<User> {
+    this.isLoading.set(true);
+    return this.authApi.updateMe(dto).pipe(
+      tap((updatedUser) => {
+        this._currentUser.next(updatedUser);
+        this.currentUser.set(updatedUser);
+      }),
+      finalize(() => this.isLoading.set(false)),
+    );
   }
 }

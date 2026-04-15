@@ -1,0 +1,96 @@
+<ion-modal [isOpen]="isOpen" (ionModalDidDismiss)="dismiss()" [initialBreakpoint]="0.85" [breakpoints]="[0, 0.85]">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title class="font-bold">Demande de retrait</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="dismiss()">
+            <i class="pi pi-times text-gray-400"></i>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="flex flex-col gap-5 pb-8">
+
+        <!-- Solde disponible -->
+        <div class="rounded-2xl p-4 text-center" style="background: color-mix(in srgb, var(--ion-color-primary) 8%, white);">
+          <p class="text-xs text-gray-400 m-0 mb-1">Solde disponible</p>
+          <p class="text-2xl font-black m-0" style="color: var(--ion-color-primary)">
+            {{ balance | number:'1.0-0' }} FCFA
+          </p>
+        </div>
+
+        <form [formGroup]="form" class="flex flex-col gap-4">
+
+          <!-- Montant -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-gray-700">Montant à retirer (FCFA)</label>
+            <ion-item lines="none" class="rounded-xl border border-gray-200 --padding-start:0">
+              <ion-input
+                formControlName="amount"
+                type="number"
+                placeholder="Ex : 50 000"
+                [min]="500"
+                [max]="balance"
+              ></ion-input>
+            </ion-item>
+            @if (fieldError('amount')) {
+              <span class="text-xs text-red-500">
+                Montant entre 500 et {{ balance | number:'1.0-0' }} FCFA
+              </span>
+            }
+          </div>
+
+          <!-- Méthode de paiement -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-gray-700">Méthode de paiement</label>
+            <ion-item lines="none" class="rounded-xl border border-gray-200">
+              <ion-select formControlName="payment_method" interface="action-sheet">
+                @for (m of methods; track m.value) {
+                  <ion-select-option [value]="m.value">{{ m.label }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <!-- Détails de paiement -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-gray-700">Numéro / Coordonnées</label>
+            <ion-item lines="none" class="rounded-xl border border-gray-200">
+              <ion-input
+                formControlName="payment_details"
+                type="text"
+                [placeholder]="selectedPlaceholder"
+              ></ion-input>
+            </ion-item>
+            @if (fieldError('payment_details')) {
+              <span class="text-xs text-red-500">Ce champ est requis</span>
+            }
+          </div>
+
+          <!-- Note d'information -->
+          <div class="rounded-xl p-3 bg-amber-50 flex gap-2 text-sm text-amber-800">
+            <i class="pi pi-info-circle shrink-0 mt-0.5"></i>
+            <span>Le montant est débité immédiatement de votre solde. En cas de refus par l'admin, il vous sera remboursé automatiquement.</span>
+          </div>
+
+          <ion-button
+            expand="block"
+            color="primary"
+            [disabled]="form.invalid || isSubmitting"
+            (click)="submit()"
+            class="mt-2"
+          >
+            @if (isSubmitting) {
+              <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+            }
+            Soumettre la demande
+          </ion-button>
+
+        </form>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

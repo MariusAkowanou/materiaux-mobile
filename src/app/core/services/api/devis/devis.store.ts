@@ -12,9 +12,28 @@ import {
   DeliveryResponse,
   CreateDisputeDto,
   DisputeResponse,
+  PaymentInitResponse,
+  InitPaymentDto,
+  PaydunyaPushDto,
   QuoteStatus,
   OrderStatus,
+  DevisWizardDraft,
 } from './devis.model';
+
+const DEFAULT_WIZARD_DRAFT: DevisWizardDraft = {
+  step: 1,
+  adresse: null,
+  latitude: null,
+  longitude: null,
+  productId: null,
+  productName: null,
+  camionTypeId: null,
+  camionLibelle: null,
+  nbVoyages: 1,
+  deliveryDatetime: null,
+  deliverySpeed: 'NORMAL',
+};
+
 
 @Injectable({ providedIn: 'root' })
 export class DevisStore {
@@ -28,6 +47,9 @@ export class DevisStore {
   readonly isLoading     = signal(false);
   readonly isSubmitting  = signal(false);
 
+  readonly wizardDraft   = signal<DevisWizardDraft>(DEFAULT_WIZARD_DRAFT);
+
+
   readonly pendingQuotes = computed(() =>
     this.myQuotes().filter((q) => q.status === 'PENDING' && !q.is_expired),
   );
@@ -35,10 +57,31 @@ export class DevisStore {
     this.myOrders().filter((o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED'),
   );
 
+  readonly hasActivePendingQuotes = computed(() => this.pendingQuotes().length > 0);
+
+
   constructor(
     private api: DevisApiService,
     private router: Router,
-  ) {}
+  ) {
+    // Restaurer le brouillon depuis le storage si besoin ?
+    // Pour l'instant on garde en mémoire vive
+  }
+
+  // ── Actions Wizard ────────────────────────────────────────────────
+
+  updateWizard(update: Partial<DevisWizardDraft>): void {
+    this.wizardDraft.update((current) => ({ ...current, ...update }));
+  }
+
+  resetWizard(): void {
+    this.wizardDraft.set(DEFAULT_WIZARD_DRAFT);
+  }
+
+  goToStep(step: 1 | 2 | 3 | 4): void {
+    this.updateWizard({ step });
+  }
+
 
   async loadMyQuotes(): Promise<void> {
     this.isLoading.set(true);
@@ -146,5 +189,27 @@ export class DevisStore {
 
   async createDispute(orderPublicId: string, dto: CreateDisputeDto): Promise<DisputeResponse> {
     return firstValueFrom(this.api.createDispute(orderPublicId, dto));
+  }
+
+  async closeOrder(publicId: string): Promise<void> {
+    const order = await firstValueFrom(this.api.closeOrder(publicId));
+    this.myOrders.update((list) =>
+      list.map((o) => (o.public_id === publicId ? order : o)),
+    );
+    if (this.currentOrder()?.public_id === publicId) {
+      this.currentOrder.set(order);
+    }
+  }
+
+  async initPaymentMoneroo(publicId: string, dto: InitPaymentDto = {}): Promise<PaymentInitResponse> {
+    return firstValueFrom(this.api.initPaymentMoneroo(publicId, dto));
+  }
+
+  async initPaymentPaydunya(publicId: string, dto: PaydunyaPushDto): Promise<void> {
+    return firstValueFrom(this.api.initPaymentPaydunya(publicId, dto));
+  }
+
+  getOrderPdfUrl(publicId: string): string {
+    return this.api.getOrderPdfUrl(publicId);
   }
 }

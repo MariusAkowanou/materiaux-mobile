@@ -1,14 +1,16 @@
-export type UserRole = 'CLIENT' | 'SUPPLIER' | 'TRANSPORTER' | 'ADMIN' | 'COLLABORATOR';
+export type UserRole = 'CLIENT' | 'COMPANY' | 'SUPPLIER' | 'TRANSPORTER' | 'ADMIN' | 'COLLABORATOR';
 
 export type AccountStatus = 'ACTIVE' | 'SUSPENDED' | 'BANNED';
 
 export interface User {
   public_id: string;
   email: string;
-  phone: string;
+  phone: string | null;
   first_name: string;
   last_name: string;
   full_name: string;
+  company_name?: string | null;
+  ifu?: string | null;
   avatar_url: string | null;
   primary_role: UserRole;
   roles: UserRole[];
@@ -17,6 +19,7 @@ export interface User {
   is_validated: boolean;
   is_verified: boolean;
   is_hybrid: boolean;
+  last_login_at?: string | null;
   created_at: string;
 }
 

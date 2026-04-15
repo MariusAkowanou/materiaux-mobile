@@ -12,6 +12,9 @@ import {
   DeliveryResponse,
   CreateDisputeDto,
   DisputeResponse,
+  PaymentInitResponse,
+  InitPaymentDto,
+  PaydunyaPushDto,
 } from './devis.model';
 
 @Injectable({ providedIn: 'root' })
@@ -58,5 +61,21 @@ export class DevisApiService {
 
   createDispute(orderPublicId: string, dto: CreateDisputeDto): Observable<DisputeResponse> {
     return this.http.post<DisputeResponse>(`${this.url}/orders/${orderPublicId}/disputes`, dto);
+  }
+
+  closeOrder(publicId: string): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(`${this.url}/orders/${publicId}/close`, {});
+  }
+
+  initPaymentMoneroo(publicId: string, dto: InitPaymentDto = {}): Observable<PaymentInitResponse> {
+    return this.http.post<PaymentInitResponse>(`${this.url}/orders/${publicId}/payment/moneroo`, dto);
+  }
+
+  initPaymentPaydunya(publicId: string, dto: PaydunyaPushDto): Observable<void> {
+    return this.http.post<void>(`${this.url}/orders/${publicId}/payment/paydunya-push`, dto);
+  }
+
+  getOrderPdfUrl(publicId: string): string {
+    return `${this.url}/orders/${publicId}/pdf`;
   }
 }

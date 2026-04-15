@@ -36,11 +36,7 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./layout/dashboard-shell/dashboard-shell.routes').then(m => m.DASHBOARD_ROUTES),
   },
-
-  // Route vide → splash
+  // Route vide → splash (uniquement au tout premier démarrage)
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
-
-  // Wildcard → splash
-  { path: '**', redirectTo: 'splash' },
 ];
 

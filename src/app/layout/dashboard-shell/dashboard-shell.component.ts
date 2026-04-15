@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  IonTabs,
   IonTabBar,
   IonTabButton,
   IonLabel,
@@ -16,26 +16,25 @@ interface TabConfig {
   label: string;
 }
 
-/**
- * DashboardShellComponent — Layout avec ion-tabs dynamiques configurés
- * selon le primary_role de l'utilisateur connecté.
- *
- * CLIENT      → Accueil | Catalogue | Devis | Commandes | Profil
- * SUPPLIER    → Dashboard | Offres | Carrières | Wallet | Profil
- * TRANSPORTER → Dashboard | Courses | Tarifs | Wallet | Profil
- * ADMIN       → Interface dédiée sans tabs standards
- */
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
   imports: [
-    IonTabs,
     IonTabBar,
     IonTabButton,
     IonLabel,
     IonRouterOutlet,
+    RouterLink,
+    RouterLinkActive,
   ],
   templateUrl: './dashboard-shell.component.html',
+  styles: [`
+    :host {
+      display: block;
+      height: 100vh;
+      width: 100%;
+    }
+  `]
 })
 export class DashboardShellComponent {
   private authStore = inject(AuthStore);
@@ -47,21 +46,28 @@ export class DashboardShellComponent {
       { tab: 'catalogue',  route: '/dashboard/client/catalogue',    icon: 'pi pi-th-large',      label: 'Catalogue'  },
       { tab: 'devis',      route: '/dashboard/client/devis',        icon: 'pi pi-file',          label: 'Devis'      },
       { tab: 'commandes',  route: '/dashboard/client/commandes',    icon: 'pi pi-shopping-cart', label: 'Commandes'  },
-      { tab: 'profil',     route: '/dashboard/shared/profil',       icon: 'pi pi-user',          label: 'Profil'     },
+      { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
+    ],
+    COMPANY: [
+      { tab: 'home',       route: '/dashboard/home',                icon: 'pi pi-home',          label: 'Accueil'    },
+      { tab: 'catalogue',  route: '/dashboard/client/catalogue',    icon: 'pi pi-th-large',      label: 'Catalogue'  },
+      { tab: 'devis',      route: '/dashboard/client/devis',        icon: 'pi pi-file',          label: 'Devis'      },
+      { tab: 'commandes',  route: '/dashboard/client/commandes',    icon: 'pi pi-shopping-cart', label: 'Commandes'  },
+      { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
     SUPPLIER: [
       { tab: 'dashboard',  route: '/dashboard/supplier/dashboard',  icon: 'pi pi-chart-bar',     label: 'Dashboard'  },
       { tab: 'offres',     route: '/dashboard/supplier/mes-offres', icon: 'pi pi-tag',           label: 'Offres'     },
       { tab: 'carrieres',  route: '/dashboard/supplier/mes-carrieres', icon: 'pi pi-map-marker', label: 'Carrières'  },
-      { tab: 'wallet',     route: '/dashboard/shared/wallet',       icon: 'pi pi-wallet',        label: 'Wallet'     },
-      { tab: 'profil',     route: '/dashboard/shared/profil',       icon: 'pi pi-user',          label: 'Profil'     },
+      { tab: 'wallet',     route: '/dashboard/wallet',              icon: 'pi pi-wallet',        label: 'Wallet'     },
+      { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
     TRANSPORTER: [
       { tab: 'dashboard',  route: '/dashboard/transporter/dashboard', icon: 'pi pi-chart-bar',   label: 'Dashboard'  },
       { tab: 'courses',    route: '/dashboard/transporter/mes-courses', icon: 'pi pi-truck',     label: 'Courses'    },
       { tab: 'tarifs',     route: '/dashboard/transporter/mes-tarifs', icon: 'pi pi-list',       label: 'Tarifs'     },
-      { tab: 'wallet',     route: '/dashboard/shared/wallet',       icon: 'pi pi-wallet',        label: 'Wallet'     },
-      { tab: 'profil',     route: '/dashboard/shared/profil',       icon: 'pi pi-user',          label: 'Profil'     },
+      { tab: 'wallet',     route: '/dashboard/wallet',              icon: 'pi pi-wallet',        label: 'Wallet'     },
+      { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
     ADMIN: [
       { tab: 'utilisateurs', route: '/dashboard/admin/utilisateurs', icon: 'pi pi-users',        label: 'Utilisateurs' },
@@ -70,7 +76,7 @@ export class DashboardShellComponent {
     ],
     COLLABORATOR: [
       { tab: 'home',       route: '/dashboard/home',                icon: 'pi pi-home',          label: 'Accueil'    },
-      { tab: 'profil',     route: '/dashboard/shared/profil',       icon: 'pi pi-user',          label: 'Profil'     },
+      { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
   };
 

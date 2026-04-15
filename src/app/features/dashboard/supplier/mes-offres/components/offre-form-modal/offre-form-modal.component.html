@@ -1,0 +1,132 @@
+<ion-modal [isOpen]="isOpen" (ionModalDidDismiss)="dismiss()" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title class="font-bold">{{ isEdit ? 'Modifier l\'offre' : 'Nouvelle offre' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="dismiss()"><i class="pi pi-times text-gray-400"></i></ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <form [formGroup]="form" class="flex flex-col gap-4 pb-8">
+
+        <!-- Matériau -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Matériau *</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200"
+                    [class.opacity-50]="isEdit">
+            <ion-select formControlName="materiau_id" interface="action-sheet"
+                        placeholder="Sélectionner un matériau">
+              @for (m of materiaux; track m.id) {
+                <ion-select-option [value]="m.id">{{ m.nom }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+          @if (fieldError('materiau_id')) {
+            <span class="text-xs text-red-500">Matériau requis</span>
+          }
+        </div>
+
+        <!-- Carrière -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Carrière d'expédition *</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200"
+                    [class.opacity-50]="isEdit">
+            <ion-select formControlName="carriere_id" interface="action-sheet"
+                        placeholder="Sélectionner une carrière">
+              @for (c of carrieres; track c.id) {
+                <ion-select-option [value]="c.id">{{ c.nom }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+          @if (fieldError('carriere_id')) {
+            <span class="text-xs text-red-500">Carrière requise</span>
+          }
+        </div>
+
+        <!-- Prix unitaire -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Prix unitaire (FCFA) *</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200">
+            <ion-input formControlName="prix_unitaire" type="number"
+                       placeholder="Ex : 7 500" [min]="1"></ion-input>
+          </ion-item>
+          @if (fieldError('prix_unitaire')) {
+            <span class="text-xs text-red-500">Prix requis (min. 1 FCFA)</span>
+          }
+        </div>
+
+        <!-- Type de camion -->
+        @if (!isEdit && camionTypes.length > 0) {
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-gray-700">Type de camion</label>
+            <ion-item lines="none" class="rounded-xl border border-gray-200">
+              <ion-select formControlName="camion_type_id" interface="action-sheet"
+                          placeholder="Optionnel">
+                @for (ct of camionTypes; track ct.id) {
+                  <ion-select-option [value]="ct.id">
+                    {{ ct.libelle }} ({{ ct.capacite_m3 }} m³)
+                  </ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          </div>
+        }
+
+        <!-- Transport propre -->
+        <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4">
+          <div class="flex flex-col">
+            <span class="text-sm font-semibold text-gray-700">Je livre moi-même</span>
+            <span class="text-xs text-gray-400">Votre flotte assure la livraison</span>
+          </div>
+          <ion-toggle formControlName="transport_propre" color="primary"></ion-toggle>
+        </div>
+
+        <!-- Prix transport séparé (conditionnel) -->
+        @if (transportPropre) {
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-gray-700">Prix du transport (FCFA / voyage)</label>
+            <ion-item lines="none" class="rounded-xl border border-gray-200">
+              <ion-input formControlName="prix_transport_sep" type="number"
+                         placeholder="Ex : 15 000" [min]="0"></ion-input>
+            </ion-item>
+          </div>
+        }
+
+        <!-- Quantité min -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Quantité minimale de commande</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200">
+            <ion-input formControlName="quantite_min_commande" type="number"
+                       placeholder="Ex : 5" [min]="0"></ion-input>
+          </ion-item>
+        </div>
+
+        <!-- Délai livraison -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Délai de livraison (jours)</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200">
+            <ion-input formControlName="delai_livraison_jours" type="number"
+                       placeholder="Ex : 2" [min]="0" [max]="365"></ion-input>
+          </ion-item>
+        </div>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="submit()"
+          class="mt-2"
+        >
+          @if (isSubmitting) {
+            <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+          }
+          {{ isEdit ? 'Enregistrer les modifications' : 'Publier l\'offre' }}
+        </ion-button>
+
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

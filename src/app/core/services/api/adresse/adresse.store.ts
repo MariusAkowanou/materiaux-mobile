@@ -1,21 +1,34 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdresseApiService } from './adresse.api.service';
-import { Pays, Departement, Commune, Arrondissement, Village, DepartementFlat } from './adresse.model';
+import {
+  Pays, Commune, Arrondissement, Village, DepartementFlat,
+  ClientAddress, ClientAddressCreate,
+} from './adresse.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdresseStore {
 
-  readonly pays          = signal<Pays[]>([]);
-  readonly departements  = signal<DepartementFlat[]>([]);
-  readonly communes      = signal<Commune[]>([]);
+  // ── Référentiel géographique ───────────────────────────────────────────────
+  readonly pays            = signal<Pays[]>([]);
+  readonly departements    = signal<DepartementFlat[]>([]);
+  readonly communes        = signal<Commune[]>([]);
   readonly arrondissements = signal<Arrondissement[]>([]);
-  readonly villages      = signal<Village[]>([]);
-  readonly isLoading     = signal(false);
+  readonly villages        = signal<Village[]>([]);
+  readonly isLoading       = signal(false);
 
-  readonly hasPays = computed(() => this.pays().length > 0);
+  // ── Carnet d'adresses client ───────────────────────────────────────────────
+  readonly mesAdresses     = signal<ClientAddress[]>([]);
+  readonly isLoadingCarnet = signal(false);
+  readonly isAddingAdresse = signal(false);
+
+  // ── Computed ──────────────────────────────────────────────────────────────
+  readonly hasPays     = computed(() => this.pays().length > 0);
+  readonly hasAdresses = computed(() => this.mesAdresses().length > 0);
 
   constructor(private api: AdresseApiService) {}
+
+  // ── Référentiel ───────────────────────────────────────────────────────────
 
   async loadPays(): Promise<void> {
     if (this.hasPays()) return;
@@ -76,5 +89,33 @@ export class AdresseStore {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  // ── Carnet d'adresses ─────────────────────────────────────────────────────
+
+  async loadMesAdresses(): Promise<void> {
+    this.isLoadingCarnet.set(true);
+    try {
+      const list = await firstValueFrom(this.api.getMesAdresses());
+      this.mesAdresses.set(list);
+    } finally {
+      this.isLoadingCarnet.set(false);
+    }
+  }
+
+  async addAdresse(dto: ClientAddressCreate): Promise<ClientAddress> {
+    this.isAddingAdresse.set(true);
+    try {
+      const addr = await firstValueFrom(this.api.addAdresse(dto));
+      this.mesAdresses.update(list => [addr, ...list]);
+      return addr;
+    } finally {
+      this.isAddingAdresse.set(false);
+    }
+  }
+
+  async deleteAdresse(id: string): Promise<void> {
+    await firstValueFrom(this.api.deleteAdresse(id));
+    this.mesAdresses.update(list => list.filter(a => a.id !== id));
   }
 }

@@ -1,0 +1,105 @@
+<div class="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+  <!-- ── Titre & Recherche ── -->
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1">
+      <h2 class="text-xl font-black text-gray-900">Quel matériau vous faut-il ?</h2>
+      <p class="text-xs font-medium text-gray-400">
+        Parcourez notre catalogue et choisissez le produit idéal pour votre chantier.
+      </p>
+    </div>
+
+    <div class="relative">
+      <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+      <input 
+        type="text" 
+        placeholder="Rechercher un produit (sable, gravier...)"
+        (input)="onSearch($event)"
+        class="w-full rounded-2xl border-none bg-white py-4 pl-12 pr-4 text-sm font-bold text-gray-900 shadow-lg shadow-gray-200/50 outline-none ring-2 ring-transparent focus:ring-primary/20 transition-all">
+    </div>
+  </div>
+
+  <!-- ── Catégories (Chips horizontaux) ── -->
+  <div class="flex flex-col gap-3">
+    <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Catégories</h3>
+    <div class="flex gap-2 overflow-x-auto pb-2 scroll-smooth no-scrollbar -mx-5 px-5">
+      <button 
+        (click)="selectCategory(null)"
+        [class]="!selectedCat() ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-gray-600 shadow-sm'"
+        class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all active:scale-95">
+        Tout
+      </button>
+      @for (cat of categories(); track cat.id) {
+        <button 
+          (click)="selectCategory(cat)"
+          [class]="selectedCat()?.id === cat.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white text-gray-600 shadow-sm'"
+          class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all active:scale-95">
+          @if (cat.icon_name) {
+            <i class="pi pi-tag text-[10px]"></i>
+          }
+          {{ cat.nom }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Liste des produits (Grid) ── -->
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Produits disponibles</h3>
+      <span class="text-[10px] font-bold text-primary">{{ materials().length }} produits</span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="grid grid-cols-2 gap-4">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="h-48 w-full animate-pulse rounded-3xl bg-gray-100"></div>
+        }
+      </div>
+    } @else {
+      @if (materials().length > 0) {
+        <div class="grid grid-cols-2 gap-4">
+          @for (mat of materials(); track mat.id) {
+            <button 
+              (click)="selectProduct(mat)"
+              class="flex flex-col overflow-hidden rounded-3xl bg-white text-left shadow-xl shadow-gray-200/40 transition-all active:scale-[0.97] group">
+              
+              <!-- Image -->
+              <div class="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+                @if (getPrimaryImage(mat); as img) {
+                  <img [src]="img" [alt]="mat.nom" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">
+                } @else {
+                  <div class="flex h-full w-full items-center justify-center text-gray-300">
+                    <i class="pi pi-image text-4xl"></i>
+                  </div>
+                }
+                <!-- Badge unité -->
+                <div class="absolute bottom-2 right-2 rounded-lg bg-gray-900/80 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-white backdrop-blur-sm">
+                  {{ mat.unite }}
+                </div>
+              </div>
+
+              <!-- Infos -->
+              <div class="flex flex-col gap-1 p-3">
+                <span class="truncate text-xs font-black text-gray-900">{{ mat.nom }}</span>
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-primary">À partir de</span>
+                  <span class="text-[10px] font-black text-gray-900">{{ mat.prix_indicatif_min | number }} F</span>
+                </div>
+              </div>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 p-12 text-center bg-white/50">
+          <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-300">
+            <i class="pi pi-search text-4xl"></i>
+          </div>
+          <h4 class="text-sm font-black text-gray-900 mb-1">Aucun produit trouvé</h4>
+          <p class="text-xs font-medium text-gray-400">Essayez une autre recherche ou catégorie.</p>
+        </div>
+      }
+    }
+  </div>
+
+</div>

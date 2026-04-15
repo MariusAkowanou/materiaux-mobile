@@ -1,14 +1,17 @@
-<ion-tabs>
+<div class="flex flex-col h-screen w-full overflow-hidden bg-gray-50">
+  
+  <!-- Zone de contenu principal (prend tout l'espace disponible) -->
+  <div class="flex-1 relative overflow-hidden">
+    <ion-router-outlet />
+  </div>
 
-  <ion-router-outlet />
-
-  <!-- Tab Bar avec configuration Ionic via variables arbitraires Tailwind -->
-  <ion-tab-bar slot="bottom" 
-               class="[--background:#0f2318] [--border:1px_solid_rgba(52,211,153,0.12)] pb-[env(safe-area-inset-bottom)]">
+  <!-- Tab Bar Manuelle (remplace ion-tabs pour éviter le blocage de clic) -->
+  <ion-tab-bar class="[--background:#0f2318] [--border:1px_solid_rgba(52,211,153,0.12)] pb-[env(safe-area-inset-bottom)] shrink-0">
     
     @for (tab of tabs(); track tab.tab) {
       <ion-tab-button [tab]="tab.tab" 
-                      [href]="tab.route"
+                      [routerLink]="tab.route"
+                      routerLinkActive="tab-selected"
                       class="[--color:rgba(255,255,255,0.45)] [--color-selected:#34d399] [--ripple-color:rgba(52,211,153,0.15)] transition-colors duration-200">
         
         <!-- Icône avec transition de scale lorsqu'elle est sélectionnée -->
@@ -21,5 +24,4 @@
     }
   </ion-tab-bar>
 
-</ion-tabs>
-
+</div>

@@ -38,3 +38,22 @@ export interface DepartementFlat {
   name: string;
   transport_multiplier: number;
 }
+
+// ── Carnet d'adresses client ──────────────────────────────────────────────────
+
+export interface ClientAddress {
+  id: string;
+  name: string;             // ex: "Chantier Cocotiers"
+  formatted_address: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export interface ClientAddressCreate {
+  name: string;
+  formatted_address: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+

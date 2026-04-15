@@ -1,0 +1,131 @@
+<ion-card class="m-0 rounded-2xl shadow-sm">
+  <ion-card-content class="p-4 flex flex-col gap-3">
+
+    <!-- En-tête : numéro + badge statut -->
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-gray-400 m-0">{{ order.order_number }}</p>
+        <p class="font-semibold text-gray-800 m-0 mt-0.5 truncate">{{ order.product_name }}</p>
+      </div>
+      <ion-badge [color]="statusColor(order.status)" class="text-xs whitespace-nowrap shrink-0">
+        <i [class]="statusIcon(order.status) + ' mr-1'"></i>
+        {{ statusLabel(order.status) }}
+      </ion-badge>
+    </div>
+
+    <!-- Infos livraison -->
+    <div class="flex flex-col gap-1.5 text-sm text-gray-500">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-map-marker text-xs shrink-0"></i>
+        <span class="truncate">{{ order.delivery_address }}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i class="pi pi-box text-xs shrink-0"></i>
+        <span>{{ order.ordered_quantity }} m³ · {{ order.supplier_name }}</span>
+      </div>
+      @if (order.assigned_transporter_name) {
+        <div class="flex items-center gap-2">
+          <i class="pi pi-truck text-xs shrink-0"></i>
+          <span>{{ order.assigned_transporter_name }}</span>
+          @if (order.truck_info) {
+            <span class="text-gray-400">· {{ order.truck_info }}</span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Barre de progression -->
+    @if (showProgress) {
+      <div class="flex flex-col gap-1">
+        <div class="flex justify-between text-xs text-gray-400">
+          <span>Livré : {{ order.delivered_quantity }} / {{ order.ordered_quantity }} m³</span>
+          <span>{{ order.completion_pct | number:'1.0-0' }}%</span>
+        </div>
+        <ion-progress-bar
+          [value]="order.completion_pct / 100"
+          [color]="order.completion_pct >= 100 ? 'success' : 'primary'"
+          style="border-radius: 4px; height: 6px;"
+        ></ion-progress-bar>
+      </div>
+    }
+
+    <!-- Prix -->
+    <div class="flex items-center justify-between border-t border-gray-100 pt-2">
+      <span class="text-xs text-gray-400">Montant total</span>
+      <span class="font-bold text-lg" style="color: var(--ion-color-primary)">
+        {{ order.total_price | number:'1.0-0' }} FCFA
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-wrap gap-2">
+
+      @if (canPay) {
+        <ion-button
+          size="small"
+          color="success"
+          [disabled]="isSubmitting"
+          (click)="onPay.emit(order)"
+          class="flex-1"
+        >
+          <i class="pi pi-credit-card mr-1"></i>
+          Moneroo
+        </ion-button>
+
+        <ion-button
+          size="small"
+          fill="outline"
+          color="success"
+          [disabled]="isSubmitting"
+          (click)="onPaydunya.emit(order)"
+        >
+          <i class="pi pi-mobile mr-1"></i>
+          SMS Push
+        </ion-button>
+      }
+
+      @if (canDispute) {
+        <ion-button
+          size="small"
+          fill="outline"
+          color="warning"
+          (click)="onDispute.emit(order)"
+        >
+          <i class="pi pi-exclamation-triangle mr-1"></i>
+          Litige
+        </ion-button>
+      }
+
+      @if (canClose) {
+        <ion-button
+          size="small"
+          fill="outline"
+          color="primary"
+          (click)="onClose.emit(order)"
+        >
+          <i class="pi pi-check mr-1"></i>
+          Clôturer
+        </ion-button>
+      }
+
+      @if (canDownloadPdf) {
+        <ion-button
+          size="small"
+          fill="clear"
+          color="medium"
+          (click)="onDownloadPdf.emit(order)"
+        >
+          <i class="pi pi-file-pdf mr-1"></i>
+          Facture
+        </ion-button>
+      }
+
+    </div>
+
+    <!-- Date -->
+    <p class="text-xs text-gray-400 m-0 text-right">
+      {{ order.created_at | date:'dd MMM yyyy' : '' : 'fr' }}
+    </p>
+
+  </ion-card-content>
+</ion-card>

@@ -29,6 +29,24 @@ export interface CreateQuoteDto {
   delivery_speed: DeliverySpeed;
 }
 
+// ── Wizard / Brouillon de devis ──────────────────────────────────────────────
+
+export interface DevisWizardDraft {
+  step: 1 | 2 | 3 | 4;
+  adresse: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  productId: number | null;
+  productName: string | null;
+  camionTypeId: number | null;
+  camionLibelle: string | null;
+  nbVoyages: number;
+  deliveryDatetime: string | null;
+  deliverySpeed: DeliverySpeed;
+}
+
+
+
 export interface UpdateOrderStatusDto {
   status: OrderStatus;
 }
@@ -94,6 +112,10 @@ export interface QuoteSummary {
 export interface OrderResponse {
   public_id: string;
   order_number: string;
+  product_name: string;
+  supplier_name: string;
+  delivery_address: string;
+  total_price: number;
   delivery_speed: DeliverySpeed;
   ordered_quantity: number;
   delivered_quantity: number;
@@ -105,6 +127,21 @@ export interface OrderResponse {
   is_paid: boolean;
   status: OrderStatus;
   created_at: string;
+}
+
+export interface PaymentInitResponse {
+  payment_url: string;
+  payment_token: string;
+  order_public_id: string;
+}
+
+export interface InitPaymentDto {
+  return_url?: string;
+  cancel_url?: string;
+}
+
+export interface PaydunyaPushDto {
+  phone: string;
 }
 
 export interface DeliveryResponse {

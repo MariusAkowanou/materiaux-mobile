@@ -1,0 +1,89 @@
+<ion-card class="m-0 rounded-2xl shadow-sm">
+  <ion-card-content class="p-4 flex flex-col gap-3">
+
+    <!-- En-tête : matériau + statut -->
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+             style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+          <i class="pi pi-box" style="color: var(--ion-color-primary);"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="font-bold text-gray-800 m-0 truncate">{{ offre.materiau_nom }}</p>
+          <p class="text-xs text-gray-400 m-0 mt-0.5 truncate">{{ offre.carriere_nom }}</p>
+        </div>
+      </div>
+      <ion-badge [color]="statutColor(offre.statut)" class="shrink-0">
+        {{ statutLabel(offre.statut) }}
+      </ion-badge>
+    </div>
+
+    <!-- Infos prix -->
+    <div class="flex items-center justify-between border-t border-gray-100 pt-2">
+      <span class="text-xs text-gray-400">Prix unitaire</span>
+      <span class="font-black text-xl" style="color: var(--ion-color-primary)">
+        {{ offre.prix_unitaire | number:'1.0-0' }}
+        <span class="text-sm font-medium text-gray-400">FCFA / {{ offre.materiau_unite }}</span>
+      </span>
+    </div>
+
+    <!-- Détails logistique -->
+    <div class="grid grid-cols-2 gap-2 text-xs text-gray-500">
+      @if (offre.quantite_min_commande) {
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-sort-amount-up shrink-0"></i>
+          <span>Min. {{ offre.quantite_min_commande }} {{ offre.materiau_unite }}</span>
+        </div>
+      }
+      @if (offre.delai_livraison_jours) {
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-clock shrink-0"></i>
+          <span>{{ offre.delai_livraison_jours }} j de délai</span>
+        </div>
+      }
+      @if (offre.transport_propre) {
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-truck shrink-0"></i>
+          <span>Transport inclus</span>
+        </div>
+        @if (offre.prix_transport_sep) {
+          <div class="flex items-center gap-1.5">
+            <i class="pi pi-receipt shrink-0"></i>
+            <span>{{ offre.prix_transport_sep | number:'1.0-0' }} FCFA/transport</span>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2 border-t border-gray-100 pt-3">
+      <ion-button
+        size="small"
+        fill="outline"
+        [color]="offre.statut === 'ACTIVE' ? 'warning' : 'success'"
+        class="flex-1"
+        (click)="onToggle.emit({ offre, statut: nextStatut })"
+      >
+        <i class="pi pi-refresh mr-1"></i>
+        {{ toggleLabel }}
+      </ion-button>
+      <ion-button
+        size="small"
+        fill="outline"
+        color="primary"
+        (click)="onEdit.emit(offre)"
+      >
+        <i class="pi pi-pen-to-square"></i>
+      </ion-button>
+      <ion-button
+        size="small"
+        fill="outline"
+        color="danger"
+        (click)="onDelete.emit(offre)"
+      >
+        <i class="pi pi-trash"></i>
+      </ion-button>
+    </div>
+
+  </ion-card-content>
+</ion-card>

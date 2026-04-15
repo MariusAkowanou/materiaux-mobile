@@ -1,0 +1,93 @@
+<ion-modal [isOpen]="isOpen" (ionModalDidDismiss)="dismiss()" [initialBreakpoint]="0.9" [breakpoints]="[0, 0.9]">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title class="font-bold">{{ isEdit ? 'Modifier la carrière' : 'Nouvelle carrière' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="dismiss()"><i class="pi pi-times text-gray-400"></i></ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <form [formGroup]="form" class="flex flex-col gap-4 pb-6">
+
+        <!-- Nom -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Nom de la carrière *</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200">
+            <ion-input formControlName="nom" placeholder="Ex : Carrière de Pahou" type="text"></ion-input>
+          </ion-item>
+          @if (fieldError('nom')) {
+            <span class="text-xs text-red-500">Minimum 3 caractères</span>
+          }
+        </div>
+
+        <!-- Adresse texte -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold text-gray-700">Adresse textuelle *</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200">
+            <ion-input formControlName="adresse_texte" placeholder="Ex : Route de Pahou, PK3" type="text"></ion-input>
+          </ion-item>
+          @if (fieldError('adresse_texte')) {
+            <span class="text-xs text-red-500">Adresse requise</span>
+          }
+        </div>
+
+        <!-- GPS -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-gray-700">Coordonnées GPS *</label>
+
+          <ion-button
+            fill="outline"
+            color="primary"
+            expand="block"
+            [disabled]="locating"
+            (click)="detectLocation()"
+          >
+            @if (locating) {
+              <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+              Détection en cours...
+            } @else {
+              <i class="pi pi-crosshairs mr-2"></i>
+              Utiliser ma position actuelle
+            }
+          </ion-button>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs text-gray-400">Latitude</label>
+              <ion-item lines="none" class="rounded-xl border border-gray-200">
+                <ion-input formControlName="latitude" type="number" placeholder="6.3803" step="0.0001"></ion-input>
+              </ion-item>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs text-gray-400">Longitude</label>
+              <ion-item lines="none" class="rounded-xl border border-gray-200">
+                <ion-input formControlName="longitude" type="number" placeholder="2.2234" step="0.0001"></ion-input>
+              </ion-item>
+            </div>
+          </div>
+
+          @if (fieldError('latitude') || fieldError('longitude')) {
+            <span class="text-xs text-red-500">Coordonnées GPS requises</span>
+          }
+        </div>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="submit()"
+          class="mt-2"
+        >
+          @if (isSubmitting) {
+            <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+          }
+          {{ isEdit ? 'Enregistrer les modifications' : 'Ajouter la carrière' }}
+        </ion-button>
+
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

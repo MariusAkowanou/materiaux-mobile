@@ -1,0 +1,58 @@
+<ion-card class="m-0 rounded-2xl shadow-sm">
+  <ion-card-content class="p-4 flex flex-col gap-3">
+
+    <!-- En-tête -->
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+             style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+          <i class="pi pi-map" style="color: var(--ion-color-primary);"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="font-bold text-gray-800 m-0 truncate">{{ carriere.nom }}</p>
+          @if (carriere.commune_nom) {
+            <p class="text-xs text-gray-400 m-0 mt-0.5">{{ carriere.commune_nom }}</p>
+          }
+        </div>
+      </div>
+      <ion-badge [color]="carriere.is_active ? 'success' : 'medium'" class="shrink-0">
+        {{ carriere.is_active ? 'Active' : 'Inactive' }}
+      </ion-badge>
+    </div>
+
+    <!-- Adresse + coords -->
+    <div class="flex flex-col gap-1.5 text-sm text-gray-500">
+      <div class="flex items-start gap-2">
+        <i class="pi pi-map-marker text-xs mt-0.5 shrink-0"></i>
+        <span>{{ carriere.adresse_texte }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-gray-400">
+        <i class="pi pi-crosshairs shrink-0"></i>
+        <span>{{ carriere.latitude | number:'1.4-4' }}, {{ carriere.longitude | number:'1.4-4' }}</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2 border-t border-gray-100 pt-3">
+      <ion-button
+        size="small"
+        fill="outline"
+        color="primary"
+        class="flex-1"
+        (click)="onEdit.emit(carriere)"
+      >
+        <i class="pi pi-pen-to-square mr-1"></i>
+        Modifier
+      </ion-button>
+      <ion-button
+        size="small"
+        fill="outline"
+        color="danger"
+        (click)="onDelete.emit(carriere)"
+      >
+        <i class="pi pi-trash"></i>
+      </ion-button>
+    </div>
+
+  </ion-card-content>
+</ion-card>

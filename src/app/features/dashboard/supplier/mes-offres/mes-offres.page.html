@@ -1,0 +1,105 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:transparent]">
+    <ion-title class="font-bold text-gray-900 text-xl">Mes Offres</ion-title>
+  </ion-toolbar>
+
+  <!-- Onglets statut -->
+  <ion-toolbar class="[--background:white] shadow-sm">
+    <div class="flex">
+      @for (tab of tabs; track tab.key) {
+        <button
+          class="flex-1 py-2.5 text-xs font-semibold transition-all duration-200 relative"
+          [style.color]="activeTab() === tab.key ? 'var(--ion-color-primary)' : '#9ca3af'"
+          [style.border-bottom]="activeTab() === tab.key ? '2px solid var(--ion-color-primary)' : '2px solid transparent'"
+          (click)="activeTab.set($any(tab.key))"
+          style="background: none; border: none; border-bottom-style: solid; cursor: pointer;"
+        >
+          {{ tab.label }}
+          @if (countByStatut()[tab.key] > 0) {
+            <ion-badge
+              [color]="activeTab() === tab.key ? 'primary' : 'medium'"
+              class="ml-1 text-[10px]"
+            >{{ countByStatut()[tab.key] }}</ion-badge>
+          }
+        </button>
+      }
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="px-4 pt-3 pb-24 flex flex-col gap-3">
+
+    <!-- Squelettes -->
+    @if (isLoading()) {
+      @for (s of [1, 2, 3]; track s) {
+        <div class="rounded-2xl bg-white p-4 flex flex-col gap-2 shadow-sm">
+          <div class="flex items-center gap-3">
+            <ion-skeleton-text [animated]="true" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"></ion-skeleton-text>
+            <div class="flex-1 flex flex-col gap-1.5">
+              <ion-skeleton-text [animated]="true" style="width:50%;height:15px;border-radius:4px;"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:35%;height:12px;border-radius:4px;"></ion-skeleton-text>
+            </div>
+            <ion-skeleton-text [animated]="true" style="width:60px;height:22px;border-radius:10px;flex-shrink:0;"></ion-skeleton-text>
+          </div>
+          <ion-skeleton-text [animated]="true" style="width:40%;height:28px;border-radius:6px;"></ion-skeleton-text>
+        </div>
+      }
+
+    <!-- État vide -->
+    } @else if (filteredOffres().length === 0) {
+      <div class="flex flex-col items-center justify-center gap-4 pt-16 px-6 text-center">
+        <div class="flex h-20 w-20 items-center justify-center rounded-3xl"
+             style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+          <i class="pi pi-tag text-4xl" style="color: var(--ion-color-primary);"></i>
+        </div>
+        <div>
+          <p class="font-bold text-gray-700 text-base m-0">
+            @if (activeTab() === 'ACTIVE') { Aucune offre active }
+            @else if (activeTab() === 'EN_RUPTURE') { Aucune offre en rupture }
+            @else { Aucune offre archivée }
+          </p>
+          @if (activeTab() === 'ACTIVE') {
+            <p class="text-sm text-gray-400 m-0 mt-1">
+              Publiez votre première offre pour que les clients puissent vous trouver.
+            </p>
+          }
+        </div>
+      </div>
+
+    <!-- Liste -->
+    } @else {
+      @for (offre of filteredOffres(); track offre.id) {
+        <app-offre-card
+          [offre]="offre"
+          (onEdit)="openEdit($event)"
+          (onToggle)="toggleStatut($event.offre, $event.statut)"
+          (onDelete)="confirmDelete($event)"
+        />
+      }
+    }
+
+  </div>
+
+  <!-- FAB -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button color="primary" (click)="openCreate()">
+      <i class="pi pi-plus text-xl"></i>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<app-offre-form-modal
+  [isOpen]="showForm()"
+  [isSubmitting]="isSubmitting()"
+  [editTarget]="editTarget()"
+  [carrieres]="carrieres()"
+  [materiaux]="materiaux()"
+  [camionTypes]="camionTypes()"
+  (onSubmit)="submitForm($event)"
+  (onDismiss)="showForm.set(false)"
+/>

@@ -1,0 +1,78 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:transparent] px-2">
+    <ion-title class="text-center font-bold text-gray-900 text-lg tracking-tight px-0">
+      Demande de Devis
+    </ion-title>
+    @if (!hasPending() && draft().step > 1) {
+      <ion-buttons slot="start">
+        <button (click)="goToStep(draft().step - 1)" class="ml-2 flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-900 transition active:scale-90">
+          <i class="pi pi-chevron-left text-xs font-bold"></i>
+        </button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="flex flex-col gap-6 px-5 py-6">
+
+    <!-- ── Mode 1 : Offres en cours ── -->
+    @if (hasPending()) {
+      <app-devis-propositions></app-devis-propositions>
+    }
+    
+    <!-- ── Mode 2 : Wizard Nouveau Devis ── -->
+    @else {
+      
+      <!-- Stepper Progress -->
+      <div class="flex items-center justify-between px-2 mb-2">
+        @for (s of [1,2,3]; track s) {
+          <div class="flex flex-1 items-center">
+            <div 
+              [class]="draft().step >= s ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-110' : 'bg-white border-gray-200 text-gray-400'"
+              class="flex h-8 w-8 items-center justify-center rounded-xl border-2 text-[10px] font-black transition-all duration-500">
+              {{ s }}
+            </div>
+            @if (s < 3) {
+              <div 
+                [class]="draft().step > s ? 'bg-primary' : 'bg-gray-200'"
+                class="h-[2px] flex-1 mx-2 rounded-full transition-colors duration-500">
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Steps Rendering -->
+      @switch (draft().step) {
+        @case (1) {
+          <app-step-adresse></app-step-adresse>
+        }
+        @case (2) {
+          <app-step-produit></app-step-produit>
+        }
+        @case (3) {
+          <app-step-logistique></app-step-logistique>
+        }
+        @case (4) {
+          <!-- Just after submission, waiting for first quotes to load -->
+          <div class="flex flex-col items-center justify-center gap-6 py-20 text-center animate-pulse">
+            <div class="relative">
+              <div class="absolute inset-0 animate-ping rounded-full bg-primary/20"></div>
+              <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-primary shadow-xl shadow-primary/10">
+                <i class="pi pi-bolt text-4xl"></i>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-lg font-black text-gray-900">Calcul des meilleures offres...</h3>
+              <p class="text-xs font-medium text-gray-400 px-10">
+                Nous interrogeons les fournisseurs et transporteurs à proximité pour vous.
+              </p>
+            </div>
+          </div>
+        }
+      }
+    }
+
+  </div>
+</ion-content>

@@ -1,0 +1,67 @@
+<ion-modal [isOpen]="isOpen" (ionModalDidDismiss)="dismiss()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Paiement Mobile Money</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="dismiss()">
+            <i class="pi pi-times"></i>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="flex flex-col items-center gap-4">
+
+        <!-- Icône + message -->
+        <div class="flex flex-col items-center text-center gap-2 pt-2">
+          <i class="pi pi-mobile" style="font-size: 2.5rem; color: var(--ion-color-primary);"></i>
+          <p class="text-sm text-gray-500 m-0">
+            Entrez votre numéro Mobile Money.<br>
+            Vous recevrez une demande de paiement par SMS / USSD.
+          </p>
+        </div>
+
+        <!-- Montant -->
+        <div class="w-full rounded-xl p-4 bg-gray-50 text-center">
+          <p class="text-xs text-gray-400 m-0 mb-1">Montant à payer</p>
+          <p class="font-bold text-2xl m-0" style="color: var(--ion-color-primary)">
+            {{ order.total_price | number:'1.0-0' }} FCFA
+          </p>
+          <p class="text-xs text-gray-400 m-0 mt-1">{{ order.order_number }}</p>
+        </div>
+
+        <!-- Formulaire -->
+        <form [formGroup]="form" class="w-full flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700">Numéro de téléphone</label>
+          <ion-item lines="none" class="rounded-xl border border-gray-200">
+            <ion-input
+              formControlName="phone"
+              type="tel"
+              placeholder="+229 XX XX XX XX"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+          @if (phoneInvalid) {
+            <span class="text-xs text-red-500">Numéro de téléphone invalide</span>
+          }
+        </form>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          class="w-full"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="submit()"
+        >
+          @if (isSubmitting) {
+            <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+          }
+          Envoyer la demande de paiement
+        </ion-button>
+
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

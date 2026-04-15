@@ -13,6 +13,7 @@ function homeRouteForRole(role: UserRole | null): string[] {
     case 'TRANSPORTER': return ['/dashboard/transporter/dashboard'];
     case 'ADMIN':       return ['/dashboard/admin/utilisateurs'];
     case 'CLIENT':
+    case 'COMPANY':
     default:            return ['/dashboard/home'];
   }
 }

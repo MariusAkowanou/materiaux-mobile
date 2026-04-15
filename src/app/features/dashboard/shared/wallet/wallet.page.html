@@ -1,0 +1,175 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:transparent]">
+    <ion-title class="font-bold text-gray-900 text-xl">Mon Wallet</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="flex flex-col gap-5 px-4 pt-2 pb-8">
+
+    <!-- ── Carte de solde ─────────────────────────────────────────── -->
+    <div class="rounded-3xl p-6 flex flex-col gap-4"
+         style="background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));">
+
+      @if (isLoading() && balance() === 0) {
+        <ion-skeleton-text [animated]="true" style="width:40%;height:14px;border-radius:6px;--background:rgba(255,255,255,0.2);"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width:65%;height:36px;border-radius:8px;--background:rgba(255,255,255,0.2);"></ion-skeleton-text>
+      } @else {
+        <div>
+          <p class="text-xs font-medium text-white/70 m-0 uppercase tracking-widest">Solde disponible</p>
+          <p class="text-4xl font-black text-white m-0 mt-1">
+            {{ balance() | number:'1.0-0' }}
+            <span class="text-lg font-semibold text-white/80">FCFA</span>
+          </p>
+        </div>
+      }
+
+      <ion-button
+        size="small"
+        fill="solid"
+        style="--background: rgba(255,255,255,0.2); --color: white; --border-radius: 12px; --box-shadow: none; width: fit-content;"
+        (click)="showWithdraw.set(true)"
+        [disabled]="balance() <= 0 || isLoading()"
+      >
+        <i class="pi pi-arrow-up-right mr-2"></i>
+        Retirer les fonds
+      </ion-button>
+    </div>
+
+    <!-- ── Onglets ────────────────────────────────────────────────── -->
+    <div class="flex rounded-2xl bg-white shadow-sm overflow-hidden">
+      <button
+        class="flex-1 py-3 text-sm font-semibold transition-colors duration-200"
+        [style.background]="activeTab() === 'transactions' ? 'var(--ion-color-primary)' : 'transparent'"
+        [style.color]="activeTab() === 'transactions' ? 'white' : '#9ca3af'"
+        (click)="activeTab.set('transactions')"
+        style="border: none; cursor: pointer;"
+      >
+        <i class="pi pi-list mr-1.5"></i>
+        Transactions
+      </button>
+      <button
+        class="flex-1 py-3 text-sm font-semibold transition-colors duration-200"
+        [style.background]="activeTab() === 'withdrawals' ? 'var(--ion-color-primary)' : 'transparent'"
+        [style.color]="activeTab() === 'withdrawals' ? 'white' : '#9ca3af'"
+        (click)="activeTab.set('withdrawals')"
+        style="border: none; cursor: pointer;"
+      >
+        <i class="pi pi-send mr-1.5"></i>
+        Retraits
+      </button>
+    </div>
+
+    <!-- ── TRANSACTIONS ───────────────────────────────────────────── -->
+    @if (activeTab() === 'transactions') {
+      @if (isLoading()) {
+        <div class="flex flex-col gap-2">
+          @for (s of [1,2,3,4]; track s) {
+            <div class="rounded-2xl bg-white p-4 flex items-center gap-3">
+              <ion-skeleton-text [animated]="true" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"></ion-skeleton-text>
+              <div class="flex-1 flex flex-col gap-1.5">
+                <ion-skeleton-text [animated]="true" style="width:60%;height:13px;border-radius:4px;"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width:35%;height:11px;border-radius:4px;"></ion-skeleton-text>
+              </div>
+              <ion-skeleton-text [animated]="true" style="width:70px;height:16px;border-radius:4px;flex-shrink:0;"></ion-skeleton-text>
+            </div>
+          }
+        </div>
+      } @else if (transactions().length === 0) {
+        <div class="flex flex-col items-center justify-center gap-3 py-16">
+          <i class="pi pi-inbox" style="font-size:3rem;color:var(--ion-color-medium);"></i>
+          <p class="text-sm text-gray-400 text-center m-0">Aucune transaction pour le moment.</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-2">
+          @for (tx of transactions(); track tx.id) {
+            <div class="rounded-2xl bg-white p-4 flex items-center gap-3 shadow-sm">
+
+              <!-- Icône type -->
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                   [style.background]="tx.transaction_type === 'CREDIT'
+                     ? 'color-mix(in srgb, #10b981 12%, white)'
+                     : 'color-mix(in srgb, #ef4444 12%, white)'">
+                <i [class]="transactionIcon(tx.transaction_type) + ' ' + transactionColor(tx.transaction_type)"></i>
+              </div>
+
+              <!-- Description + date -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-800 m-0 truncate">{{ tx.description }}</p>
+                <p class="text-xs text-gray-400 m-0 mt-0.5">
+                  {{ tx.created_at | date:'dd MMM yyyy, HH:mm' : '' : 'fr' }}
+                </p>
+              </div>
+
+              <!-- Montant -->
+              <span class="text-sm font-bold shrink-0" [class]="transactionColor(tx.transaction_type)">
+                {{ transactionSign(tx.transaction_type) }}{{ tx.amount | number:'1.0-0' }} FCFA
+              </span>
+
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- ── RETRAITS ────────────────────────────────────────────────── -->
+    @if (activeTab() === 'withdrawals') {
+      @if (isLoading()) {
+        <div class="flex flex-col gap-2">
+          @for (s of [1,2,3]; track s) {
+            <div class="rounded-2xl bg-white p-4 flex flex-col gap-2">
+              <ion-skeleton-text [animated]="true" style="width:50%;height:14px;border-radius:4px;"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:30%;height:11px;border-radius:4px;"></ion-skeleton-text>
+            </div>
+          }
+        </div>
+      } @else if (withdrawals().length === 0) {
+        <div class="flex flex-col items-center justify-center gap-3 py-16">
+          <i class="pi pi-send" style="font-size:3rem;color:var(--ion-color-medium);"></i>
+          <p class="text-sm text-gray-400 text-center m-0">Aucune demande de retrait.</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-2">
+          @for (w of withdrawals(); track w.id) {
+            <div class="rounded-2xl bg-white p-4 flex flex-col gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-base font-bold text-gray-800">
+                  {{ w.amount | number:'1.0-0' }} FCFA
+                </span>
+                <ion-badge [color]="withdrawalStatusColor(w.status)">
+                  {{ withdrawalStatusLabel(w.status) }}
+                </ion-badge>
+              </div>
+              <div class="flex items-center gap-1.5 text-xs text-gray-400">
+                <i class="pi pi-mobile"></i>
+                <span>{{ w.payment_details }}</span>
+              </div>
+              <p class="text-xs text-gray-300 m-0">
+                {{ w.created_at | date:'dd MMM yyyy' : '' : 'fr' }}
+              </p>
+              @if (w.admin_note) {
+                <p class="text-xs text-gray-500 m-0 italic border-t border-gray-100 pt-2">
+                  {{ w.admin_note }}
+                </p>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</ion-content>
+
+<!-- Modal de retrait -->
+<app-withdrawal-modal
+  [balance]="balance()"
+  [isOpen]="showWithdraw()"
+  [isSubmitting]="isSubmitting()"
+  (onSubmit)="submitWithdrawal($event)"
+  (onDismiss)="showWithdraw.set(false)"
+/>

@@ -1,0 +1,62 @@
+<ion-modal [isOpen]="isOpen" (ionModalDidDismiss)="dismiss()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Ouvrir un litige</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="dismiss()">
+            <i class="pi pi-times"></i>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="flex flex-col gap-1 mb-4 p-3 rounded-xl bg-orange-50">
+        <p class="text-xs text-orange-600 font-medium m-0">Commande {{ order.order_number }}</p>
+        <p class="text-sm text-orange-800 m-0">{{ order.product_name }}</p>
+      </div>
+
+      <form [formGroup]="form" class="flex flex-col gap-4">
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">Catégorie du problème</label>
+          <ion-select
+            formControlName="category"
+            interface="action-sheet"
+            placeholder="Sélectionner une catégorie"
+          >
+            @for (cat of categories; track cat.value) {
+              <ion-select-option [value]="cat.value">{{ cat.label }}</ion-select-option>
+            }
+          </ion-select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">Description du problème</label>
+          <ion-textarea
+            formControlName="reason"
+            placeholder="Décrivez précisément le problème rencontré..."
+            [rows]="4"
+          ></ion-textarea>
+          @if (reasonInvalid) {
+            <span class="text-xs text-red-500">Minimum 10 caractères requis</span>
+          }
+        </div>
+
+        <ion-button
+          expand="block"
+          color="warning"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="submit()"
+        >
+          @if (isSubmitting) {
+            <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+          }
+          Soumettre le litige
+        </ion-button>
+
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
