@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CatalogueStore } from 'src/app/core/services/api/catalogue/catalogue.store';
 import { DevisStore } from 'src/app/core/services/api/devis/devis.store';
-import { MateriauBase, Categorie } from 'src/app/core/services/api/catalogue/catalogue.model';
+import {  Categorie } from 'src/app/core/services/api/catalogue/catalogue.model';
 
 @Component({
   selector: 'app-step-produit',
@@ -36,7 +36,7 @@ export class StepProduitComponent implements OnInit {
     this.catalogueStore.setSearchQuery(query);
   }
 
-  selectProduct(mat: MateriauBase) {
+  selectProduct(mat: any  ) {
     this.devisStore.updateWizard({ 
       productId: mat.id,
       productName: mat.nom,
@@ -44,9 +44,9 @@ export class StepProduitComponent implements OnInit {
     });
   }
 
-  getPrimaryImage(mat: MateriauBase): string | null {
+  getPrimaryImage(mat: any): string | null {
     if (!mat.images || mat.images.length === 0) return null;
-    const primary = mat.images.find(img => img.is_primary);
+    const primary = mat.images.find((img:any) => img.is_primary);
     return primary ? primary.url : mat.images[0].url;
   }
 }

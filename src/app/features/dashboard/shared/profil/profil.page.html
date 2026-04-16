@@ -1,157 +1,172 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="[--background:transparent]">
-    <ion-title class="font-bold text-gray-900 text-xl">Mon Profil</ion-title>
-  </ion-toolbar>
+   <!--
+  <ion-toolbar class="[--background:var(--ion-color-primary)] [--color:#fff] [--min-height:56px]">
+    <ion-title class="font-extrabold text-xl text-white">Mon Profil</ion-title>
+  </ion-toolbar>-->
 </ion-header>
 
-<ion-content class="bg-gray-50">
-  <div class="flex flex-col gap-5 px-4 pt-2 pb-10">
+<ion-content class="[--background:#f8f9fb]">
 
-    <!-- ── Bloc utilisateur ───────────────────────────────────────── -->
-    @if (user(); as u) {
-      <div class="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm">
+  <!-- ── BLOC UTILISATEUR ──────────────────────────────────────────── -->
+  <div class="relative overflow-hidden px-4 pt-6 pb-8"
+       style="background: linear-gradient(160deg, var(--ion-color-primary) 0%, color-mix(in srgb, var(--ion-color-primary) 75%, #000) 100%);">
 
-        <!-- Avatar initiales -->
-        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl font-black text-xl text-white"
-             style="background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));">
-          {{ initials() }}
-        </div>
+    <!-- Cercles décoratifs -->
+    <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-10 bg-white"></div>
+    <div class="absolute -bottom-4 -left-4 w-24 h-24 rounded-full opacity-10 bg-white"></div>
 
-        <!-- Nom + rôle + statut -->
-        <div class="flex flex-col gap-1 min-w-0">
-          <p class="font-bold text-gray-900 text-base m-0 truncate">{{ u.full_name }}</p>
-          <p class="text-xs text-gray-400 m-0 truncate">{{ u.email }}</p>
-          <div class="flex items-center gap-2 mt-1 flex-wrap">
-            <span class="inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-bold"
-                  style="background: color-mix(in srgb, var(--ion-color-primary) 12%, white); color: var(--ion-color-primary);">
-              {{ roleLabel(primaryRole()!) }}
+    <div class="relative z-10 flex items-center gap-4">
+      <!-- Avatar -->
+      <div class="relative">
+        @if (user()?.avatar_url) {
+          <img [src]="user()!.avatar_url"
+               [alt]="user()!.full_name"
+               class="w-20 h-20 rounded-2xl object-cover border-4 border-white/30 shadow-lg" />
+        } @else {
+          <div class="w-20 h-20 rounded-2xl flex items-center justify-center
+                      border-4 border-white/30 shadow-lg"
+               style="background: color-mix(in srgb, var(--ion-color-primary) 60%, #fff);">
+            <span class="text-[28px] font-extrabold text-white">{{ initials() }}</span>
+          </div>
+        }
+        <!-- Badge vérifié -->
+        @if (user()?.is_verified) {
+          <span class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full
+                       bg-emerald-400 border-2 border-white flex items-center justify-center shadow-sm">
+            <i class="pi pi-check text-[9px] text-white font-black"></i>
+          </span>
+        }
+      </div>
+
+      <!-- Infos user -->
+      <div class="flex-1 min-w-0">
+        <h2 class="text-[18px] font-extrabold text-white leading-tight truncate">
+          {{ user()?.full_name ?? '—' }}
+        </h2>
+        <p class="text-[13px] text-white/70 mt-0.5 truncate">{{ user()?.email }}</p>
+        <div class="flex items-center gap-2 mt-2 flex-wrap">
+          @if (primaryRole(); as role) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+                         bg-white/20 text-white text-[11px] font-bold">
+              <i class="pi pi-id-card text-[10px]"></i>
+              {{ roleLabel(role) }}
             </span>
-            @if (u.is_verified) {
-              <span class="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs font-bold bg-emerald-50 text-emerald-600">
-                <i class="pi pi-verified text-[10px]"></i> Vérifié
-              </span>
-            }
-          </div>
+          }
+          @if (user()?.is_verified) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+                         bg-emerald-400/30 text-white text-[11px] font-bold">
+              <i class="pi pi-shield text-[10px]"></i>
+              Vérifié
+            </span>
+          }
         </div>
-
-      </div>
-    }
-
-    <!-- ── Section Mon Compte ─────────────────────────────────────── -->
-    <div class="flex flex-col gap-2">
-      <span class="px-1 text-xs font-black uppercase tracking-widest text-gray-400">
-        Mon Compte
-      </span>
-
-      <div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-
-        <!-- Informations personnelles -->
-        <button
-          (click)="goToPersonalInfo()"
-          class="flex w-full items-center justify-between !p-4 transition-colors active:bg-gray-50"
-          style="background: none; border: none; cursor: pointer; text-align: left;"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl"
-                 style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
-              <i class="pi pi-user" style="color: var(--ion-color-primary);"></i>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-gray-900">Informations personnelles</span>
-              <span class="text-xs text-gray-400">Gérer vos détails et contacts</span>
-            </div>
-          </div>
-          <i class="pi pi-chevron-right text-gray-300"></i>
-        </button>
-
-        <div class="h-px bg-gray-100 mx-4"></div>
-
-        <!-- Sécurité -->
-        <button
-          class="flex w-full items-center justify-between !p-4 transition-colors active:bg-gray-50"
-          style="background: none; border: none; cursor: pointer; text-align: left;"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl"
-                 style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
-              <i class="pi pi-lock" style="color: var(--ion-color-primary);"></i>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-gray-900">Sécurité & Mot de passe</span>
-              <span class="text-xs text-gray-400">Modifier votre mot de passe</span>
-            </div>
-          </div>
-          <i class="pi pi-chevron-right text-gray-300"></i>
-        </button>
-
       </div>
     </div>
+  </div>
 
-    <!-- ── Section Paramètres ─────────────────────────────────────── -->
-    <div class="flex flex-col gap-2">
-      <span class="px-1 text-xs font-black uppercase tracking-widest text-gray-400">
-        Paramètres
-      </span>
+  <!-- ── MENU ──────────────────────────────────────────────────────── -->
+  <div class="!px-4 !pt-4 flex flex-col gap-3 pb-10">
 
-      <div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
+    <!-- Section compte -->
+    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest !px-1 mb-1">Compte</p>
 
-        <!-- Notifications -->
-        <button
-          class="flex w-full items-center justify-between !p-4 transition-colors active:bg-gray-50"
-          style="background: none; border: none; cursor: pointer; text-align: left;"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl"
-                 style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
-              <i class="pi pi-bell" style="color: var(--ion-color-primary);"></i>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-gray-900">Notifications</span>
-              <span class="text-xs text-gray-400">Préférences d'alertes</span>
-            </div>
-          </div>
-          <i class="pi pi-chevron-right text-gray-300"></i>
-        </button>
+    <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
 
-        <div class="h-px bg-gray-100 mx-4"></div>
+      <!-- Informations personnelles -->
+      <button class="w-full flex items-center gap-3.5 !px-4 !py-3.5 text-left
+                     active:bg-gray-50 transition-colors duration-150 border-b border-gray-50"
+              (click)="goToPersonalInfo()">
+        <span class="flex-none w-10 h-10 rounded-xl flex items-center justify-center"
+              style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+          <i class="pi pi-user text-base" style="color: var(--ion-color-primary);"></i>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-semibold text-gray-800">Informations personnelles</p>
+          <p class="text-[12px] text-gray-400 mt-0.5">Nom, téléphone, photo de profil</p>
+        </div>
+        <i class="pi pi-chevron-right text-[13px] text-gray-300 flex-none"></i>
+      </button>
 
-        <!-- Aide & Support -->
-        <button
-          class="flex w-full items-center justify-between !p-4 transition-colors active:bg-gray-50"
-          style="background: none; border: none; cursor: pointer; text-align: left;"
-        >
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl"
-                 style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
-              <i class="pi pi-question-circle" style="color: var(--ion-color-primary);"></i>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-gray-900">Aide & Support</span>
-              <span class="text-xs text-gray-400">Contactez-nous</span>
-            </div>
-          </div>
-          <i class="pi pi-chevron-right text-gray-300"></i>
-        </button>
-
-      </div>
+      <!-- Wallet -->
+      <button class="w-full flex items-center gap-3.5 !px-4 !py-3.5 text-left
+                     active:bg-gray-50 transition-colors duration-150"
+              (click)="goToWallet()">
+        <span class="flex-none w-10 h-10 rounded-xl flex items-center justify-center"
+              style="background: color-mix(in srgb, #7C3AED 10%, white);">
+          <i class="pi pi-wallet text-base" style="color: #7C3AED;"></i>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-semibold text-gray-800">Mon Wallet</p>
+          <p class="text-[12px] text-gray-400 mt-0.5">Solde, transactions, retraits</p>
+        </div>
+        <i class="pi pi-chevron-right text-[13px] text-gray-300 flex-none"></i>
+      </button>
     </div>
 
-    <!-- ── Déconnexion ────────────────────────────────────────────── -->
-    <ion-button
+    <!-- Section application -->
+    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest !px-1 mb-1 mt-2">Application</p>
+
+    <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+
+      <!-- Notifications -->
+      <button class="w-full flex items-center gap-3.5 !px-4 !py-3.5 text-left
+                     active:bg-gray-50 transition-colors duration-150 border-b border-gray-50">
+        <span class="flex-none w-10 h-10 rounded-xl flex items-center justify-center"
+              style="background: color-mix(in srgb, #0284C7 10%, white);">
+          <i class="pi pi-bell text-base" style="color: #0284C7;"></i>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-semibold text-gray-800">Notifications</p>
+          <p class="text-[12px] text-gray-400 mt-0.5">Alertes commandes et livraisons</p>
+        </div>
+        <i class="pi pi-chevron-right text-[13px] text-gray-300 flex-none"></i>
+      </button>
+
+      <!-- Aide & Support -->
+      <button class="w-full flex items-center gap-3.5 !px-4 !py-3.5 text-left
+                     active:bg-gray-50 transition-colors duration-150 border-b border-gray-50">
+        <span class="flex-none w-10 h-10 rounded-xl flex items-center justify-center"
+              style="background: color-mix(in srgb, #16A34A 10%, white);">
+          <i class="pi pi-question-circle text-base" style="color: #16A34A;"></i>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-semibold text-gray-800">Aide & Support</p>
+          <p class="text-[12px] text-gray-400 mt-0.5">FAQ, contact, signalement</p>
+        </div>
+        <i class="pi pi-chevron-right text-[13px] text-gray-300 flex-none"></i>
+      </button>
+
+      <!-- Conditions générales -->
+      <button class="w-full flex items-center gap-3.5 !px-4 !py-3.5 text-left
+                     active:bg-gray-50 transition-colors duration-150">
+        <span class="flex-none w-10 h-10 rounded-xl flex items-center justify-center"
+              style="background: color-mix(in srgb, #6B7280 10%, white);">
+          <i class="pi pi-file text-base" style="color: #6B7280;"></i>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-semibold text-gray-800">Conditions d'utilisation</p>
+          <p class="text-[12px] text-gray-400 mt-0.5">CGU, politique de confidentialité</p>
+        </div>
+        <i class="pi pi-chevron-right text-[13px] text-gray-300 flex-none"></i>
+      </button>
+    </div>
+
+    <!-- Déconnexion -->
+    <button
+      class="w-full flex items-center justify-center gap-2.5 !py-4 !rounded-2xl
+             border-2 border-red-100 bg-red-50 mt-2
+             active:bg-red-100 transition-colors duration-150"
       (click)="logout()"
-      expand="block"
-      fill="outline"
-      color="danger"
-      style="--border-radius: 16px;"
     >
-      <i class="pi pi-power-off mr-2"></i>
-      Se déconnecter
-    </ion-button>
+      <i class="pi pi-sign-out text-red-500 text-base"></i>
+      <span class="text-[14px] font-bold text-red-500">Se déconnecter</span>
+    </button>
 
-    <!-- Version -->
-    <p class="text-center text-[10px] font-bold uppercase tracking-widest text-gray-300 m-0">
-      Matériaux Express v1.0.0
+    <!-- Version app -->
+    <p class="text-center text-[11px] text-gray-300 mt-1">
+      Matériaux Express · v1.0.0
     </p>
 
   </div>
+
 </ion-content>

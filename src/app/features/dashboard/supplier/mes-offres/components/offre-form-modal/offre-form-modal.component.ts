@@ -13,7 +13,6 @@ import {
   Carriere, CamionType,
   OffreFournisseur, OffreFournisseurCreate, OffreFournisseurUpdate,
 } from 'src/app/core/services/api/materiaux/materiaux.model';
-import { MateriauBase } from 'src/app/core/services/api/catalogue/catalogue.model';
 
 @Component({
   selector: 'app-offre-form-modal',
@@ -32,7 +31,7 @@ export class OffreFormModalComponent implements OnChanges {
   @Input() isSubmitting = false;
   @Input() editTarget: OffreFournisseur | null = null;
   @Input({ required: true }) carrieres: Carriere[] = [];
-  @Input({ required: true }) materiaux: MateriauBase[] = [];
+  @Input({ required: true }) materiaux: any[] = [];
   @Input({ required: true }) camionTypes: CamionType[] = [];
 
   @Output() onSubmit  = new EventEmitter<OffreFournisseurCreate | OffreFournisseurUpdate>();

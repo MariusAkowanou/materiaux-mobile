@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MateriauBase } from '../../../../../../core/services/api/catalogue/catalogue.model';
 
 @Component({
   selector: 'app-material-card',
@@ -175,7 +174,7 @@ import { MateriauBase } from '../../../../../../core/services/api/catalogue/cata
   `]
 })
 export class MaterialCardComponent {
-  @Input({ required: true }) material!: MateriauBase;
+  @Input({ required: true }) material!: any;
 
   get primaryImage(): string {
     const primary = this.material.images?.find((img: any) => img.is_primary);

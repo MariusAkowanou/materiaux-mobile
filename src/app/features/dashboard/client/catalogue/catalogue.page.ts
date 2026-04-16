@@ -1,25 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
-
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonSearchbar,
-  IonButtons,
-  IonMenuButton,
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  IonContent,
+  IonHeader,
+  IonToolbar,
   IonRefresher,
   IonRefresherContent,
-  IonSkeletonText,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonThumbnail
 } from '@ionic/angular/standalone';
 import { CatalogueStore } from '../../../../core/services/api/catalogue/catalogue.store';
-import { CategoryFilterComponent } from './components/category-filter/category-filter.component';
-import { MaterialCardComponent } from './components/material-card/material-card.component';
-import { Categorie } from '../../../../core/services/api/catalogue/catalogue.model';
+import { Categorie, MateriauListItem } from '../../../../core/services/api/catalogue/catalogue.model';
+import { CategorieCardComponent } from './components/categorie-card/categorie-card.component';
+import { MateriauCardComponent } from './components/materiau-card/materiau-card.component';
 
 @Component({
   selector: 'app-catalogue',
@@ -27,58 +18,58 @@ import { Categorie } from '../../../../core/services/api/catalogue/catalogue.mod
   imports: [
     IonContent,
     IonHeader,
-    IonTitle,
     IonToolbar,
-    IonSearchbar,
-    IonButtons,
-    IonMenuButton,
     IonRefresher,
     IonRefresherContent,
-    IonSkeletonText,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonThumbnail,
-    CategoryFilterComponent,
-    MaterialCardComponent
-],
-   templateUrl: `./catalogue.page.html`,
-  styleUrls: [`./catalogue.page.scss`],
-
+    CategorieCardComponent,
+    MateriauCardComponent,
+  ],
+  templateUrl: './catalogue.page.html',
 })
 export class CataloguePage implements OnInit {
-  readonly store = inject(CatalogueStore);
+  protected readonly store  = inject(CatalogueStore);
+  private  readonly router  = inject(Router);
 
-  async ngOnInit() {
-    // On charge les catégories en premier
+  protected searchValue = signal<string>('');
+
+  async ngOnInit(): Promise<void> {
     await this.store.loadCategories();
-    // On charge les matériaux (initialement tous ou selon la sélection stockée)
-    await this.store.loadMateriaux(this.store.selectedCategorie()?.id);
   }
 
-  async handleRefresh(event: any) {
-    try {
-      if (this.store.selectedCategorie()) {
-        await this.store.loadMateriaux(this.store.selectedCategorie()?.id);
-      } else {
-        await this.store.loadMateriaux();
-      }
-    } finally {
-      event.target.complete();
+  async onCategorieSelect(cat: Categorie): Promise<void> {
+    if (this.store.selectedCategorie()?.id === cat.id) {
+      this.store.selectCategorie(null);
+      this.store.reset();
+      await this.store.loadCategories();
+    } else {
+      this.store.selectCategorie(cat);
+      await this.store.loadMateriaux(cat.id);
     }
   }
 
-  onCategorySelected(cat: Categorie | null) {
-    this.store.selectCategorie(cat);
-    this.store.loadMateriaux(cat?.id);
+  onSearch(event: Event): void {
+    const q = (event.target as HTMLInputElement).value ?? '';
+    this.searchValue.set(q);
+    this.store.setSearchQuery(q);
+    if (q && !this.store.selectedCategorie() && this.store.materiaux().length === 0) {
+      this.store.loadMateriaux();
+    }
   }
 
-  onSearch(event: any) {
-    this.store.setSearchQuery(event.target.value);
+  onSearchClear(): void {
+    this.searchValue.set('');
+    this.store.setSearchQuery('');
   }
 
-  goToDetail(publicId: string) {
-    console.log('Navigating to material:', publicId);
-    // TODO: Implémenter la navigation vers le détail
+  goToDetail(mat: MateriauListItem): void {
+    this.router.navigate(['/dashboard/client/catalogue', mat.id]);
+  }
+
+  async doRefresh(event: CustomEvent): Promise<void> {
+    const cat = this.store.selectedCategorie();
+    this.store.reset();
+    await this.store.loadCategories();
+    if (cat) await this.store.loadMateriaux(cat.id);
+    (event.target as HTMLIonRefresherElement).complete();
   }
 }

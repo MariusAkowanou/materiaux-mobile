@@ -36,6 +36,6 @@ export class CatalogueApiService {
   }
 
   getOffresPubliques(matPublicId: string): Observable<OffrePublique[]> {
-    return this.http.get<OffrePublique[]>(`${this.url}/${matPublicId}/offres-publiques`);
+    return this.http.get<OffrePublique[]>(`${this.url}/${matPublicId}/offres`);
   }
 }

@@ -19,7 +19,31 @@ export interface CategorieListResponse {
   total: number;
 }
 
-// ── Matériau ─────────────────────────────────────────────────────────────────
+// ── Matériau liste (réponse API /materiaux) ───────────────────────────────────
+// Champs renvoyés par l'endpoint de liste (léger, sans images détaillées)
+
+export interface MateriauListItem {
+  id: number;
+  slug: string;
+  nom: string;
+  categorie_id: number;
+  categorie_nom: string;
+  transport_inclus: boolean;
+  unite_vente: string;
+  image_principale: string | null;
+  nb_offres_actives: number;
+  prix_min: number | null;
+  prix_max: number | null;
+}
+
+export interface MateriauListResponse {
+  items: MateriauListItem[];
+  total: number;
+  skip: number;
+  limit: number;
+}
+
+// ── Matériau image (utilisé dans le détail) ───────────────────────────────────
 
 export interface MateriauImage {
   id: number;
@@ -27,28 +51,7 @@ export interface MateriauImage {
   is_primary: boolean;
 }
 
-export interface MateriauBase {
-  id: number;
-  public_id: string;
-  nom: string;
-  description: string | null;
-  unite: string;          // ex. "m³", "tonne", "sac"
-  prix_indicatif_min: number | null;
-  prix_indicatif_max: number | null;
-  is_active: boolean;
-  categorie_id: number;
-  categorie: Pick<Categorie, 'id' | 'nom' | 'transport_inclus'>;
-  images: MateriauImage[];
-}
-
-export interface MateriauListResponse {
-  items: MateriauBase[];
-  total: number;
-  skip: number;
-  limit: number;
-}
-
-// ── Matériau détail ──────────────────────────────────────────────────────────
+// ── Matériau détail (réponse API /materiaux/{slug}) ───────────────────────────
 
 export interface ParametreDefinition {
   id: number;
@@ -57,7 +60,19 @@ export interface ParametreDefinition {
   unite: string | null;
 }
 
-export interface MateriauDetail extends MateriauBase {
+export interface MateriauDetail {
+  id: number;
+  slug: string;
+  nom: string;
+  description: string | null;
+  unite_vente: string;
+  prix_min: number | null;
+  prix_max: number | null;
+  is_active: boolean;
+  categorie_id: number;
+  categorie_nom: string;
+  transport_inclus: boolean;
+  images: MateriauImage[];
   parametres: ParametreDefinition[];
 }
 
@@ -77,7 +92,7 @@ export interface CarrierePublique {
   nom: string;
   commune: string | null;
   departement: string | null;
-  distance_km: number | null;  // si géolocalisation disponible
+  distance_km: number | null;
 }
 
 export interface OffrePublique {

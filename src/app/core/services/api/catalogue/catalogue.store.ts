@@ -3,7 +3,7 @@ import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { CatalogueApiService } from './catalogue.api.service';
 import {
   Categorie,
-  MateriauBase,
+  MateriauListItem,
   MateriauDetail,
   OffrePublique,
 } from './catalogue.model';
@@ -14,9 +14,9 @@ export class CatalogueStore {
   // ── État interne (RxJS — interop uniquement) ──────────────────────
   private readonly _isLoading = new BehaviorSubject<boolean>(false);
 
-  // ── Signals publics (source de vérité pour les composants) ────────
+  // ── Signals publics ───────────────────────────────────────────────
   readonly categories        = signal<Categorie[]>([]);
-  readonly materiaux         = signal<MateriauBase[]>([]);
+  readonly materiaux         = signal<MateriauListItem[]>([]);
   readonly selectedMateriau  = signal<MateriauDetail | null>(null);
   readonly offresPubliques   = signal<OffrePublique[]>([]);
   readonly selectedCategorie = signal<Categorie | null>(null);
@@ -26,13 +26,11 @@ export class CatalogueStore {
   readonly totalMateriaux    = signal<number>(0);
 
   // ── Computed ──────────────────────────────────────────────────────
-  readonly filteredMateriaux = computed<MateriauBase[]>(() => {
+  readonly filteredMateriaux = computed<MateriauListItem[]>(() => {
     const q = this.searchQuery().toLowerCase().trim();
     if (!q) return this.materiaux();
     return this.materiaux().filter(
-      (m) =>
-        m.nom.toLowerCase().includes(q) ||
-        (m.description?.toLowerCase().includes(q) ?? false),
+      (m) => m.nom.toLowerCase().includes(q),
     );
   });
 
@@ -43,7 +41,7 @@ export class CatalogueStore {
   // ── Actions ───────────────────────────────────────────────────────
 
   async loadCategories(): Promise<void> {
-    if (this.hasCategories()) return;   // cache — ne recharge pas si déjà chargé
+    if (this.hasCategories()) return;
     this.isLoading.set(true);
     try {
       const cats = await firstValueFrom(this.api.getCategories());
@@ -67,22 +65,22 @@ export class CatalogueStore {
     }
   }
 
-  async loadMateriau(publicId: string): Promise<void> {
+  async loadMateriau(slug: string): Promise<void> {
     this.isLoading.set(true);
     this.selectedMateriau.set(null);
     this.offresPubliques.set([]);
     try {
-      const mat = await firstValueFrom(this.api.getMateriau(publicId));
+      const mat = await firstValueFrom(this.api.getMateriau(slug));
       this.selectedMateriau.set(mat);
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  async loadOffresPubliques(matPublicId: string): Promise<void> {
+  async loadOffresPubliques(matSlug: string): Promise<void> {
     this.isLoadingOffres.set(true);
     try {
-      const offres = await firstValueFrom(this.api.getOffresPubliques(matPublicId));
+      const offres = await firstValueFrom(this.api.getOffresPubliques(matSlug));
       this.offresPubliques.set(offres);
     } finally {
       this.isLoadingOffres.set(false);

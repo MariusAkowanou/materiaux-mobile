@@ -9,7 +9,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AdresseApiService {
-  private readonly url = `${environment.apiUrl}/adresse`;
+  private readonly url = `${environment.apiUrl}/adresses/adresse`;
 
   constructor(private http: HttpClient) {}
 

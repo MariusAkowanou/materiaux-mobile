@@ -1,8 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButton,
+  IonContent, IonHeader, IonTitle, IonToolbar,
 } from '@ionic/angular/standalone';
 import { AuthStore } from '../../../../core/services/api/auth/auth.store';
 import { UserRole } from '../../../../core/services/api/auth/auth.model';
@@ -10,7 +9,7 @@ import { UserRole } from '../../../../core/services/api/auth/auth.model';
 @Component({
   selector: 'app-profil',
   standalone: true,
-  imports: [CommonModule, IonContent, IonHeader, IonTitle, IonToolbar, IonButton],
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar],
   templateUrl: './profil.page.html',
 })
 export class ProfilPage {
@@ -28,21 +27,18 @@ export class ProfilPage {
 
   roleLabel(role: UserRole): string {
     const map: Record<UserRole, string> = {
-      CLIENT:      'Client',
-      COMPANY:     'Entreprise',
-      SUPPLIER:    'Fournisseur',
-      TRANSPORTER: 'Transporteur',
-      ADMIN:       'Administrateur',
-      COLLABORATOR:'Collaborateur',
+      CLIENT:       'Client',
+      COMPANY:      'Entreprise',
+      SUPPLIER:     'Fournisseur',
+      TRANSPORTER:  'Transporteur',
+      ADMIN:        'Administrateur',
+      COLLABORATOR: 'Collaborateur',
     };
     return map[role] ?? role;
   }
 
-  goToPersonalInfo() {
-    this.router.navigateByUrl('/dashboard/profil/personal-info');
-  }
+  goToWallet()       { this.router.navigateByUrl('/dashboard/shared/wallet'); }
+  goToPersonalInfo() { this.router.navigateByUrl('/dashboard/profil/personal-info'); }
 
-  logout() {
-    this.authStore.logout();
-  }
+  logout() { this.authStore.logout(); }
 }

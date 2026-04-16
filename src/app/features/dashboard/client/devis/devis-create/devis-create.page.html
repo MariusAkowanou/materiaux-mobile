@@ -1,0 +1,262 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:var(--ion-color-primary)] [--color:#fff] [--min-height:56px]">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard/client/catalogue"
+                       class="[--color:#fff] [--icon-font-size:20px]" />
+    </ion-buttons>
+    <div class="px-2 py-1">
+      <p class="text-[11px] font-normal text-white/60 uppercase tracking-widest leading-none mb-0.5">
+        Nouvelle demande
+      </p>
+      <h1 class="text-[18px] font-extrabold text-white leading-tight">Demander un devis</h1>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+
+  <!-- ── LOADING ──────────────────────────────────────────────────── -->
+  @if (step() === 'loading') {
+    <div class="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
+      <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
+           style="background: var(--ion-color-primary)">
+        <ion-spinner name="crescent" style="color:#fff; width:28px; height:28px" />
+      </div>
+      <p class="text-[17px] font-bold text-gray-800">Calcul en cours…</p>
+      <p class="text-[13px] text-gray-400 leading-relaxed">
+        Nous calculons le coût de transport et préparons votre devis personnalisé.
+      </p>
+    </div>
+  }
+
+  <!-- ── FORMULAIRE ───────────────────────────────────────────────── -->
+  @if (step() === 'form') {
+    <div class="flex flex-col gap-0 px-4 pt-4 pb-32">
+
+      <!-- Étape 1 : Produit sélectionné ✓ -->
+      @if (selectedOffre(); as offre) {
+        <div class="flex gap-3 items-stretch mb-5">
+          <!-- Ligne verticale de progression -->
+          <div class="flex flex-col items-center flex-none w-8">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-none shadow-sm"
+                 style="background: var(--ion-color-primary);">
+              <i class="pi pi-check text-white text-sm font-bold"></i>
+            </div>
+            <div class="w-[2px] flex-1 mt-1" style="background: var(--ion-color-primary); opacity: 0.2;"></div>
+          </div>
+
+          <div class="flex-1 pb-4">
+            <p class="text-[11px] font-bold uppercase tracking-wider mb-1.5"
+               style="color: var(--ion-color-primary)">Étape 1 — Produit sélectionné</p>
+
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+              <div class="flex items-center gap-3 px-3.5 py-3">
+                <!-- Avatar fournisseur -->
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-none"
+                     style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+                  @if (offre.fournisseur.avatar_url) {
+                    <img [src]="offre.fournisseur.avatar_url" class="w-full h-full object-cover rounded-xl" />
+                  } @else {
+                    <i class="pi pi-building text-lg" style="color: var(--ion-color-primary);"></i>
+                  }
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[13px] font-bold text-gray-800 truncate">
+                    {{ offre.fournisseur.nom_entreprise }}
+                  </p>
+                  <p class="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5 truncate">
+                    <i class="pi pi-map-marker text-[10px]"></i>
+                    {{ offre.carriere.nom }}
+                    @if (offre.carriere.commune) { · {{ offre.carriere.commune }} }
+                  </p>
+                </div>
+                <div class="text-right flex-none">
+                  <p class="text-[16px] font-extrabold leading-none"
+                     style="color: var(--ion-color-primary)">
+                    {{ offre.prix_unitaire | number:'1.0-0' }}
+                  </p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">FCFA / {{ offre.unite }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 2 : Quantité -->
+        <div class="flex gap-3 items-stretch mb-5">
+          <div class="flex flex-col items-center flex-none w-8">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-none border-2"
+                 [style.border-color]="'var(--ion-color-primary)'"
+                 [style.background]="'color-mix(in srgb, var(--ion-color-primary) 10%, white)'">
+              <span class="text-[12px] font-extrabold" style="color: var(--ion-color-primary);">2</span>
+            </div>
+            <div class="w-[2px] flex-1 mt-1 bg-gray-200"></div>
+          </div>
+
+          <div class="flex-1 pb-4">
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              Étape 2 — Quantité souhaitée
+            </p>
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+              <div class="px-4 py-3" [formGroup]="form">
+                <div class="flex items-center gap-3">
+                  <input
+                    formControlName="quantity"
+                    type="number"
+                    inputmode="decimal"
+                    min="0.1"
+                    step="0.5"
+                    placeholder="0.0"
+                    class="flex-1 rounded-xl border border-gray-200 bg-gray-50
+                           px-3 py-3 text-[20px] font-bold text-gray-800
+                           focus:outline-none focus:border-[var(--ion-color-primary)]"
+                  />
+                  <div class="flex-none px-3 py-3 rounded-xl bg-gray-50 border border-gray-200
+                              text-[14px] font-semibold text-gray-500">
+                    {{ offre.unite }}
+                  </div>
+                </div>
+                @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+                  <p class="text-[11px] text-red-500 mt-1.5 flex items-center gap-1">
+                    <i class="pi pi-exclamation-circle text-[10px]"></i>
+                    Quantité invalide (min. 0.1)
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 3 : Adresse de livraison -->
+        <div class="flex gap-3 items-stretch mb-5">
+          <div class="flex flex-col items-center flex-none w-8">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-none border-2"
+                 [style.border-color]="'var(--ion-color-primary)'"
+                 [style.background]="'color-mix(in srgb, var(--ion-color-primary) 10%, white)'">
+              <span class="text-[12px] font-extrabold" style="color: var(--ion-color-primary);">3</span>
+            </div>
+            <div class="w-[2px] flex-1 mt-1 bg-gray-200"></div>
+          </div>
+
+          <div class="flex-1 pb-4">
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              Étape 3 — Adresse de livraison
+            </p>
+            <app-adresse-selector (adresseChange)="onAdresseChange($event)" />
+          </div>
+        </div>
+
+        <!-- Étape 4 : Options de livraison -->
+        <div class="flex gap-3 items-stretch">
+          <div class="flex flex-col items-center flex-none w-8">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-none border-2"
+                 [style.border-color]="'var(--ion-color-primary)'"
+                 [style.background]="'color-mix(in srgb, var(--ion-color-primary) 10%, white)'">
+              <span class="text-[12px] font-extrabold" style="color: var(--ion-color-primary);">4</span>
+            </div>
+          </div>
+
+          <div class="flex-1">
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              Étape 4 — Options de livraison
+            </p>
+            <app-livraison-options (selectionChange)="onLivraisonChange($event)" />
+          </div>
+        </div>
+
+      } @else {
+        <!-- Aucun produit → redirection -->
+        <div class="flex flex-col items-center justify-center py-20 gap-4 text-center">
+          <i class="pi pi-box text-[48px] text-gray-200"></i>
+          <p class="text-[15px] font-semibold text-gray-500">Aucun produit sélectionné</p>
+          <p class="text-[13px] text-gray-400">Retournez au catalogue pour choisir un matériau.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Bouton flottant -->
+    @if (selectedOffre()) {
+      <div class="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3
+                  bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fbee] to-transparent">
+        <button
+          class="w-full py-4 rounded-2xl text-[16px] font-extrabold text-white shadow-lg
+                 active:scale-[0.98] transition-transform duration-150 flex items-center justify-center gap-2"
+          style="background: linear-gradient(135deg, var(--ion-color-primary) 0%, color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);
+                 box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 35%, transparent);"
+          (click)="submitQuote()"
+        >
+          <i class="pi pi-calculator text-lg"></i>
+          Calculer mon devis
+        </button>
+      </div>
+    }
+  }
+
+  <!-- ── RÉCAP DEVIS ───────────────────────────────────────────────── -->
+  @if (step() === 'recap' && quoteResult(); as quote) {
+    <div class="flex flex-col gap-4 px-4 py-4 pb-40">
+
+      <!-- Succès header -->
+      <div class="flex flex-col items-center gap-3 py-5">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center shadow-sm">
+          <i class="pi pi-check-circle text-[32px] text-emerald-500"></i>
+        </div>
+        <div class="text-center">
+          <p class="text-[18px] font-extrabold text-gray-800">Devis calculé !</p>
+          <p class="text-[13px] text-gray-400 mt-1">
+            Confirmez pour convertir en commande et procéder au paiement.
+          </p>
+        </div>
+      </div>
+
+      <!-- Récap tarifaire -->
+      <app-devis-recap [quote]="quote" />
+
+      <!-- Adresse livraison -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm px-4 py-3.5">
+        <div class="flex items-start gap-3">
+          <span class="flex-none w-8 h-8 rounded-xl flex items-center justify-center mt-0.5"
+                style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+            <i class="pi pi-map-marker text-sm" style="color: var(--ion-color-primary);"></i>
+          </span>
+          <div>
+            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Livraison à</p>
+            <p class="text-[13px] text-gray-700 leading-snug">{{ quote.delivery_address }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Boutons flottants -->
+    <div class="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 flex flex-col gap-2
+                bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fbee] to-transparent">
+      @if (quote.can_be_ordered) {
+        <button
+          class="w-full py-4 rounded-2xl text-[16px] font-extrabold text-white shadow-lg
+                 active:scale-[0.98] transition-transform duration-150 flex items-center justify-center gap-2"
+          style="background: linear-gradient(135deg, var(--ion-color-primary) 0%, color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);
+                 box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 35%, transparent);"
+          [disabled]="devisStore.isSubmitting()"
+          (click)="confirmOrder()"
+        >
+          @if (devisStore.isSubmitting()) {
+            <ion-spinner name="crescent" style="color:#fff; width:18px; height:18px" />
+            Traitement…
+          } @else {
+            <i class="pi pi-check-circle text-lg"></i>
+            Confirmer la commande
+          }
+        </button>
+      }
+      <button
+        class="w-full py-3 rounded-2xl text-[14px] font-semibold text-gray-600
+               bg-white border border-gray-200 active:scale-[0.98] transition-transform duration-150"
+        (click)="goToList()"
+      >
+        Voir mes devis
+      </button>
+    </div>
+  }
+
+</ion-content>

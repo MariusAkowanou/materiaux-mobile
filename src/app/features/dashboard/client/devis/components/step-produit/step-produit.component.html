@@ -75,7 +75,7 @@
                 }
                 <!-- Badge unité -->
                 <div class="absolute bottom-2 right-2 rounded-lg bg-gray-900/80 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-white backdrop-blur-sm">
-                  {{ mat.unite }}
+                  {{ mat.unite_vente }}
                 </div>
               </div>
 
@@ -84,7 +84,7 @@
                 <span class="truncate text-xs font-black text-gray-900">{{ mat.nom }}</span>
                 <div class="flex items-center justify-between">
                   <span class="text-[10px] font-bold text-primary">À partir de</span>
-                  <span class="text-[10px] font-black text-gray-900">{{ mat.prix_indicatif_min | number }} F</span>
+                  <span class="text-[10px] font-black text-gray-900">{{ mat.prix_min | number }} F</span>
                 </div>
               </div>
             </button>

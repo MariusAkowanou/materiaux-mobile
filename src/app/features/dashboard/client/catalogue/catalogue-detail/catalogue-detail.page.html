@@ -1,0 +1,222 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:transparent] absolute top-0 left-0 right-0 z-20">
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/dashboard/client/catalogue"
+        class="[--color:#fff] [--icon-font-size:20px]"
+      />
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+
+  <!-- ── SKELETON ─────────────────────────────────────────────────── -->
+  @if (store.isLoading() && !store.selectedMateriau()) {
+    <div>
+      <ion-skeleton-text [animated]="true" class="w-full h-64" />
+      <div class="px-4 py-4 flex flex-col gap-3">
+        <ion-skeleton-text [animated]="true" style="height:28px;width:60%;border-radius:8px;" />
+        <ion-skeleton-text [animated]="true" style="height:18px;width:40%;border-radius:8px;" />
+        <ion-skeleton-text [animated]="true" style="height:14px;width:100%;border-radius:6px;" />
+        <ion-skeleton-text [animated]="true" style="height:14px;width:90%;border-radius:6px;" />
+      </div>
+    </div>
+
+  <!-- ── CONTENU ───────────────────────────────────────────────────── -->
+  } @else if (store.selectedMateriau(); as mat) {
+
+    <!-- HERO IMAGE -->
+    <div class="relative w-full h-64 overflow-hidden">
+      @if (primaryImage(); as imgUrl) {
+        <img [src]="imgUrl" [alt]="mat.nom"
+             class="w-full h-full object-cover" />
+      } @else {
+        <div class="w-full h-full flex items-center justify-center"
+             style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
+          <i class="pi pi-box text-[72px] opacity-25" style="color: var(--ion-color-primary);"></i>
+        </div>
+      }
+      <!-- Gradient overlay bas -->
+      <div class="absolute bottom-0 left-0 right-0 h-28
+                  bg-gradient-to-t from-black/60 to-transparent"></div>
+
+      <!-- Badges flottants en bas de l'image -->
+      <div class="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2">
+        <div>
+          <p class="text-[11px] font-medium text-white/70 uppercase tracking-wider leading-none mb-1">
+            {{ mat.categorie_nom }}
+          </p>
+          <h1 class="text-[22px] font-extrabold text-white leading-tight drop-shadow-sm">
+            {{ mat.nom }}
+          </h1>
+        </div>
+        @if (mat.transport_inclus) {
+          <span class="flex-none flex items-center gap-1 px-2.5 py-1.5 rounded-xl
+                       bg-emerald-500 text-white text-[10px] font-bold shadow-lg">
+            <i class="pi pi-truck text-[9px]"></i> Livraison incluse
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Galerie miniatures -->
+    @if (mat.images.length > 1) {
+      <div class="flex gap-2 px-4 pt-3 overflow-x-auto">
+        @for (img of mat.images; track img.id) {
+          <div class="flex-none w-14 h-14 rounded-xl overflow-hidden border-2 transition-all"
+               [style.border-color]="img.is_primary ? 'var(--ion-color-primary)' : '#e5e7eb'">
+            <img [src]="img.url" [alt]="mat.nom" class="w-full h-full object-cover" />
+          </div>
+        }
+      </div>
+    }
+
+    <!-- INFO PRINCIPALE -->
+    <div class="px-4 pt-4">
+
+      <!-- Prix indicatif -->
+      @if (mat.prix_min != null) {
+        <div class="rounded-2xl bg-white border border-gray-100 shadow-sm px-4 py-3.5 mb-4">
+          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+            Prix indicatif
+          </p>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-[28px] font-extrabold leading-none"
+                  style="color: var(--ion-color-primary)">
+              {{ mat.prix_min | number:'1.0-0' }}
+            </span>
+            @if (mat.prix_max != null && mat.prix_max !== mat.prix_min) {
+              <span class="text-[16px] font-medium text-gray-400">
+                – {{ mat.prix_max | number:'1.0-0' }}
+              </span>
+            }
+            <span class="text-[13px] text-gray-500 font-medium">FCFA / {{ mat.unite_vente }}</span>
+          </div>
+          <p class="text-[11px] text-gray-400 mt-1">
+            Les prix varient selon le fournisseur, la quantité et la distance.
+          </p>
+        </div>
+      }
+
+      <!-- Description -->
+      @if (mat.description) {
+        <div class="rounded-2xl bg-white border border-gray-100 shadow-sm px-4 py-3.5 mb-4">
+          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Description</p>
+          <p class="text-[14px] text-gray-600 leading-relaxed">{{ mat.description }}</p>
+        </div>
+      }
+
+      <!-- Caractéristiques techniques -->
+      @if (mat.parametres?.length) {
+        <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden mb-4">
+          <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2">
+            <i class="pi pi-list text-sm" style="color: var(--ion-color-primary);"></i>
+            <p class="text-[13px] font-bold text-gray-700">Caractéristiques techniques</p>
+          </div>
+          @for (param of mat.parametres; track param.id; let last = $last) {
+            <div class="flex items-center justify-between px-4 py-3"
+                 [class.border-b]="!last" [class.border-gray-50]="!last">
+              <span class="text-[13px] text-gray-500">{{ param.nom }}</span>
+              <span class="text-[13px] font-semibold text-gray-800">
+                {{ param.valeur }}{{ param.unite ? ' ' + param.unite : '' }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── OFFRES FOURNISSEURS ────────────────────────────────────── -->
+    <div class="px-4 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-building text-base" style="color: var(--ion-color-primary);"></i>
+          <p class="text-[15px] font-extrabold text-gray-800">Offres disponibles</p>
+        </div>
+        @if (!store.isLoadingOffres() && store.offresPubliques().length > 0) {
+          <span class="text-[12px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+            {{ store.offresPubliques().length }} fournisseur{{ store.offresPubliques().length > 1 ? 's' : '' }}
+          </span>
+        }
+      </div>
+
+      @if (store.isLoadingOffres()) {
+        <div class="flex flex-col gap-3">
+          @for (i of [1, 2]; track i) {
+            <div class="rounded-2xl bg-white shadow-sm overflow-hidden">
+              <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-50">
+                <ion-skeleton-text [animated]="true" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;" />
+                <div class="flex-1 flex flex-col gap-1.5">
+                  <ion-skeleton-text [animated]="true" style="height:14px;width:55%;border-radius:6px;" />
+                  <ion-skeleton-text [animated]="true" style="height:11px;width:35%;border-radius:6px;" />
+                </div>
+              </div>
+              <div class="px-4 py-3 flex justify-between items-end">
+                <div class="flex flex-col gap-1.5">
+                  <ion-skeleton-text [animated]="true" style="height:12px;width:100px;border-radius:6px;" />
+                  <ion-skeleton-text [animated]="true" style="height:10px;width:70px;border-radius:6px;" />
+                </div>
+                <ion-skeleton-text [animated]="true" style="height:34px;width:110px;border-radius:10px;" />
+              </div>
+            </div>
+          }
+        </div>
+
+      } @else if (store.offresPubliques().length === 0) {
+        <div class="flex flex-col items-center justify-center py-10 gap-3 text-center
+                    bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <i class="pi pi-shopping-bag text-[36px] text-gray-200"></i>
+          <div>
+            <p class="text-[13px] font-semibold text-gray-500">Aucune offre disponible</p>
+            <p class="text-[11px] text-gray-400 mt-1">Revenez plus tard ou explorez d'autres matériaux.</p>
+          </div>
+        </div>
+
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (offre of store.offresPubliques(); track offre.id) {
+            <app-offre-card [offre]="offre" (requestQuote)="goToDevis($event)" />
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Espace pour le bouton sticky -->
+    <div class="h-28"></div>
+
+  <!-- ── ERREUR ─────────────────────────────────────────────────────── -->
+  } @else {
+    <div class="flex flex-col items-center justify-center h-full gap-4 text-gray-400 px-8 pt-32">
+      <i class="pi pi-exclamation-triangle text-[48px]"></i>
+      <p class="text-[15px] text-center font-medium">Matériau introuvable ou indisponible</p>
+    </div>
+  }
+
+</ion-content>
+
+<!-- ── CTA STICKY "OBTENIR UN DEVIS" ──────────────────────────────── -->
+@if (store.selectedMateriau()) {
+  <div class="fixed bottom-0 left-0 right-0 z-50 !px-4 !pb-6 !pt-3
+              bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fbee] to-transparent">
+    <button
+      class="w-full !py-4 !rounded-2xl text-[16px] font-extrabold text-white
+             flex items-center justify-center gap-2.5 shadow-xl
+             active:scale-[0.97] transition-transform duration-150"
+      style="background: linear-gradient(135deg, var(--ion-color-primary) 0%, color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);
+             box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 40%, transparent);"
+      (click)="goToDevisGeneral()"
+    >
+      @if (store.isLoadingOffres()) {
+        <ion-spinner name="crescent" style="color:#fff;width:18px;height:18px;"></ion-spinner>
+        Chargement des offres…
+      } @else if (hasOffres()) {
+        <i class="pi pi-file-edit text-[18px]"></i>
+        Obtenir un devis
+      } @else {
+        <i class="pi pi-file-edit text-[18px]"></i>
+        Demander un devis
+      }
+    </button>
+  </div>
+}

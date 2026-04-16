@@ -21,15 +21,21 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../../features/dashboard/client/catalogue/catalogue.page').then(m => m.CataloguePage),
       },
       {
+        path: 'catalogue/:id',
+        loadComponent: () =>
+          import('../../features/dashboard/client/catalogue/catalogue-detail/catalogue-detail.page').then(m => m.CatalogueDetailPage),
+      },
+      {
         path: 'devis',
         loadComponent: () =>
           import('../../features/dashboard/client/devis/devis.page').then(m => m.DevisPage),
       },
+     
       {
         path: 'commandes',
         loadComponent: () =>
           import('../../features/dashboard/client/commandes/commandes.page').then(m => m.CommandesPage),
-      },
+      }
     ],
   },
 
