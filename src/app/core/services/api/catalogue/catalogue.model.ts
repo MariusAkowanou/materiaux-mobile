@@ -72,6 +72,7 @@ export interface MateriauDetail {
   categorie_id: number;
   categorie_nom: string;
   transport_inclus: boolean;
+  categorie_transport_inclus: boolean;
   images: MateriauImage[];
   parametres: ParametreDefinition[];
 }

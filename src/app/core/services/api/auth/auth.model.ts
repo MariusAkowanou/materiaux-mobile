@@ -15,6 +15,7 @@ export interface User {
   primary_role: UserRole;
   roles: UserRole[];
   account_status: AccountStatus;
+  documents_info: any; 
   is_active: boolean;
   is_validated: boolean;
   is_verified: boolean;
@@ -68,6 +69,9 @@ export interface UpdateProfileDto {
   last_name?: string;
   phone?: string;
   avatar_url?: string;
+  company_name?: string;
+  ifu?: string;
+  
 }
 
 export interface SupplierProfileDto {

@@ -33,8 +33,8 @@ import { Tarif } from 'src/app/core/services/api/transport/transport.model';
           </div>
 
           <!-- Mode + prix -->
-          <div class="flex flex-col items-end gap-1 flex-shrink-0">
-            <ion-badge [color]="tarif.mode_tarif === 'km' ? 'tertiary' : 'secondary'" class="text-[10px]">
+          <div class="flex flex-col items-end gap-1  flex-shrink-0">
+            <ion-badge [color]="tarif.mode_tarif === 'km' ? 'tertiary' : 'secondary'" class="text-[10px] !p-1">
               {{ tarif.mode_tarif === 'km' ? 'Par km' : 'Par voyage' }}
             </ion-badge>
             <span class="text-base font-bold" style="color: var(--ion-color-primary)">

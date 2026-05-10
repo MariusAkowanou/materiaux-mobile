@@ -23,8 +23,8 @@ export class DevisApiService {
 
   constructor(private http: HttpClient) {}
 
-  createQuote(dto: CreateQuoteDto): Observable<QuoteResponse> {
-    return this.http.post<QuoteResponse>(`${this.url}/`, dto);
+  createQuote(dto: CreateQuoteDto): Observable<QuoteResponse[]> {
+    return this.http.post<QuoteResponse[]>(`${this.url}/`, dto);
   }
 
   getMyQuotes(): Observable<QuoteSummary[]> {
@@ -44,6 +44,10 @@ export class DevisApiService {
   }
 
   getMyOrders(): Observable<OrderResponse[]> {
+    return this.http.get<OrderResponse[]>(`${this.url}/orders/`);
+  }
+
+  getSupplierOrders(): Observable<OrderResponse[]> {
     return this.http.get<OrderResponse[]>(`${this.url}/orders/`);
   }
 

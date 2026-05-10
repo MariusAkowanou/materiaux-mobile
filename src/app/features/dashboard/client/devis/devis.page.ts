@@ -1,9 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonTitle,
+} from '@ionic/angular/standalone';
 
-// Sous-composants
 import { StepAdresseComponent } from './components/step-adresse/step-adresse.component';
 import { StepProduitComponent } from './components/step-produit/step-produit.component';
 import { StepLogistiqueComponent } from './components/step-logistique/step-logistique.component';
@@ -15,59 +20,68 @@ import { CatalogueStore } from 'src/app/core/services/api/catalogue/catalogue.st
   selector: 'app-devis',
   standalone: true,
   imports: [
-    CommonModule, 
-    IonicModule,
+    CommonModule,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonTitle,
     StepAdresseComponent,
     StepProduitComponent,
     StepLogistiqueComponent,
-    DevisPropositionsComponent
+    DevisPropositionsComponent,
   ],
   templateUrl: './devis.page.html',
 })
 export class DevisPage implements OnInit {
-  private route = inject(ActivatedRoute);
-  private devisStore = inject(DevisStore);
-  private catalogueStore = inject(CatalogueStore);
+  private route          = inject(ActivatedRoute);
+  readonly devisStore    = inject(DevisStore);
+  readonly catalogueStore = inject(CatalogueStore);
 
-  readonly draft = this.devisStore.wizardDraft;
-  readonly hasPending = this.devisStore.hasActivePendingQuotes;
+  readonly draft    = this.devisStore.wizardDraft;
   readonly isLoading = this.devisStore.isLoading;
 
-  ngOnInit() {
-    // 1. Charger les données initiales
+  async ngOnInit(): Promise<void> {
     this.devisStore.loadMyQuotes();
 
-    // 2. Vérifier si on vient d'un produit spécifique
-    const productId = this.route.snapshot.queryParamMap.get('productId');
-    if (productId) {
-      this.handleProductDeepLink(+productId);
+    // Pré-remplissage depuis la fiche catalogue (materiau_id = slug)
+    const materiauSlug = this.route.snapshot.queryParamMap.get('materiau_id');
+    if (materiauSlug) {
+      await this.handleMateriauDeepLink(materiauSlug);
     }
   }
 
-  private async handleProductDeepLink(id: number) {
-    // Si on a un productId, on pré-remplit le draft et on saute l'étape 2
-    // On doit charger le nom du produit pour l'affichage
+  private async handleMateriauDeepLink(slug: string): Promise<void> {
     try {
-      this.catalogueStore.isLoading.set(true);
-      const materials = await this.catalogueStore.loadMateriaux(); // Ou charger par ID spécifiquement
-      const mat = this.catalogueStore.materiaux().find(m => m.id === id);
-      
-      if (mat) {
-        this.devisStore.updateWizard({
-          productId: id,
-          productName: mat.nom
-        });
+      // Charger le détail si pas déjà chargé ou si c'est un autre matériau
+      if (!this.catalogueStore.selectedMateriau() ||
+          this.catalogueStore.selectedMateriau()!.slug !== slug) {
+        await this.catalogueStore.loadMateriau(slug);
       }
-    } finally {
-      this.catalogueStore.isLoading.set(false);
+      const mat = this.catalogueStore.selectedMateriau();
+      if (mat) {
+        // Pré-sélectionner le produit dans le wizard
+        this.devisStore.updateWizard({
+          productId:   mat.id,
+          productName: mat.nom,
+          uniteVente:  mat.unite_vente,
+        });
+        // Si l'adresse est déjà renseignée, sauter directement à la logistique
+        if (this.draft().adresse) {
+          this.devisStore.goToStep(3);
+        }
+        // Sinon on reste à l'étape 1 (adresse) — step-adresse ira à step 3 après
+      }
+    } catch {
+      // Silencieux — l'utilisateur peut sélectionner manuellement
     }
   }
 
-  resetWizard() {
+  resetWizard(): void {
     this.devisStore.resetWizard();
   }
 
-  goToStep(step: any) {
+  goToStep(step: 1 | 2 | 3 | 4): void {
     this.devisStore.goToStep(step);
   }
 }

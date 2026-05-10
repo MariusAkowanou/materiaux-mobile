@@ -18,6 +18,7 @@ import {
   QuoteStatus,
   OrderStatus,
   DevisWizardDraft,
+  QuoteSummaryInOrder,
 } from './devis.model';
 
 const DEFAULT_WIZARD_DRAFT: DevisWizardDraft = {
@@ -27,6 +28,8 @@ const DEFAULT_WIZARD_DRAFT: DevisWizardDraft = {
   longitude: null,
   productId: null,
   productName: null,
+  uniteVente: null,
+  quantite: null,
   camionTypeId: null,
   camionLibelle: null,
   nbVoyages: 1,
@@ -40,12 +43,14 @@ export class DevisStore {
 
   private readonly _isLoading = new BehaviorSubject<boolean>(false);
 
-  readonly myQuotes      = signal<QuoteSummary[]>([]);
-  readonly myOrders      = signal<OrderResponse[]>([]);
-  readonly currentQuote  = signal<QuoteResponse | null>(null);
-  readonly currentOrder  = signal<OrderResponse | null>(null);
-  readonly isLoading     = signal(false);
-  readonly isSubmitting  = signal(false);
+  readonly myQuotes        = signal<QuoteSummary[]>([]);
+  readonly myOrders        = signal<OrderResponse[]>([]);
+  readonly supplierOrders  = signal<OrderResponse[]>([]);
+  readonly currentQuote    = signal<QuoteResponse | null>(null);
+  readonly currentOrder    = signal<OrderResponse | null>(null);
+  readonly currentQuotes   = signal<QuoteResponse[]>([]);   // résultats de la dernière création
+  readonly isLoading       = signal(false);
+  readonly isSubmitting    = signal(false);
 
   readonly wizardDraft   = signal<DevisWizardDraft>(DEFAULT_WIZARD_DRAFT);
 
@@ -76,6 +81,7 @@ export class DevisStore {
 
   resetWizard(): void {
     this.wizardDraft.set(DEFAULT_WIZARD_DRAFT);
+    this.currentQuotes.set([]);
   }
 
   goToStep(step: 1 | 2 | 3 | 4): void {
@@ -104,28 +110,38 @@ export class DevisStore {
     }
   }
 
-  async createQuote(dto: CreateQuoteDto): Promise<QuoteResponse> {
+  async createQuote(dto: CreateQuoteDto): Promise<QuoteResponse[]> {
     this.isSubmitting.set(true);
     try {
-      const quote = await firstValueFrom(this.api.createQuote(dto));
+      const quotes = await firstValueFrom(this.api.createQuote(dto));
+      // Stocker les devis fraîchement créés pour l'étape 4
+      this.currentQuotes.set(quotes);
+      // Mettre à jour la liste résumée (pour hasPending)
       this.myQuotes.update((list) => [
-        {
-          public_id: quote.public_id,
-          product_name: quote.product_name,
-          client_name: '',
-          quantity: quote.quantity,
-          total_price: quote.total_price,
-          status: quote.status,
-          created_at: quote.created_at,
-          expires_at: quote.expires_at,
-          is_expired: quote.is_expired,
-        },
+        ...quotes.map((q) => ({
+          public_id:    q.public_id,
+          product_name: q.product_name,
+          client_name:  '',
+          quantity:     parseFloat(q.quantity),
+          total_price:  parseFloat(q.total_price),
+          status:       q.status,
+          created_at:   q.created_at ?? new Date().toISOString(),
+          expires_at:   q.expires_at ?? '',
+          is_expired:   q.is_expired ?? false,
+        })),
         ...list,
       ]);
-      return quote;
+      return quotes;
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  async cancelOrder(publicId: string): Promise<void> {
+    await firstValueFrom(this.api.updateOrderStatus(publicId, { status: 'CANCELLED' }));
+    this.myOrders.update((list) =>
+      list.map((o) => (o.public_id === publicId ? { ...o, status: 'CANCELLED' as OrderStatus } : o)),
+    );
   }
 
   async cancelQuote(publicId: string): Promise<void> {
@@ -157,6 +173,16 @@ export class DevisStore {
     try {
       const orders = await firstValueFrom(this.api.getMyOrders());
       this.myOrders.set(orders);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async loadSupplierOrders(): Promise<void> {
+    this.isLoading.set(true);
+    try {
+      const orders = await firstValueFrom(this.api.getSupplierOrders());
+      this.supplierOrders.set(orders);
     } finally {
       this.isLoading.set(false);
     }

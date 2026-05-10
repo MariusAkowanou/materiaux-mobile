@@ -52,8 +52,8 @@ export interface ClientAddress {
 export interface ClientAddressCreate {
   name: string;
   formatted_address: string;
-  latitude?: number;
-  longitude?: number;
+  lat?: number;
+  lng?: number;
 }
 
 

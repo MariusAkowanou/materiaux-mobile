@@ -1,14 +1,12 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="[--background:transparent]">
-    <ion-title class="font-bold text-gray-900 text-xl">Mes Offres</ion-title>
-  </ion-toolbar>
+ 
 
   <!-- Onglets statut -->
   <ion-toolbar class="[--background:white] shadow-sm">
     <div class="flex">
       @for (tab of tabs; track tab.key) {
         <button
-          class="flex-1 py-2.5 text-xs font-semibold transition-all duration-200 relative"
+          class="flex-1 !py-2.5 text-xs font-semibold transition-all duration-200 relative"
           [style.color]="activeTab() === tab.key ? 'var(--ion-color-primary)' : '#9ca3af'"
           [style.border-bottom]="activeTab() === tab.key ? '2px solid var(--ion-color-primary)' : '2px solid transparent'"
           (click)="activeTab.set($any(tab.key))"
@@ -18,7 +16,7 @@
           @if (countByStatut()[tab.key] > 0) {
             <ion-badge
               [color]="activeTab() === tab.key ? 'primary' : 'medium'"
-              class="ml-1 text-[10px]"
+              class="ml-1 text-[10px] !p-1"
             >{{ countByStatut()[tab.key] }}</ion-badge>
           }
         </button>
@@ -27,17 +25,17 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg-gray-50">
+<ion-content class="[--background:var(--ion-color-surface)]">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="px-4 pt-3 pb-24 flex flex-col gap-3">
+  <div class="!px-4 !pt-3 !pb-24 flex flex-col gap-3">
 
     <!-- Squelettes -->
     @if (isLoading()) {
       @for (s of [1, 2, 3]; track s) {
-        <div class="rounded-2xl bg-white p-4 flex flex-col gap-2 shadow-sm">
+        <div class="!rounded-2xl bg-white !p-4 flex flex-col gap-2 shadow-sm">
           <div class="flex items-center gap-3">
             <ion-skeleton-text [animated]="true" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"></ion-skeleton-text>
             <div class="flex-1 flex flex-col gap-1.5">
@@ -52,8 +50,8 @@
 
     <!-- État vide -->
     } @else if (filteredOffres().length === 0) {
-      <div class="flex flex-col items-center justify-center gap-4 pt-16 px-6 text-center">
-        <div class="flex h-20 w-20 items-center justify-center rounded-3xl"
+      <div class="flex flex-col items-center justify-center gap-4 !pt-16 !px-6 text-center">
+        <div class="flex h-20 w-20 items-center justify-center !rounded-3xl"
              style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
           <i class="pi pi-tag text-4xl" style="color: var(--ion-color-primary);"></i>
         </div>

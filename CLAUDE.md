@@ -148,12 +148,13 @@ src/
 ## Pattern des fichiers dans `core/services/api/`
 
 ### 1. Le Model (`*.model.ts`)
+
 Contient **toutes les interfaces TypeScript** du domaine : DTOs d'entrée, types de réponse, enums.
 
 ```typescript
 // core/services/api/auth/auth.model.ts
 
-export type UserRole = 'CLIENT' | 'SUPPLIER' | 'TRANSPORTER' | 'ADMIN' | 'COLLABORATOR';
+export type UserRole = "CLIENT" | "SUPPLIER" | "TRANSPORTER" | "ADMIN" | "COLLABORATOR";
 
 export interface User {
   public_id: string;
@@ -187,12 +188,13 @@ export interface TokenResponse {
 ```
 
 ### 2. Le Service API (`*.api.service.ts`)
+
 Contact **direct et brut** avec le backend. Aucune logique métier, aucun état.
 Retourne uniquement des `Observable<T>`. Les composants ne l'appellent **jamais directement**.
 
 ```typescript
 // core/services/api/auth/auth.api.service.ts
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthApiService {
   private readonly url = `${environment.apiUrl}/accounts`;
 
@@ -225,6 +227,7 @@ export class AuthApiService {
 ```
 
 ### 3. Le Store (`*.store.ts`)
+
 **Couche état** consommée par toute l'application via injection.
 C'est la **seule porte d'entrée** vers les données pour les composants.
 
@@ -244,31 +247,30 @@ Observable           →  uniquement pour les flux RxJS internes (HTTP, interop)
 
 ```typescript
 // core/services/api/auth/auth.store.ts
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthStore {
-
   // ── État interne ──────────────────────────────────────────────────
   // BehaviorSubject privé : uniquement pour l'interop RxJS (intercepteur JWT, etc.)
   private readonly _currentUser = new BehaviorSubject<User | null>(null);
-  private readonly _isLoading   = new BehaviorSubject<boolean>(false);
+  private readonly _isLoading = new BehaviorSubject<boolean>(false);
 
   // ── Signals publics (source de vérité pour les composants) ────────
   readonly currentUser = signal<User | null>(null);
-  readonly isLoading   = signal(false);
+  readonly isLoading = signal(false);
 
   // ── Computed signals (dérivés, recalculés automatiquement) ────────
-  readonly isLoggedIn  = computed(() => !!this.currentUser());
-  readonly userRoles   = computed(() => this.currentUser()?.roles ?? []);
+  readonly isLoggedIn = computed(() => !!this.currentUser());
+  readonly userRoles = computed(() => this.currentUser()?.roles ?? []);
   readonly primaryRole = computed(() => this.currentUser()?.primary_role ?? null);
 
   // ── Observables (interop RxJS pour les intercepteurs/guards) ──────
   readonly currentUser$ = this._currentUser.asObservable();
-  readonly isLoggedIn$  = this._currentUser.pipe(map(u => !!u));
+  readonly isLoggedIn$ = this._currentUser.pipe(map((u) => !!u));
 
   constructor(
     private authApi: AuthApiService,
     private storage: StorageService,
-    private router: Router
+    private router: Router,
   ) {}
 
   // ── Actions ───────────────────────────────────────────────────────
@@ -288,7 +290,7 @@ export class AuthStore {
       finalize(() => {
         this._isLoading.next(false);
         this.isLoading.set(false);
-      })
+      }),
     );
   }
 
@@ -298,7 +300,7 @@ export class AuthStore {
     await this.storage.clearTokens();
     this._currentUser.next(null);
     this.currentUser.set(null);
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(["/auth/login"]);
   }
 
   // Méthode utilitaire synchrone (pas besoin d'async/observable)
@@ -317,25 +319,22 @@ export class HomePage {
   private devisStore = inject(DevisStore);
 
   // Lire les signals directement dans le template
-  readonly user     = this.authStore.currentUser;     // Signal<User | null>
-  readonly isAdmin  = computed(() => this.authStore.hasRole('ADMIN'));
-  readonly quotes   = this.devisStore.myQuotes;       // Signal<Quote[]>
-  readonly loading  = this.devisStore.isLoading;      // Signal<boolean>
+  readonly user = this.authStore.currentUser; // Signal<User | null>
+  readonly isAdmin = computed(() => this.authStore.hasRole("ADMIN"));
+  readonly quotes = this.devisStore.myQuotes; // Signal<Quote[]>
+  readonly loading = this.devisStore.isLoading; // Signal<boolean>
 }
 ```
 
 ```html
 <!-- Template : syntaxe signal (pas de async pipe nécessaire) -->
 @if (user()) {
-  <p>Bonjour {{ user()!.full_name }}</p>
-}
-@if (loading()) {
-  <ion-spinner />
-} @else {
-  @for (quote of quotes(); track quote.public_id) {
-    <app-devis-card [quote]="quote" />
-  }
-}
+<p>Bonjour {{ user()!.full_name }}</p>
+} @if (loading()) {
+<ion-spinner />
+} @else { @for (quote of quotes(); track quote.public_id) {
+<app-devis-card [quote]="quote" />
+} }
 ```
 
 ---
@@ -343,6 +342,7 @@ export class HomePage {
 ## Layout / Shells
 
 ### `auth-shell`
+
 Layout minimaliste sans tabs ni menu. Pages : login, register, verify-otp.
 
 ```typescript
@@ -354,6 +354,7 @@ export class AuthShellComponent {}
 ```
 
 ### `dashboard-shell`
+
 Layout avec `ion-tabs` dont la configuration est **dynamique selon le `primary_role`** de l'utilisateur.
 
 ```
@@ -372,24 +373,24 @@ Un utilisateur `is_hybrid` (multi-rôles) peut **switcher de vue** via un sélec
 ```typescript
 export const routes: Routes = [
   {
-    path: 'auth',
-    loadComponent: () => import('./layout/auth-shell/auth-shell.component'),
+    path: "auth",
+    loadComponent: () => import("./layout/auth-shell/auth-shell.component"),
     children: [
-      { path: 'login',      loadComponent: () => import('./features/auth/login/login.page') },
-      { path: 'register',   loadComponent: () => import('./features/auth/register/register.page') },
-      { path: 'verify-otp', loadComponent: () => import('./features/auth/verify-otp/verify-otp.page') },
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
-    ]
+      { path: "login", loadComponent: () => import("./features/auth/login/login.page") },
+      { path: "register", loadComponent: () => import("./features/auth/register/register.page") },
+      { path: "verify-otp", loadComponent: () => import("./features/auth/verify-otp/verify-otp.page") },
+      { path: "", redirectTo: "login", pathMatch: "full" },
+    ],
   },
   {
-    path: 'dashboard',
-    loadComponent: () => import('./layout/dashboard-shell/dashboard-shell.component'),
+    path: "dashboard",
+    loadComponent: () => import("./layout/dashboard-shell/dashboard-shell.component"),
     canActivate: [AuthGuard],
     children: [
       // Routes client, supplier, transporter, shared, admin...
-    ]
+    ],
   },
-  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
+  { path: "", redirectTo: "auth/login", pathMatch: "full" },
 ];
 ```
 
@@ -398,19 +399,22 @@ export const routes: Routes = [
 ## Authentification & Tokens
 
 ### Stockage — via `StorageService` (encapsule `@capacitor/preferences`)
+
 ```typescript
 // Jamais localStorage — toujours Capacitor Preferences
-await Preferences.set({ key: 'access_token', value: token });
-await Preferences.set({ key: 'refresh_token', value: token });
+await Preferences.set({ key: "access_token", value: token });
+await Preferences.set({ key: "refresh_token", value: token });
 ```
 
 ### `JwtInterceptor`
+
 - Lit le `access_token` depuis `StorageService`
 - Injecte `Authorization: Bearer <token>` sur chaque requête sortante
 - Sur réponse `401` → appelle `POST /accounts/refresh` automatiquement
 - Si le refresh échoue → `authStore.logout()`
 
 ### `ErrorInterceptor`
+
 - `422` → parse les erreurs Pydantic et les expose champ par champ
 - `403` → toast "Accès non autorisé"
 - `500` → toast "Erreur serveur, réessayez"
@@ -426,16 +430,16 @@ await Preferences.set({ key: 'refresh_token', value: token });
 - **Format** : JSON exclusivement
 - **Identifiant externe** : Toujours `public_id` (UUID) dans les URLs — jamais les IDs numériques
 
-| Préfixe URL | Store associé | Description |
-|---|---|---|
-| `/accounts` | `AuthStore` | Inscription, login JWT, profils B2B, rôles |
-| `/adresses` | `AdresseStore` | Découpage géographique Bénin (Pays → Village) |
-| `/materiaux` | `CatalogueStore` + `MateriauxStore` | Catalogue, carrières, offres fournisseurs |
-| `/devis` | `DevisStore` | Devis, commandes, livraisons, litiges, paiements |
-| `/transport` | `TransportStore` | Types camions, tarifs, courses de livraison |
-| `/wallet` | `WalletStore` | Solde, transactions, retraits Mobile Money |
-| `/engins` | `EnginsStore` | Catalogue engins BTP, demandes, contrats |
-| `/partenariats` | `PartenariatStore` | Formulaire acquisition leads B2B |
+| Préfixe URL     | Store associé                       | Description                                      |
+| --------------- | ----------------------------------- | ------------------------------------------------ |
+| `/accounts`     | `AuthStore`                         | Inscription, login JWT, profils B2B, rôles       |
+| `/adresses`     | `AdresseStore`                      | Découpage géographique Bénin (Pays → Village)    |
+| `/materiaux`    | `CatalogueStore` + `MateriauxStore` | Catalogue, carrières, offres fournisseurs        |
+| `/devis`        | `DevisStore`                        | Devis, commandes, livraisons, litiges, paiements |
+| `/transport`    | `TransportStore`                    | Types camions, tarifs, courses de livraison      |
+| `/wallet`       | `WalletStore`                       | Solde, transactions, retraits Mobile Money       |
+| `/engins`       | `EnginsStore`                       | Catalogue engins BTP, demandes, contrats         |
+| `/partenariats` | `PartenariatStore`                  | Formulaire acquisition leads B2B                 |
 
 ---
 
@@ -452,9 +456,7 @@ await Preferences.set({ key: 'refresh_token', value: token });
 <ion-card class="rounded-2xl shadow-md mx-4 mt-3 transition-shadow duration-200 hover:shadow-lg">
   <ion-card-content class="flex flex-col gap-3">
     <span class="text-sm text-gray-500">Prix total</span>
-    <span class="text-2xl font-bold" style="color: var(--ion-color-primary)">
-      141 250 FCFA
-    </span>
+    <span class="text-2xl font-bold" style="color: var(--ion-color-primary)"> 141 250 FCFA </span>
   </ion-card-content>
 </ion-card>
 ```
@@ -472,7 +474,8 @@ Utiliser **exclusivement PrimeIcons** (`pi pi-*`) pour toutes les icônes.
 <i class="pi pi-truck"></i>
 <i class="pi pi-check-circle text-green-500"></i>
 <i class="pi pi-times-circle text-red-500"></i>
-<i class="pi pi-spin pi-spinner"></i>   <!-- loading -->
+<i class="pi pi-spin pi-spinner"></i>
+<!-- loading -->
 ```
 
 ---
@@ -480,6 +483,7 @@ Utiliser **exclusivement PrimeIcons** (`pi pi-*`) pour toutes les icônes.
 ## Logique Métier Critique
 
 ### Transport inclus vs exclu
+
 ```typescript
 if (categorie.transport_inclus === true) {
   // Sable, gravier, agrégats → prix tout compris
@@ -491,21 +495,24 @@ if (categorie.transport_inclus === true) {
 ```
 
 ### Statuts de commande (Order)
+
 ```
 PENDING_PAYMENT
   → PAID_AWAITING_DISPATCH
     → DISPATCHED_TO_TRANSPORTER
-      → IN_TRANSIT
+      → IN_PROGRESS
         → PARTIALLY_DELIVERED
           → DELIVERED
 ↘ CANCELLED (possible à tout moment)
 ```
 
 ### Devis — expiration
+
 Vérifier `is_expired` et `time_remaining_h` avant d'afficher le bouton "Commander".
 Un devis expiré (`is_expired: true`) ne peut plus être confirmé en commande.
 
 ### Wallet — Statuts de retrait
+
 ```
 DRAFT → PENDING_REVIEW → APPROVED → PROCESSING → COMPLETED
                        ↘ REJECTED  (solde remboursé automatiquement)
@@ -515,14 +522,14 @@ DRAFT → PENDING_REVIEW → APPROVED → PROCESSING → COMPLETED
 
 ## Plugins Capacitor
 
-| Plugin | Usage |
-|---|---|
-| `@capacitor/preferences` | Stockage sécurisé tokens JWT |
-| `@capacitor/geolocation` | GPS pour adresse de livraison |
+| Plugin                          | Usage                                          |
+| ------------------------------- | ---------------------------------------------- |
+| `@capacitor/preferences`        | Stockage sécurisé tokens JWT                   |
+| `@capacitor/geolocation`        | GPS pour adresse de livraison                  |
 | `@capacitor/push-notifications` | Notifications push (courses, statuts commande) |
-| `@capacitor/camera` | Photos preuves de livraison |
-| `@capacitor/network` | Détection mode offline |
-| `@capacitor/browser` | Liens de paiement Moneroo / PayDunya |
+| `@capacitor/camera`             | Photos preuves de livraison                    |
+| `@capacitor/network`            | Détection mode offline                         |
+| `@capacitor/browser`            | Liens de paiement Moneroo / PayDunya           |
 
 ---
 

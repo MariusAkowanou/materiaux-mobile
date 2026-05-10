@@ -5,6 +5,8 @@ export const DASHBOARD_ROUTES: Routes = [
   // ─── Route par défaut (CLIENT) ────────────────────────────────────────────
   {
     path: 'home',
+     canActivate: [roleGuard],
+    data: { roles: ['CLIENT'] },
     loadComponent: () =>
       import('../../features/dashboard/client/home/home.page').then(m => m.HomePage),
   },
@@ -13,7 +15,7 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'client',
     canActivate: [roleGuard],
-   // data: { roles: ['CLIENT'] },
+    data: { roles: ['CLIENT'] },
     children: [
       {
         path: 'catalogue',
@@ -35,6 +37,16 @@ export const DASHBOARD_ROUTES: Routes = [
         path: 'commandes',
         loadComponent: () =>
           import('../../features/dashboard/client/commandes/commandes.page').then(m => m.CommandesPage),
+      },
+      {
+        path: 'commandes/:id',
+        loadComponent: () =>
+          import('../../features/dashboard/client/commandes/commandes-detail.page').then(m => m.CommandesDetailPage),
+      },
+      {
+        path: 'commandes/:id/map',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/livraison-map/livraison-map.page').then(m => m.LivraisonMapPage),
       }
     ],
   },
@@ -43,12 +55,22 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'supplier',
     canActivate: [roleGuard],
-    data: { roles: ['SUPPLIER', 'ADMIN'] },
+    data: { roles: ['SUPPLIER', ] },
     children: [
       {
-        path: 'dashboard',
+        path: 'home',
         loadComponent: () =>
           import('../../features/dashboard/supplier/dashboard/supplier-dashboard.page').then(m => m.SupplierDashboardPage),
+      },
+      {
+        path: 'commandes/:id',
+        loadComponent: () =>
+          import('../../features/dashboard/supplier/commandes-detail/supplier-order-detail.page').then(m => m.SupplierOrderDetailPage),
+      },
+            {
+        path: 'commandes/:id/map',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/livraison-map/livraison-map.page').then(m => m.LivraisonMapPage),
       },
       {
         path: 'mes-carrieres',
@@ -72,12 +94,27 @@ export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'transporter',
     canActivate: [roleGuard],
-    data: { roles: ['TRANSPORTER', 'ADMIN'] },
+    data: { roles: ['TRANSPORTER'] },
     children: [
       {
-        path: 'dashboard',
+        path: 'home',
         loadComponent: () =>
           import('../../features/dashboard/transporter/dashboard/transporter-dashboard.page').then(m => m.TransporterDashboardPage),
+      },
+      {
+        path: 'mes-reseaux',
+        loadComponent: () =>
+          import('../../features/dashboard/transporter/mes-reseaux/mes-reseaux.page').then(m => m.MesReseauxPage),
+      },
+      {
+        path: 'courses/:id',
+        loadComponent: () =>
+          import('../../features/dashboard/transporter/course-detail/course-detail.page').then(m => m.CourseDetailPage),
+      },
+      {
+        path: 'courses/:id/map',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/livraison-map/livraison-map.page').then(m => m.LivraisonMapPage),
       },
       {
         path: 'mes-courses',

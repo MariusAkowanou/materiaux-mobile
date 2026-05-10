@@ -1,91 +1,53 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  IonCard, IonCardContent, IonBadge, IonButton, IonProgressBar,
-} from '@ionic/angular/standalone';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { IonSpinner } from '@ionic/angular/standalone';
 import { OrderResponse, OrderStatus } from 'src/app/core/services/api/devis/devis.model';
+
+interface StatusConfig {
+  label: string;
+  bg: string;
+  color: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-order-card',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, IonCard, IonCardContent, IonBadge, IonButton, IonProgressBar],
+  imports: [CommonModule, DecimalPipe, IonSpinner],
   templateUrl: './order-card.component.html',
 })
 export class OrderCardComponent {
-  @Input({ required: true }) order!: OrderResponse;
-  @Input() isSubmitting = false;
+  @Input() order!: OrderResponse;
+  @Input() isProcessing = false;
 
-  @Output() onPay        = new EventEmitter<OrderResponse>();
-  @Output() onPaydunya   = new EventEmitter<OrderResponse>();
-  @Output() onDispute    = new EventEmitter<OrderResponse>();
-  @Output() onClose      = new EventEmitter<OrderResponse>();
-  @Output() onDownloadPdf = new EventEmitter<OrderResponse>();
+  @Output() payMoneroo    = new EventEmitter<OrderResponse>();
+  @Output() openDispute   = new EventEmitter<OrderResponse>();
+  @Output() cancelRequest = new EventEmitter<OrderResponse>();
+  @Output() closeRequest  = new EventEmitter<OrderResponse>();
+  @Output() downloadPdf   = new EventEmitter<OrderResponse>();
+  @Output() viewDetail    = new EventEmitter<OrderResponse>();
 
-  // ── Helpers statut ────────────────────────────────────────────────
-
-  statusLabel(status: OrderStatus): string {
-    const map: Record<OrderStatus, string> = {
-      PENDING_PAYMENT:            'En attente de paiement',
-      PAID_AWAITING_DISPATCH:     'Payé — préparation',
-      DISPATCHED_TO_TRANSPORTER:  'Assigné au transporteur',
-      IN_TRANSIT:                 'En transit',
-      PARTIALLY_DELIVERED:        'Partiellement livré',
-      DELIVERED:                  'Livré',
-      CANCELLED:                  'Annulé',
+  get cfg(): StatusConfig {
+    const map: Record<string, StatusConfig> = {
+      CONFIRMED:                 { label: 'En attente',             bg: '#fff7ed', color: '#f97316', icon: 'pi-clock' },
+      ASSIGNED:                  { label: 'Assigné',                bg: '#eff6ff', color: '#3b82f6', icon: 'pi-user' },
+      IN_PROGRESS:                { label: 'En transit',             bg: '#ecfeff', color: '#0891b2', icon: 'pi-truck' },
+      DELIVERED:                 { label: 'Livré',                  bg: '#f0fdf4', color: '#16a34a', icon: 'pi-check-circle' },
+      CANCELLED:                 { label: 'Annulé',                 bg: '#fef2f2', color: '#dc2626', icon: 'pi-times-circle' },
     };
-    return map[status] ?? status;
+    return map[this.order.status] ?? { label: this.order.status, bg: '#f3f4f6', color: '#6b7280', icon: 'pi-info-circle' };
   }
 
-  statusColor(status: OrderStatus): string {
-    const map: Record<OrderStatus, string> = {
-      PENDING_PAYMENT:            'warning',
-      PAID_AWAITING_DISPATCH:     'primary',
-      DISPATCHED_TO_TRANSPORTER:  'primary',
-      IN_TRANSIT:                 'tertiary',
-      PARTIALLY_DELIVERED:        'tertiary',
-      DELIVERED:                  'success',
-      CANCELLED:                  'medium',
-    };
-    return map[status] ?? 'medium';
-  }
+  /** Peut payer si non payé et statut actif */
+  get canPay():     boolean { return !this.order.is_paid; }
+  get canCancel():  boolean { return ['CONFIRMED','PENDING_PAYMENT'].includes(this.order.status); }
+  get canDispute(): boolean { return ['IN_PROGRESS','DELIVERED'].includes(this.order.status); }
+  get canClose():   boolean { return ['DELIVERED'].includes(this.order.status); }
+  get showPdf():    boolean { return this.order.is_paid; }
 
-  statusIcon(status: OrderStatus): string {
-    const map: Record<OrderStatus, string> = {
-      PENDING_PAYMENT:            'pi pi-credit-card',
-      PAID_AWAITING_DISPATCH:     'pi pi-box',
-      DISPATCHED_TO_TRANSPORTER:  'pi pi-user',
-      IN_TRANSIT:                 'pi pi-truck',
-      PARTIALLY_DELIVERED:        'pi pi-truck',
-      DELIVERED:                  'pi pi-check-circle',
-      CANCELLED:                  'pi pi-times-circle',
-    };
-    return map[status] ?? 'pi pi-circle';
-  }
-
-  // ── Conditions d'affichage ────────────────────────────────────────
-
-  get canPay(): boolean {
-    return this.order.status === 'PENDING_PAYMENT' && !this.order.is_paid;
-  }
-
-  get canDispute(): boolean {
-    return ['IN_TRANSIT', 'PARTIALLY_DELIVERED', 'DELIVERED'].includes(this.order.status);
-  }
-
-  get canClose(): boolean {
-    return this.order.status === 'DELIVERED';
-  }
-
-  get canDownloadPdf(): boolean {
-    return this.order.status === 'DELIVERED' || this.order.status === 'CANCELLED';
-  }
-
-  get showProgress(): boolean {
-    return (
-      this.order.ordered_quantity > 0 &&
-      this.order.status !== 'PENDING_PAYMENT' &&
-      this.order.status !== 'CANCELLED'
-    );
-  }
+  /** Raccourcis vers les données du devis imbriqué */
+  get productName(): string { return this.order.quote_summary?.product_name ?? '—'; }
+  get supplierName(): string { return this.order.quote_summary?.supplier_name ?? '—'; }
+  get totalPrice(): number  { return parseFloat(this.order.quote_summary?.total_price ?? '0'); }
+  get qty(): number          { return parseFloat(this.order.ordered_quantity ?? '0'); }
 }

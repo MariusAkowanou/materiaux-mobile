@@ -1,0 +1,84 @@
+<!-- ── Widget Réseaux de carrières ─────────────────────────────── -->
+<div class="!rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between !px-4 !py-3 border-b border-gray-50">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 !rounded-xl flex items-center justify-center"
+           style="background: color-mix(in srgb, var(--ion-color-primary) 12%, white)">
+        <i class="pi pi-sitemap text-[12px]" style="color: var(--ion-color-primary)"></i>
+      </div>
+      <span class="text-[13px] font-black text-gray-800">Mes réseaux</span>
+      @if (reseaux.length > 0) {
+        <span class="flex items-center justify-center w-5 h-5 !rounded-full text-[10px] font-black text-white"
+              style="background: var(--ion-color-primary)">
+          {{ reseaux.length }}
+        </span>
+      }
+    </div>
+    <button (click)="onRejoindre.emit()"
+            class="flex items-center gap-1 !px-2.5 !py-1.5 !rounded-xl text-[11px] font-bold text-white transition-all active:scale-95"
+            style="background: var(--ion-color-primary)">
+      <i class="pi pi-plus text-[10px]"></i>
+      Rejoindre
+    </button>
+  </div>
+
+  <!-- Liste (max 3) -->
+  @if (reseaux.length === 0) {
+    <div class="flex flex-col items-center gap-2 !py-6 !px-4 text-center">
+      <i class="pi pi-sitemap text-[28px] text-gray-200"></i>
+      <p class="text-[12px] text-gray-400">Rejoignez un réseau pour recevoir des offres</p>
+    </div>
+  } @else {
+    <div class="divide-y divide-gray-50">
+      @for (r of reseauxAffiches; track r.carriere_id; let i = $index) {
+        <div class="flex items-center justify-between !px-4 !py-3">
+          <!-- Numéro + infos -->
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-7 h-7 flex-shrink-0 !rounded-xl flex items-center justify-center text-[10px] font-black"
+                 style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);
+                        color: var(--ion-color-primary)">
+              {{ i + 1 }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-[13px] font-bold text-gray-900 truncate">{{ nomCarriere(r) }}</p>
+              @if (r.carriere?.adresse_texte) {
+                <p class="text-[10px] text-gray-400 truncate">
+                  <i class="pi pi-map-marker text-[8px] mr-0.5"></i>{{ r.carriere!.adresse_texte }}
+                </p>
+              }
+            </div>
+          </div>
+          <!-- Bouton quitter -->
+          <button (click)="onQuitter.emit(r.carriere_id)"
+                  class="flex-shrink-0 ml-2 flex items-center gap-1 !px-2 !py-1.5 !rounded-lg
+                         bg-red-50 text-red-400 text-[10px] font-bold active:scale-95 transition-transform">
+            <i class="pi pi-sign-out text-[9px]"></i>
+            Quitter
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Voir tous (si surplus) -->
+    @if (surplus > 0) {
+      <button (click)="onVoirTous.emit()"
+              class="flex w-full items-center justify-center gap-1.5 !py-3 border-t border-gray-50
+                     text-[12px] font-bold active:bg-gray-50 transition-colors"
+              style="color: var(--ion-color-primary)">
+        <i class="pi pi-th-large text-[11px]"></i>
+        Voir les {{ surplus }} autre{{ surplus > 1 ? 's' : '' }}
+        <i class="pi pi-chevron-right text-[10px]"></i>
+      </button>
+    } @else {
+      <button (click)="onVoirTous.emit()"
+              class="flex w-full items-center justify-center gap-1.5 !py-3 border-t border-gray-50
+                     text-[12px] font-bold active:bg-gray-50 transition-colors text-gray-400">
+        <i class="pi pi-list text-[11px]"></i>
+        Gérer mes réseaux
+        <i class="pi pi-chevron-right text-[10px]"></i>
+      </button>
+    }
+  }
+</div>

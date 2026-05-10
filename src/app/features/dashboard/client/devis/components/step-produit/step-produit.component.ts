@@ -36,11 +36,12 @@ export class StepProduitComponent implements OnInit {
     this.catalogueStore.setSearchQuery(query);
   }
 
-  selectProduct(mat: any  ) {
-    this.devisStore.updateWizard({ 
-      productId: mat.id,
+  selectProduct(mat: any) {
+    this.devisStore.updateWizard({
+      productId:   mat.id,
       productName: mat.nom,
-      step: 3 // Passer à la logistique
+      uniteVente:  mat.unite_vente ?? mat.unite ?? 'm³',
+      step: 3,
     });
   }
 

@@ -1,93 +1,88 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
-  IonContent, IonHeader, IonToolbar, IonTitle,
-  IonRefresher, IonRefresherContent, IonSkeletonText, IonBadge,
-  ToastController,
+  IonContent, IonHeader, IonToolbar,
+  IonRefresher, IonRefresherContent, IonSpinner,
 } from '@ionic/angular/standalone';
 import { TransportStore } from 'src/app/core/services/api/transport/transport.store';
-import { Course, CourseStatut } from 'src/app/core/services/api/transport/transport.model';
+import { MissionTransporteur } from 'src/app/core/services/api/transport/transport.model';
 import { CourseCardComponent } from './components/course-card/course-card.component';
 
-type Tab = 'EN_ATTENTE' | 'EN_COURS' | 'LIVREE';
+type TabFilter = 'ASSIGNED' | 'IN_PROGRESS' | 'DELIVERED';
 
 @Component({
   selector: 'app-mes-courses',
   standalone: true,
   imports: [
     CommonModule,
-    IonContent, IonHeader, IonToolbar, IonTitle,
-    IonRefresher, IonRefresherContent, IonSkeletonText, IonBadge,
+    IonContent, IonHeader, IonToolbar,
+    IonRefresher, IonRefresherContent, IonSpinner,
     CourseCardComponent,
   ],
   templateUrl: './mes-courses.page.html',
 })
 export class MesCoursesPage implements OnInit {
-  private store     = inject(TransportStore);
-  private toastCtrl = inject(ToastController);
+  private store  = inject(TransportStore);
+  private router = inject(Router);
 
-  readonly isLoading          = this.store.isLoading;
-  readonly coursesEnAttente   = this.store.coursesEnAttente;
-  readonly coursesActives     = this.store.coursesActives;
-  readonly coursesTerminees   = this.store.coursesTerminees;
+  // ── État du store ─────────────────────────────────────────────────────────
+  readonly mesMissions = this.store.mesMissions;
+  readonly isLoading   = this.store.isLoading;
 
-  readonly activeTab = signal<Tab>('EN_ATTENTE');
+  // ── Onglet actif ──────────────────────────────────────────────────────────
+  readonly activeTab = signal<TabFilter>('ASSIGNED');
 
-  readonly tabs: { key: Tab; label: string }[] = [
-    { key: 'EN_ATTENTE', label: 'En attente' },
-    { key: 'EN_COURS',   label: 'En cours'   },
-    { key: 'LIVREE',     label: 'Terminées'  },
-  ];
-
-  get activeCourses(): Course[] {
-    switch (this.activeTab()) {
-      case 'EN_ATTENTE': return this.coursesEnAttente();
-      case 'EN_COURS':   return this.coursesActives();
-      case 'LIVREE':     return this.coursesTerminees();
-    }
-  }
-
-  get countByTab(): Record<Tab, number> {
-    return {
-      EN_ATTENTE: this.coursesEnAttente().length,
-      EN_COURS:   this.coursesActives().length,
-      LIVREE:     this.coursesTerminees().length,
-    };
-  }
-
-  ngOnInit() {
-    this.store.loadMesCourses();
-  }
-
-  async refresh(event: CustomEvent) {
-    await this.store.loadMesCourses();
-    (event.target as HTMLIonRefresherElement).complete();
-  }
-
-  async changeStatut(course: Course, statut: CourseStatut) {
-    try {
-      await this.store.updateCourseStatut(course.id, statut);
-      const labels: Record<CourseStatut, string> = {
-        EN_ATTENTE: 'en attente',
-        ASSIGNEE:   'acceptée',
-        EN_COURS:   'démarrée',
-        LIVREE:     'livrée',
-      };
-      this.toast(`Course ${labels[statut]}`, 'success');
-
-      // Passer à l'onglet suivant si la liste actuelle est vide
-      if (statut === 'ASSIGNEE' && this.coursesEnAttente().length === 0) {
-        this.activeTab.set('EN_COURS');
-      } else if (statut === 'LIVREE' && this.coursesActives().length === 0) {
-        this.activeTab.set('LIVREE');
+  // ── Missions filtrées selon l'onglet ─────────────────────────────────────
+  readonly missionsFiltered = computed(() => {
+    const tab = this.activeTab();
+    return this.mesMissions().filter((m) => {
+      if (tab === 'IN_PROGRESS') {
+        // Regroupe "en route" + "partiellement livré"
+        return m.status === 'IN_PROGRESS' || m.status === 'PARTIALLY_DELIVERED';
       }
-    } catch {
-      this.toast('Erreur lors du changement de statut', 'danger');
-    }
+      if (tab === 'DELIVERED') {
+        return m.status === 'DELIVERED' || m.status === 'COMPLETED';
+      }
+      return m.status === tab;
+    });
+  });
+
+  // ── Compteurs par onglet ──────────────────────────────────────────────────
+  readonly countAssigned = computed(() =>
+    this.mesMissions().filter((m) => m.status === 'ASSIGNED').length,
+  );
+
+  readonly countInProgress = computed(() =>
+    this.mesMissions().filter(
+      (m) => m.status === 'IN_PROGRESS' || m.status === 'PARTIALLY_DELIVERED',
+    ).length,
+  );
+
+  readonly countDelivered = computed(() =>
+    this.mesMissions().filter(
+      (m) => m.status === 'DELIVERED' || m.status === 'COMPLETED',
+    ).length,
+  );
+
+  // ── Cycle de vie ──────────────────────────────────────────────────────────
+
+  async ngOnInit(): Promise<void> {
+    await this.store.loadMesMissions();
   }
 
-  private async toast(message: string, color: string) {
-    const t = await this.toastCtrl.create({ message, color, duration: 3000, position: 'top' });
-    await t.present();
+  // ── Actions ───────────────────────────────────────────────────────────────
+
+  setTab(tab: TabFilter): void {
+    this.activeTab.set(tab);
+  }
+
+  async handleRefresh(event: any): Promise<void> {
+    await this.store.loadMesMissions();
+    event.target.complete();
+  }
+
+  voirDetail(mission: MissionTransporteur): void {
+    this.router.navigate(['/dashboard/transporter/courses', mission.public_id]);
   }
 }

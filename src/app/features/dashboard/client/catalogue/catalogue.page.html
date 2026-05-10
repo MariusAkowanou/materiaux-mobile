@@ -11,7 +11,7 @@
       <!-- Badge catégorie active -->
       @if (store.selectedCategorie(); as cat) {
         <button
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20
+          class="flex items-center gap-1.5 !px-3 !py-1.5 !rounded bg-white/20
                  text-white text-[12px] font-semibold active:bg-white/30 transition-colors"
           (click)="onCategorieSelect(cat)"
         >

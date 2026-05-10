@@ -17,6 +17,10 @@ export class MateriauxApiService {
   constructor(private http: HttpClient) {}
 
   // ── Carrières ──────────────────────────────────────────────────────
+  getCarrieres(): Observable<Carriere[]> {
+    return this.http.get<Carriere[]>(`${this.matUrl}/carrieres`);
+  }
+
 
   getMesCarrieres(): Observable<Carriere[]> {
     return this.http.get<Carriere[]>(`${this.matUrl}/carrieres/mes`);

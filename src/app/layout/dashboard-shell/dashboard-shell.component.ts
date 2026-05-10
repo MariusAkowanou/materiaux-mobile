@@ -56,14 +56,14 @@ export class DashboardShellComponent {
       { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
     SUPPLIER: [
-      { tab: 'dashboard',  route: '/dashboard/supplier/dashboard',  icon: 'pi pi-chart-bar',     label: 'Dashboard'  },
+      { tab: 'dashboard',  route: '/dashboard/supplier/home',  icon: 'pi pi-chart-bar',     label: 'Dashboard'  },
       { tab: 'offres',     route: '/dashboard/supplier/mes-offres', icon: 'pi pi-tag',           label: 'Offres'     },
       { tab: 'carrieres',  route: '/dashboard/supplier/mes-carrieres', icon: 'pi pi-map-marker', label: 'Carrières'  },
       { tab: 'wallet',     route: '/dashboard/wallet',              icon: 'pi pi-wallet',        label: 'Wallet'     },
       { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
     TRANSPORTER: [
-      { tab: 'dashboard',  route: '/dashboard/transporter/dashboard', icon: 'pi pi-chart-bar',   label: 'Dashboard'  },
+      { tab: 'dashboard',  route: '/dashboard/transporter/home', icon: 'pi pi-chart-bar',   label: 'Dashboard'  },
       { tab: 'courses',    route: '/dashboard/transporter/mes-courses', icon: 'pi pi-truck',     label: 'Courses'    },
       { tab: 'tarifs',     route: '/dashboard/transporter/mes-tarifs', icon: 'pi pi-list',       label: 'Tarifs'     },
       { tab: 'wallet',     route: '/dashboard/wallet',              icon: 'pi pi-wallet',        label: 'Wallet'     },

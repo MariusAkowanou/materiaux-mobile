@@ -1,0 +1,258 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: var(--ion-color-primary)">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard/transporter/home"
+                       class="[--color:#fff] [--icon-font-size:20px]" />
+    </ion-buttons>
+    <div class="flex items-center justify-between !pr-4">
+      <div class="pl-2">
+      </div>
+      <button (click)="openModal()"
+              class="flex items-center gap-1.5 !px-3 !py-2 !rounded-xl text-[12px] font-bold text-white"
+              style="background: rgba(255,255,255,0.2)">
+        <i class="pi pi-plus text-[11px]"></i>
+        Rejoindre
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+  <div class="w-full !mt-3 !px-4">
+    <p class="text-white text-sm font-bold "
+           style="color: var(--ion-color-primary)">Mes réseaux</p>
+  </div>
+  <!-- Loading -->
+  @if (isLoading() && !mesReseaux().length) {
+    <div class="flex items-center justify-center !py-16 gap-2 text-gray-400">
+      <ion-spinner name="crescent" style="width:20px;height:20px;color:var(--ion-color-primary)"></ion-spinner>
+      <span class="text-[13px]">Chargement…</span>
+    </div>
+
+  } @else if (!mesReseaux().length) {
+    <!-- Empty state -->
+    <div class="flex flex-col items-center justify-center gap-4 !px-8 !pt-24 text-gray-300">
+      <div class="w-20 h-20 !rounded-3xl bg-gray-100 flex items-center justify-center">
+        <i class="pi pi-sitemap text-[36px] text-gray-300"></i>
+      </div>
+      <div class="text-center">
+        <p class="text-[15px] font-black text-gray-500">Aucun réseau rejoint</p>
+        <p class="text-[13px] text-gray-400 !mt-1">
+          Rejoignez un réseau de carrière pour recevoir des offres de transport.
+        </p>
+      </div>
+      <button (click)="openModal()"
+              class="flex items-center gap-2 !px-6 !py-3 !rounded-2xl text-[14px] font-bold text-white !mt-2"
+              style="background: var(--ion-color-primary)">
+        <i class="pi pi-plus text-sm"></i>
+        Rejoindre un réseau
+      </button>
+    </div>
+
+  } @else {
+    <!-- Stats -->
+    <div class="!px-4 !pt-4 !pb-2">
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm !px-4 !py-3 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center"
+             style="background: color-mix(in srgb, var(--ion-color-primary) 12%, white)">
+          <i class="pi pi-sitemap text-lg" style="color: var(--ion-color-primary)"></i>
+        </div>
+        <div>
+          <p class="text-[22px] font-black leading-none" style="color: var(--ion-color-primary)">
+            {{ mesReseaux().length }}
+          </p>
+          <p class="text-[11px] text-gray-400 font-semibold">
+            réseau{{ mesReseaux().length > 1 ? 'x' : '' }} actif{{ mesReseaux().length > 1 ? 's' : '' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste complète -->
+    <div class="!px-4 !pb-6">
+      <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="divide-y divide-gray-50">
+          @for (reseau of mesReseaux(); track reseau.carriere_id; let i = $index) {
+            <div class="flex items-center justify-between !px-4 !py-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <!-- Numéro -->
+                <div class="w-8 h-8 flex-shrink-0 rounded-xl flex items-center justify-center text-[11px] font-black"
+                     style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);
+                            color: var(--ion-color-primary)">
+                  {{ i + 1 }}
+                </div>
+                <div class="min-w-0">
+                  <!-- Nom carrière -->
+                  <p class="text-[14px] font-bold text-gray-900 truncate">
+                    {{ reseau.carriere?.nom ?? reseau.carriere_nom ?? 'Carrière #' + reseau.carriere_id }}
+                  </p>
+                  <!-- Adresse -->
+                  @if (reseau.carriere?.adresse_texte) {
+                    <p class="text-[11px] text-gray-400 truncate mt-0.5">
+                      <i class="pi pi-map-marker text-[9px] mr-0.5"></i>
+                      {{ reseau.carriere!.adresse_texte }}
+                    </p>
+                  }
+                  <!-- Fournisseur -->
+                  @if (reseau.fournisseur) {
+                    <p class="text-[11px] mt-0.5 font-semibold"
+                       style="color: color-mix(in srgb, var(--ion-color-primary) 70%, #555)">
+                      <i class="pi pi-building text-[9px] mr-0.5"></i>
+                      {{ reseau.fournisseur.nom }}
+                    </p>
+                  }
+                  <!-- Statut -->
+                  <div class="flex items-center gap-1 mt-1">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                    <span class="text-[10px] text-emerald-600 font-bold">Actif</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Bouton quitter -->
+              <button
+                (click)="quitterReseau(reseau.carriere_id,
+                  reseau.carriere?.nom ?? reseau.carriere_nom ?? 'cette carrière')"
+                class="flex-shrink-0 flex items-center gap-1.5 ml-3 !px-3 !py-2 !rounded-xl
+                       bg-red-50 text-red-500 text-[11px] font-bold
+                       active:scale-[0.97] transition-transform">
+                <i class="pi pi-sign-out text-[10px]"></i>
+                Quitter
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+</ion-content>
+
+<!-- ── MODAL REJOINDRE ────────────────────────────────────────────── -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-end justify-center"
+       style="background: rgba(0,0,0,0.45);" (click)="showModal.set(false)">
+    <div class="w-full max-w-lg !rounded-t-3xl bg-white flex flex-col"
+         style="max-height: 85vh;"
+         (click)="$event.stopPropagation()">
+
+      <!-- Poignée -->
+      <div class="flex justify-center !pt-3 !pb-1 flex-shrink-0">
+        <div class="w-10 h-1 !rounded-full bg-gray-200"></div>
+      </div>
+
+      <!-- Header modal -->
+      <div class="flex items-center justify-between !px-5 !py-3 border-b border-gray-100 flex-shrink-0">
+        <div>
+          <h3 class="text-[16px] font-black text-gray-900">Rejoindre un réseau</h3>
+          @if (selectedCount() > 0) {
+            <p class="text-[11px] font-bold mt-0.5" style="color: var(--ion-color-primary)">
+              {{ selectedCount() }} sélectionnée{{ selectedCount() > 1 ? 's' : '' }}
+            </p>
+          } @else {
+            <p class="text-[11px] text-gray-400 mt-0.5">Sélectionnez des carrières</p>
+          }
+        </div>
+        <button (click)="showModal.set(false)"
+                class="flex h-8 w-8 items-center justify-center !rounded-xl bg-gray-100 text-gray-500">
+          <i class="pi pi-times text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Recherche -->
+      <div class="!px-5 !pt-3 !pb-2 flex-shrink-0">
+        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 !rounded-xl !px-3 !py-2.5">
+          <i class="pi pi-search text-[13px] text-gray-400"></i>
+          <input
+            type="text"
+            placeholder="Rechercher une carrière…"
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            class="flex-1 bg-transparent text-[14px] text-gray-800 placeholder-gray-400 focus:outline-none"
+          />
+          @if (searchQuery()) {
+            <button (click)="searchQuery.set('')" class="text-gray-400">
+              <i class="pi pi-times text-[11px]"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Liste -->
+      <div class="flex-1 overflow-y-auto !px-5 !pb-2">
+        @if (isLoadingCarrieres()) {
+          <div class="flex items-center justify-center py-10 gap-2 text-gray-400">
+            <ion-spinner name="crescent" style="width:18px;height:18px;color:var(--ion-color-primary)"></ion-spinner>
+            <span class="text-[13px]">Chargement…</span>
+          </div>
+        } @else if (!filteredCarrieres().length) {
+          <div class="flex flex-col items-center !py-8 gap-2 text-gray-300">
+            <i class="pi pi-search text-[32px]"></i>
+            <p class="text-[13px] text-gray-400 text-center">
+              @if (searchQuery()) {
+                Aucune carrière trouvée pour "{{ searchQuery() }}"
+              } @else {
+                Vous avez déjà rejoint toutes les carrières disponibles
+              }
+            </p>
+          </div>
+        } @else {
+          <div class="flex flex-col gap-2 !pb-2">
+            @for (carriere of filteredCarrieres(); track carriere.id) {
+              <button
+                (click)="toggleSelection(carriere.id)"
+                class="flex items-center gap-3 w-full !rounded-2xl border-2 !px-4 !py-3.5
+                       transition-all active:scale-[0.99] text-left"
+                [style.border-color]="isSelected(carriere.id) ? 'var(--ion-color-primary)' : '#e5e7eb'"
+                [style.background]="isSelected(carriere.id)
+                  ? 'color-mix(in srgb, var(--ion-color-primary) 6%, white)'
+                  : 'white'">
+                <!-- Checkbox -->
+                <div class="w-5 h-5 rounded-lg flex-shrink-0 flex items-center justify-center border-2 transition-all"
+                     [style.border-color]="isSelected(carriere.id) ? 'var(--ion-color-primary)' : '#d1d5db'"
+                     [style.background]="isSelected(carriere.id) ? 'var(--ion-color-primary)' : 'transparent'">
+                  @if (isSelected(carriere.id)) {
+                    <i class="pi pi-check text-[9px] text-white"></i>
+                  }
+                </div>
+                <!-- Infos -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-[13px] font-bold truncate"
+                     [style.color]="isSelected(carriere.id) ? 'var(--ion-color-primary)' : '#111827'">
+                    {{ carriere.nom }}
+                  </p>
+                  @if (carriere.adresse_texte) {
+                    <p class="text-[11px] text-gray-400 truncate">
+                      <i class="pi pi-map-marker text-[9px] mr-0.5"></i>{{ carriere.adresse_texte }}
+                    </p>
+                  }
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-4 border-t border-gray-100 flex-shrink-0">
+        <button
+          (click)="confirmerRejoindre()"
+          [disabled]="!selectedCount() || isSubmitting()"
+          class="flex w-full items-center justify-center gap-2.5 !rounded-2xl !py-4
+                 text-[15px] font-extrabold text-white disabled:opacity-40"
+          style="background: linear-gradient(135deg, var(--ion-color-primary) 0%,
+                 color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);">
+          @if (isSubmitting()) {
+            <ion-spinner name="crescent" style="color:#fff;width:16px;height:16px;"></ion-spinner>
+            Traitement…
+          } @else if (selectedCount() === 0) {
+            Sélectionnez des carrières
+          } @else {
+            <i class="pi pi-check-circle text-base"></i>
+            Rejoindre {{ selectedCount() }} réseau{{ selectedCount() > 1 ? 'x' : '' }}
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

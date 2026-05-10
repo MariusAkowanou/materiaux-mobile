@@ -1,0 +1,126 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: var(--ion-color-primary)">
+    <div class="!px-4 !pt-3 !pb-5">
+
+      <!-- Ligne 1 : identité + toggle disponibilité -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest leading-none">
+            Transporteur
+          </p>
+          <p class="text-white text-[15px] font-bold leading-tight mt-1">
+            {{ monProfil()?.nom_entreprise ?? 'Mon tableau de bord' }}
+          </p>
+        </div>
+
+        <!-- Toggle disponibilité -->
+        <button
+          (click)="toggleDisponibilite()"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all active:scale-95"
+          [ngStyle]="{
+            background: estDisponible() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
+            border: estDisponible()
+              ? '1px solid rgba(255,255,255,0.3)'
+              : '1px solid rgba(255,255,255,0.15)',
+            color: 'white'
+          }">
+          <span
+            class="w-2 h-2 rounded-full flex-shrink-0 transition-all"
+            [ngStyle]="{
+              background: estDisponible() ? '#4ade80' : '#9ca3af',
+              'box-shadow': estDisponible() ? '0 0 0 3px rgba(74,222,128,0.3)' : 'none'
+            }">
+          </span>
+          {{ estDisponible() ? 'Disponible' : 'Indisponible' }}
+        </button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="px-4 pt-4 pb-10 flex flex-col gap-5">
+
+    <!-- ══ SECTION : Offres disponibles ════════════════════════════ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <i class="pi pi-bolt text-sm" style="color: var(--ion-color-primary)"></i>
+        <h2 class="text-sm font-semibold text-gray-700 ">
+          Offres disponibles
+        </h2>
+        @if (offresEnAttente().length > 0) {
+          <span class="flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black text-white bg-red-500">
+            {{ offresEnAttente().length }}
+          </span>
+        }
+      </div>
+
+      @if (isLoading() && !offresEnAttente().length) {
+        <div class="flex items-center justify-center py-10 gap-2 text-gray-400">
+          <ion-spinner name="crescent" style="width:20px;height:20px;color:var(--ion-color-primary)"></ion-spinner>
+          <span class="text-[13px]">Chargement des offres…</span>
+        </div>
+
+      } @else if (!offresEnAttente().length) {
+        <div class="flex flex-col items-center gap-3 py-10 text-center">
+          <div class="w-16 h-16 rounded-3xl bg-gray-100 flex items-center justify-center">
+            <i class="pi pi-inbox text-[28px] text-gray-300"></i>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-gray-500">Aucune offre pour le moment</p>
+            <p class="text-[12px] text-gray-400 mt-1">
+              Rejoignez des réseaux de carrières pour recevoir des offres
+            </p>
+          </div>
+        </div>
+
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (offre of offresEnAttente(); track offre.offre_id) {
+            <app-offre-card
+              [offre]="offre"
+              [isSubmitting]="isSubmitting()"
+              (onAccepter)="accepterOffre($event)"
+              (onVoirDetail)="voirDetailOffre($event)"
+            />
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ══ SECTION : Réseaux de carrières ══════════════════════════ -->
+    <section>
+      <div class="flex items-center gap-2 mb-3">
+        <i class="pi pi-sitemap text-sm" style="color: var(--ion-color-primary)"></i>
+        <h2 class="text-sm font-semibold text-gray-700">
+          Mes réseaux
+        </h2>
+      </div>
+
+      <app-reseau-widget
+        [reseaux]="mesReseaux()"
+        (onRejoindre)="openRejoindreModal()"
+        (onVoirTous)="voirTousReseaux()"
+        (onQuitter)="quitterReseau($event)"
+      />
+    </section>
+
+  </div>
+
+</ion-content>
+
+<!-- ── Modal Rejoindre ─────────────────────────────────────────── -->
+@if (showRejoindreModal()) {
+  <app-rejoindre-modal
+    [carrieres]="carrieresPourModal()"
+    [isLoading]="isLoadingCarrieres()"
+    [isSubmitting]="isSubmitting()"
+    (onFermer)="showRejoindreModal.set(false)"
+    (onConfirmer)="confirmerRejoindre($event)"
+  />
+}

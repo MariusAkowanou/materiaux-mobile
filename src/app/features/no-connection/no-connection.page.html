@@ -1,0 +1,116 @@
+<ion-content [fullscreen]="true">
+  <div class="flex flex-col items-center justify-center h-full !px-8 gap-0"
+       style="background: linear-gradient(170deg, #f8fafc 0%, #f1f5f9 100%)">
+
+    <!-- Illustration réseau -->
+    <div class="relative flex items-center justify-center !mb-8">
+
+      <!-- Halo pulsant -->
+      @if (!isRestored()) {
+        <div class="absolute w-40 h-40 rounded-full animate-ping opacity-10"
+             style="background: #94a3b8; animation-duration: 2s;"></div>
+        <div class="absolute w-28 h-28 rounded-full opacity-15"
+             style="background: #94a3b8;"></div>
+      }
+
+      <!-- Icône principale -->
+      <div class="w-24 h-24 !rounded-3xl flex items-center justify-center shadow-xl relative z-10
+                  transition-all duration-500"
+           [style.background]="isRestored() ? 'linear-gradient(135deg,#16a34a,#15803d)' : '#1e293b'">
+        @if (isRestored()) {
+          <i class="pi pi-wifi text-white text-4xl"></i>
+        } @else {
+          <i class="pi pi-times text-white text-3xl"></i>
+        }
+      </div>
+    </div>
+
+    <!-- Texte principal -->
+    @if (!isRestored()) {
+      <div class="text-center !mb-8">
+        <h1 class="text-[24px] font-black text-gray-900 leading-tight !mb-2">
+          Pas de connexion
+        </h1>
+        <p class="text-[14px] text-gray-500 leading-relaxed max-w-xs mx-auto">
+          Vérifiez votre Wi-Fi ou vos données mobiles.
+          L'application reprendra automatiquement dès que la connexion sera rétablie.
+        </p>
+      </div>
+    } @else {
+      <div class="text-center !mb-8">
+        <h1 class="text-[24px] font-black text-emerald-600 leading-tight !mb-2">
+          Connexion rétablie !
+        </h1>
+        <p class="text-[14px] text-gray-500 leading-relaxed">
+          Reprise en cours…
+        </p>
+      </div>
+    }
+
+    <!-- Indicateurs réseau -->
+    @if (!isRestored()) {
+      <div class="flex items-center gap-6 !mb-10">
+
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-12 h-12 !rounded-2xl bg-white shadow flex items-center justify-center">
+            <i class="pi pi-wifi text-xl text-gray-300"></i>
+          </div>
+          <span class="text-[10px] font-semibold text-gray-400">Wi-Fi</span>
+        </div>
+
+        <div class="w-px h-8 bg-gray-200"></div>
+
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-12 h-12 !rounded-2xl bg-white shadow flex items-center justify-center">
+            <i class="pi pi-mobile text-xl text-gray-300"></i>
+          </div>
+          <span class="text-[10px] font-semibold text-gray-400">Données</span>
+        </div>
+
+        <div class="w-px h-8 bg-gray-200"></div>
+
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-12 h-12 !rounded-2xl bg-white shadow flex items-center justify-center">
+            <i class="pi pi-globe text-xl text-gray-300"></i>
+          </div>
+          <span class="text-[10px] font-semibold text-gray-400">Internet</span>
+        </div>
+
+      </div>
+    }
+
+    <!-- Bouton réessayer -->
+    @if (!isRestored()) {
+      <button
+        (click)="retry()"
+        [disabled]="isChecking()"
+        class="flex items-center gap-2.5 !px-8 !py-4 !rounded-2xl text-[15px] font-bold
+               text-white shadow-lg transition-all active:scale-[0.97] disabled:opacity-60"
+        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+               box-shadow: 0 8px 20px rgba(30,41,59,0.3)">
+        @if (isChecking()) {
+          <ion-spinner name="crescent" style="color:#fff;width:18px;height:18px;"></ion-spinner>
+          Vérification…
+        } @else {
+          <i class="pi pi-refresh text-[16px]"></i>
+          Réessayer
+        }
+      </button>
+    } @else {
+      <!-- Spinner de retour -->
+      <div class="flex items-center gap-3">
+        <ion-spinner name="crescent" style="color:#1661a3;width:22px;height:22px;"></ion-spinner>
+        <span class="text-[14px] font-semibold text-[#1661a3]">Retour en cours…</span>
+      </div>
+    }
+
+    <!-- Attente automatique -->
+    @if (!isRestored()) {
+      <p class="text-[11px] text-gray-400 font-medium !mt-6 text-center">
+        <i class="pi pi-sync text-[10px] !mr-1"></i>
+        Détection automatique active
+      </p>
+    }
+
+  </div>
+</ion-content>

@@ -36,6 +36,13 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./layout/dashboard-shell/dashboard-shell.routes').then(m => m.DASHBOARD_ROUTES),
   },
+  // Pas de connexion internet
+  {
+    path: 'no-connection',
+    loadComponent: () =>
+      import('./features/no-connection/no-connection.page').then(m => m.NoConnectionPage),
+  },
+
   // Route vide → splash (uniquement au tout premier démarrage)
   { path: '', redirectTo: 'splash', pathMatch: 'full' },
 ];

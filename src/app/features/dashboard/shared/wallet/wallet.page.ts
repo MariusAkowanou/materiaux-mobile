@@ -1,11 +1,12 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonContent, IonHeader, IonToolbar, IonTitle,
   IonRefresher, IonRefresherContent, IonSkeletonText,
-  IonBadge, IonButton, IonSpinner,
-  ToastController,
+  IonBadge, IonButton,
+  ToastController, IonSegment, IonSegmentButton, IonLabel,
 } from '@ionic/angular/standalone';
+import type { SegmentCustomEvent } from '@ionic/angular';
 import { WalletStore } from 'src/app/core/services/api/wallet/wallet.store';
 import { WithdrawalCreate, WithdrawalStatus, TransactionType } from 'src/app/core/services/api/wallet/wallet.model';
 import { WithdrawalModalComponent } from './components/withdrawal-modal/withdrawal-modal.component';
@@ -14,30 +15,39 @@ import { WithdrawalModalComponent } from './components/withdrawal-modal/withdraw
   selector: 'app-wallet',
   standalone: true,
   imports: [
+    IonLabel, IonSegmentButton, IonSegment,
     CommonModule,
     IonContent, IonHeader, IonToolbar, IonTitle,
     IonRefresher, IonRefresherContent, IonSkeletonText,
-    IonBadge, IonButton, IonSpinner,
+    IonBadge, IonButton,
     WithdrawalModalComponent,
   ],
   templateUrl: './wallet.page.html',
 })
 export class WalletPage implements OnInit {
   private walletStore = inject(WalletStore);
-  private toastCtrl  = inject(ToastController);
+  private toastCtrl = inject(ToastController);
 
-  readonly balance      = this.walletStore.balance;
+  readonly balance = this.walletStore.balance;
   readonly transactions = this.walletStore.transactions;
-  readonly withdrawals  = this.walletStore.withdrawals;
-  readonly isLoading    = this.walletStore.isLoading;
+  readonly withdrawals = this.walletStore.withdrawals;
+  readonly isLoading = this.walletStore.isLoading;
   readonly isSubmitting = this.walletStore.isSubmitting;
 
-  readonly activeTab    = signal<'transactions' | 'withdrawals'>('transactions');
+  readonly activeTab = signal<'transactions' | 'withdrawals'>('transactions');
   readonly showWithdraw = signal(false);
 
   ngOnInit() {
     this.walletStore.loadBalance();
     this.walletStore.loadWithdrawals();
+  }
+
+  onSegmentChange(event: SegmentCustomEvent) {
+    const value = event.detail.value;
+
+    if (value === 'transactions' || value === 'withdrawals') {
+      this.activeTab.set(value);
+    }
   }
 
   async refresh(event: CustomEvent) {
@@ -58,28 +68,26 @@ export class WalletPage implements OnInit {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────
-
   withdrawalStatusLabel(status: WithdrawalStatus): string {
     const map: Record<WithdrawalStatus, string> = {
-      DRAFT:          'Brouillon',
+      DRAFT: 'Brouillon',
       PENDING_REVIEW: 'En attente',
-      APPROVED:       'Approuvé',
-      PROCESSING:     'En traitement',
-      COMPLETED:      'Effectué',
-      REJECTED:       'Refusé',
+      APPROVED: 'Approuvé',
+      PROCESSING: 'En traitement',
+      COMPLETED: 'Effectué',
+      REJECTED: 'Refusé',
     };
     return map[status] ?? status;
   }
 
   withdrawalStatusColor(status: WithdrawalStatus): string {
     const map: Record<WithdrawalStatus, string> = {
-      DRAFT:          'medium',
+      DRAFT: 'medium',
       PENDING_REVIEW: 'warning',
-      APPROVED:       'primary',
-      PROCESSING:     'tertiary',
-      COMPLETED:      'success',
-      REJECTED:       'danger',
+      APPROVED: 'primary',
+      PROCESSING: 'tertiary',
+      COMPLETED: 'success',
+      REJECTED: 'danger',
     };
     return map[status] ?? 'medium';
   }
@@ -97,7 +105,12 @@ export class WalletPage implements OnInit {
   }
 
   private async toast(message: string, color: string) {
-    const t = await this.toastCtrl.create({ message, color, duration: 3000, position: 'top' });
+    const t = await this.toastCtrl.create({
+      message,
+      color,
+      duration: 3000,
+      position: 'top',
+    });
     await t.present();
   }
 }

@@ -9,7 +9,7 @@ import { UserRole } from '../../../../core/services/api/auth/auth.model';
 @Component({
   selector: 'app-profil',
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar],
+  imports: [IonContent, IonHeader],
   templateUrl: './profil.page.html',
 })
 export class ProfilPage {
@@ -37,7 +37,7 @@ export class ProfilPage {
     return map[role] ?? role;
   }
 
-  goToWallet()       { this.router.navigateByUrl('/dashboard/shared/wallet'); }
+  goToWallet()       { this.router.navigateByUrl('/dashboard/wallet'); }
   goToPersonalInfo() { this.router.navigateByUrl('/dashboard/profil/personal-info'); }
 
   logout() { this.authStore.logout(); }

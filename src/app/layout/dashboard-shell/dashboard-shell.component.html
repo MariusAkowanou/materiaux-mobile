@@ -1,27 +1,29 @@
-<div class="flex flex-col h-screen w-full overflow-hidden bg-gray-50">
-  
-  <!-- Zone de contenu principal (prend tout l'espace disponible) -->
-  <div class="flex-1 relative overflow-hidden">
+<div class="flex h-screen w-full flex-col overflow-hidden bg-gray-50">
+  <!-- Contenu principal -->
+  <div class="relative min-h-0 flex-1 overflow-hidden">
     <ion-router-outlet />
   </div>
 
-  <!-- Tab Bar Manuelle (remplace ion-tabs pour éviter le blocage de clic) -->
-  <ion-tab-bar class="[--background:#0f2318] [--border:1px_solid_rgba(52,211,153,0.12)] pb-[env(safe-area-inset-bottom)] shrink-0">
-    
+  <!-- Bottom navigation -->
+  <ion-tab-bar
+    slot="bottom"
+    class="shrink-0 border-t border-white/10 bg-[#0d5689] px-2 pb-[max(env(safe-area-inset-bottom),0.35rem)] pt-2"
+  >
     @for (tab of tabs(); track tab.tab) {
-      <ion-tab-button [tab]="tab.tab" 
-                      [routerLink]="tab.route"
-                      routerLinkActive="tab-selected"
-                      class="[--color:rgba(255,255,255,0.45)] [--color-selected:#34d399] [--ripple-color:rgba(52,211,153,0.15)] transition-colors duration-200">
-        
-        <!-- Icône avec transition de scale lorsqu'elle est sélectionnée -->
-        <i [class]="tab.icon + ' text-[1.35rem] mb-0.5 transition-transform duration-200 [.tab-selected_&]:scale-110 [.tab-selected_&]:text-[#34d399]'"></i>
-        
-        <ion-label class="font-sans text-[0.65rem] font-medium tracking-wide">
+      <ion-tab-button
+        [tab]="tab.tab"
+        [routerLink]="tab.route"
+        routerLinkActive="tab-selected"
+        class="min-h-[56px] rounded-xl [--background:transparent] [--color:rgba(255,255,255,0.62)] [--color-selected:#dc7a34] [--ripple-color:rgba(220,122,52,0.18)] transition-all duration-200"
+      >
+        <i
+          [class]="tab.icon + ' mb-1 text-[1.2rem] leading-none transition-all duration-200 [.tab-selected_&]:scale-105 [.tab-selected_&]:text-[#dc7a34]'"
+        ></i>
+
+        <ion-label class="text-[0.68rem] font-semibold tracking-wide">
           {{ tab.label }}
         </ion-label>
       </ion-tab-button>
     }
   </ion-tab-bar>
-
 </div>

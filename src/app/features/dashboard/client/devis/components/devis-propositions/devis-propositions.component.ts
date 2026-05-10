@@ -1,58 +1,45 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { IonSpinner } from '@ionic/angular/standalone';
 import { DevisStore } from 'src/app/core/services/api/devis/devis.store';
-import { QuoteResponse, QuoteSummary } from 'src/app/core/services/api/devis/devis.model';
+import { QuoteResponse } from 'src/app/core/services/api/devis/devis.model';
 
 @Component({
   selector: 'app-devis-propositions',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, DecimalPipe, IonSpinner],
   templateUrl: './devis-propositions.component.html',
 })
-export class DevisPropositionsComponent implements OnInit {
-  private devisStore = inject(DevisStore);
-  private toastCtrl = inject(ToastController);
+export class DevisPropositionsComponent {
+  private devisStore  = inject(DevisStore);
+  private router      = inject(Router);
 
-  readonly quotes = this.devisStore.pendingQuotes;
-  readonly isLoading = this.devisStore.isLoading;
-  readonly isSubmitting = this.devisStore.isSubmitting;
+  readonly quotes      = this.devisStore.currentQuotes;
+  readonly draft       = this.devisStore.wizardDraft;
+  readonly isConfirming = signal<string | null>(null);
 
-  ngOnInit() {
-    this.devisStore.loadMyQuotes();
+  /** Parse a Decimal string to number for display */
+  num(v: string | number | undefined): number {
+    if (v == null) return 0;
+    return typeof v === 'string' ? parseFloat(v) : v;
   }
 
-  async confirmOrder(quote: QuoteSummary) {
+  async confirmOrder(quote: QuoteResponse): Promise<void> {
+    if (!quote.can_be_ordered || this.isConfirming() !== null) return;
+    this.isConfirming.set(quote.public_id);
     try {
       await this.devisStore.confirmOrder(quote.public_id);
-      const toast = await this.toastCtrl.create({
-        message: 'Commande confirmée avec succès !',
-        duration: 2000,
-        color: 'success',
-        position: 'top'
-      });
-      await toast.present();
-    } catch (error) {
-      console.error(error);
+      this.devisStore.resetWizard();
+      this.router.navigate(['/dashboard/client/commandes']);
+    } catch {
+      // ErrorInterceptor handles toast
+    } finally {
+      this.isConfirming.set(null);
     }
   }
 
-  async cancelQuote(quote: QuoteSummary) {
-    try {
-      await this.devisStore.cancelQuote(quote.public_id);
-      const toast = await this.toastCtrl.create({
-        message: 'Offre annulée.',
-        duration: 2000,
-        color: 'medium',
-        position: 'top'
-      });
-      await toast.present();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  createNewDevis() {
+  newDevis(): void {
     this.devisStore.resetWizard();
   }
 }

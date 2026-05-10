@@ -1,62 +1,96 @@
-<ion-modal [isOpen]="isOpen" (ionModalDidDismiss)="dismiss()">
-  <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Ouvrir un litige</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="dismiss()">
-            <i class="pi pi-times"></i>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+<!-- Backdrop -->
+<div class="fixed inset-0 z-50 flex items-end justify-center"
+     style="background: rgba(0,0,0,0.45);"
+     (click)="close()">
 
-    <ion-content class="ion-padding">
-      <div class="flex flex-col gap-1 mb-4 p-3 rounded-xl bg-orange-50">
-        <p class="text-xs text-orange-600 font-medium m-0">Commande {{ order.order_number }}</p>
-        <p class="text-sm text-orange-800 m-0">{{ order.product_name }}</p>
+  <!-- Sheet -->
+  <div class="w-full max-w-lg rounded-t-3xl bg-white pb-safe animate-in slide-in-from-bottom-4 duration-300"
+       (click)="$event.stopPropagation()">
+
+    <!-- Poignée -->
+    <div class="flex justify-center pt-3 pb-2">
+      <div class="w-10 h-1 rounded-full bg-gray-200"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 pb-3 border-b border-gray-100">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100">
+          <i class="pi pi-exclamation-triangle text-amber-500"></i>
+        </div>
+        <h3 class="text-[16px] font-black text-gray-900">Ouvrir un litige</h3>
+      </div>
+      <button (click)="close()"
+              class="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
+        <i class="pi pi-times text-sm"></i>
+      </button>
+    </div>
+
+    <div class="px-5 py-4 flex flex-col gap-4">
+
+      <!-- Catégorie -->
+      <div class="flex flex-col gap-2">
+        <label class="text-[11px] font-black uppercase tracking-wider text-gray-500">Motif</label>
+        <div class="grid grid-cols-2 gap-2">
+          @for (cat of categories; track cat.value) {
+            <button
+              (click)="category = cat.value"
+              class="flex items-center gap-2 !rounded-xl !px-3 !py-2.5 border-2 transition-all"
+              [style.border-color]="category === cat.value ? 'var(--ion-color-primary)' : '#e5e7eb'"
+              [style.background]="category === cat.value
+                ? 'color-mix(in srgb, var(--ion-color-primary) 8%, white)' : 'white'"
+            >
+              <i class="pi text-sm" [class]="cat.icon"
+                 [style.color]="category === cat.value ? 'var(--ion-color-primary)' : '#9ca3af'"></i>
+              <span class="text-[11px] font-bold text-left"
+                    [style.color]="category === cat.value ? 'var(--ion-color-primary)' : '#374151'">
+                {{ cat.label }}
+              </span>
+            </button>
+          }
+        </div>
       </div>
 
-      <form [formGroup]="form" class="flex flex-col gap-4">
+      <!-- Description -->
+      <div class="flex flex-col gap-2">
+        <label class="text-[11px] font-black uppercase tracking-wider text-gray-500">
+          Description
+          <span class="text-gray-300 font-normal ml-1">(min. 10 caractères)</span>
+        </label>
+        <textarea
+          [(ngModel)]="reason"
+          rows="4"
+          placeholder="Décrivez le problème rencontré…"
+          class="w-full !rounded-xl border-2 border-gray-200 !px-4 !py-3 text-[13px] text-gray-800
+                 placeholder-gray-300 focus:outline-none resize-none
+                 transition-colors duration-150"
+          [style.border-color]="reason.length > 0 && !isValid ? '#ef4444' : (isValid ? 'var(--ion-color-primary)' : '#e5e7eb')"
+        ></textarea>
+        @if (reason.length > 0 && !isValid) {
+          <p class="text-[11px] text-red-500 flex items-center gap-1">
+            <i class="pi pi-exclamation-circle text-[10px]"></i>
+            Minimum 10 caractères requis
+          </p>
+        }
+      </div>
 
-        <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Catégorie du problème</label>
-          <ion-select
-            formControlName="category"
-            interface="action-sheet"
-            placeholder="Sélectionner une catégorie"
-          >
-            @for (cat of categories; track cat.value) {
-              <ion-select-option [value]="cat.value">{{ cat.label }}</ion-select-option>
-            }
-          </ion-select>
-        </div>
-
-        <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Description du problème</label>
-          <ion-textarea
-            formControlName="reason"
-            placeholder="Décrivez précisément le problème rencontré..."
-            [rows]="4"
-          ></ion-textarea>
-          @if (reasonInvalid) {
-            <span class="text-xs text-red-500">Minimum 10 caractères requis</span>
-          }
-        </div>
-
-        <ion-button
-          expand="block"
-          color="warning"
-          [disabled]="form.invalid || isSubmitting"
-          (click)="submit()"
-        >
-          @if (isSubmitting) {
-            <ion-spinner name="crescent" class="mr-2"></ion-spinner>
-          }
+      <!-- CTA -->
+      <button
+        (click)="submit()"
+        [disabled]="!isValid || isSubmitting()"
+        class="flex w-full items-center justify-center gap-2 !rounded-2xl !py-4
+               text-[14px] font-extrabold text-white uppercase tracking-wider
+               transition-all active:scale-[0.97] disabled:opacity-40"
+        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"
+      >
+        @if (isSubmitting()) {
+          <ion-spinner name="crescent" style="color:#fff;width:16px;height:16px;"></ion-spinner>
+          Envoi…
+        } @else {
+          <i class="pi pi-send text-base"></i>
           Soumettre le litige
-        </ion-button>
-
-      </form>
-    </ion-content>
-  </ng-template>
-</ion-modal>
+        }
+      </button>
+    </div>
+  </div>
+</div>

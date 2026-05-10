@@ -3,10 +3,11 @@ export type DeliverySpeed = 'NORMAL' | 'RAPIDE' | 'ULTRA_RAPIDE';
 export type QuoteStatus = 'PENDING' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED';
 
 export type OrderStatus =
-  | 'PENDING_PAYMENT'
+  | 'CONFIRMED'                // Commande créée — en attente de paiement
+  | 'PENDING_PAYMENT'          // Alias possible côté API
   | 'PAID_AWAITING_DISPATCH'
   | 'DISPATCHED_TO_TRANSPORTER'
-  | 'IN_TRANSIT'
+  | 'IN_PROGRESS'
   | 'PARTIALLY_DELIVERED'
   | 'DELIVERED'
   | 'CANCELLED';
@@ -38,6 +39,9 @@ export interface DevisWizardDraft {
   longitude: number | null;
   productId: number | null;
   productName: string | null;
+  uniteVente: string | null;       // ex: "m³", "tonne", "voyage", "sac"
+  quantite: number | null;         // quantité saisie par l'utilisateur
+  // Transport (calculé à titre informatif, pas envoyé à l'API)
   camionTypeId: number | null;
   camionLibelle: string | null;
   nbVoyages: number;
@@ -67,34 +71,36 @@ export interface CreateDisputeDto {
 // ── Réponses ──────────────────────────────────────────────────────────────────
 
 export interface DistanceInfo {
-  distance_km: number;
-  distance_text: string;
-  duration_text: string;
+  distance_km: string;         // Decimal string from API
+  distance_text?: string;
+  duration_text?: string;
   transport_formula: string;
-  origin_address: string;
-  distance_simulated: boolean;
+  origin_address?: string;
+  distance_simulated?: boolean;
 }
 
 export interface QuoteResponse {
   public_id: string;
   product_id: number;
   product_name: string;
-  product_category: string;
-  quantity: number;
-  delivery_address: string;
-  delivery_datetime: string;
-  delivery_speed: DeliverySpeed;
-  material_cost: number;
-  transport_cost: number;
-  total_price: number;
+  quantity: string;            // Decimal string from API (e.g. "26.00")
+  material_cost: string;       // Decimal string
+  transport_cost: string;      // Decimal string
+  total_price: string;         // Decimal string
   distance_info: DistanceInfo | null;
-  supplier_id: string;
+  supplier_name: string;       // Name of the supplier
+  supplier_id?: string;
   status: QuoteStatus;
-  expires_at: string;
-  created_at: string;
-  is_expired: boolean;
-  time_remaining_h: number;
   can_be_ordered: boolean;
+  trucks_configuration: string[];
+  delivery_address?: string;
+  delivery_datetime?: string;
+  delivery_speed?: DeliverySpeed;
+  expires_at?: string;
+  created_at?: string;
+  is_expired?: boolean;
+  time_remaining_h?: number;
+  product_category?: string;
 }
 
 export interface QuoteSummary {
@@ -109,30 +115,68 @@ export interface QuoteSummary {
   is_expired: boolean;
 }
 
+// ── Snapshot des règles de calcul ────────────────────────────────────────────
+export interface AppliedRulesSnapshot {
+  algorithm: string;
+  distance_km: number;
+  unit_price_ht_selected: number;
+  supplier_id: string;
+  trucks_configuration: string[];
+}
+
+// ── Résumé du devis inclus dans la commande ───────────────────────────────────
+export interface QuoteSummaryInOrder {
+  public_id: string;
+  product_id: number;
+  product_name: string;
+  product_category: string;
+  quantity: string;            // Decimal string
+  delivery_address: string;
+  delivery_datetime: string;
+  delivery_speed: DeliverySpeed;
+  material_cost: string;       // Decimal string
+  transport_cost: string;      // Decimal string
+  total_price: string;         // Decimal string
+  distance_info: DistanceInfo | null;
+  supplier_id: string;
+  supplier_name: string;
+  status: QuoteStatus;
+  expires_at: string;
+  created_at: string;
+  is_expired: boolean;
+  time_remaining_h: number;
+  can_be_ordered: boolean;
+  applied_rules_snapshot?: AppliedRulesSnapshot;
+}
+
 export interface OrderResponse {
   public_id: string;
   order_number: string;
-  product_name: string;
-  supplier_name: string;
-  delivery_address: string;
-  total_price: number;
   delivery_speed: DeliverySpeed;
-  ordered_quantity: number;
-  delivered_quantity: number;
-  remaining_quantity: number;
+  ordered_quantity: string;       // Decimal string
+  delivered_quantity: string;     // Decimal string
+  remaining_quantity: string;     // Decimal string
   completion_pct: number;
   assigned_transporter_name: string | null;
   truck_info: string | null;
   payment_method: string | null;
   is_paid: boolean;
+  payment_confirmed_at: string | null;
   status: OrderStatus;
   created_at: string;
+  quote_summary: QuoteSummaryInOrder;
+  // Champs supplémentaires selon le rôle (supplier view)
+  client_name?: string;
+  client_phone?: string;
 }
 
 export interface PaymentInitResponse {
-  payment_url: string;
-  payment_token: string;
-  order_public_id: string;
+  checkout_url?: string;
+  payment_url?: string;
+  reference?: string;
+  transaction_id?: string;
+  payment_token?: string;
+  order_public_id?: string;
 }
 
 export interface InitPaymentDto {

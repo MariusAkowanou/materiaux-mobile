@@ -29,7 +29,7 @@ export class AuthApiService {
     return this.http.post<User>(`${this.url}/register`, dto);
   }
 
-  verifyOtp(dto: VerifyOtpDto): Observable<User> {
+  verifyOtp(dto: any): Observable<User> {
     return this.http.post<User>(`${this.url}/verify-otp`, dto);
   }
 

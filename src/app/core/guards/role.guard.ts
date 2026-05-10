@@ -9,11 +9,9 @@ import { ToastService } from '../services/local/toast.service';
  */
 function homeRouteForRole(role: UserRole | null): string[] {
   switch (role) {
-    case 'SUPPLIER':    return ['/dashboard/supplier/dashboard'];
-    case 'TRANSPORTER': return ['/dashboard/transporter/dashboard'];
+    case 'SUPPLIER':    return ['/dashboard/supplier/home'];
+    case 'TRANSPORTER': return ['/dashboard/transporter/home'];
     case 'ADMIN':       return ['/dashboard/admin/utilisateurs'];
-    case 'CLIENT':
-    case 'COMPANY':
     default:            return ['/dashboard/home'];
   }
 }
@@ -42,6 +40,6 @@ export const roleGuard: CanActivateFn = (route) => {
     return true;
   }
 
-  toast.error('Accès réservé — rôle insuffisant');
+  //toast.error('Accès réservé — rôle insuffisant');
   return router.createUrlTree(homeRouteForRole(authStore.primaryRole()));
 };

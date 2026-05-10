@@ -30,7 +30,6 @@ export class SplashPage implements OnInit {
     // On attend la durée minimale
     await this.delay(this.SPLASH_DURATION);
     
-    console.log('[SplashPage] Attempting navigation to /dashboard...');
     
     try {
       // On tente d'aller au dashboard avec un timeout de sécurité
@@ -43,9 +42,7 @@ export class SplashPage implements OnInit {
       );
 
       await Promise.race([navPromise, timeoutPromise]);
-      console.log('[SplashPage] Navigation successful or redirected by guards.');
     } catch (error) {
-      console.error('[SplashPage] Navigation failed or timed out:', error);
       // Fallback vers le login en cas de problème majeur
       await this.router.navigateByUrl('/auth/login', { replaceUrl: true });
     }

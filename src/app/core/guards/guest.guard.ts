@@ -15,7 +15,7 @@ export const guestGuard: CanActivateFn = async () => {
 
   // 1. Déjà en mémoire → redirection immédiate (synchrone)
   if (authStore.currentUser()) {
-    return router.createUrlTree(['/dashboard/home']);
+    return router.createUrlTree(['/dashboard/']);
   }
 
   // 2. Vérifier si un token valide existe en stockage
@@ -23,7 +23,7 @@ export const guestGuard: CanActivateFn = async () => {
   if (token) {
     await authStore.loadCurrentUser();
     if (authStore.currentUser()) {
-      return router.createUrlTree(['/dashboard/home']);
+      return router.createUrlTree(['/dashboard/']);
     }
   }
 

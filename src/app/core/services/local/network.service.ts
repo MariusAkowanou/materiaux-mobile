@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
-import { signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Network } from '@capacitor/network';
 
 @Injectable({ providedIn: 'root' })
 export class NetworkService {
 
+  /** Vrai si l'appareil est connecté à internet */
   readonly isOnline = signal(true);
+
+  /** URL à restaurer quand la connexion revient */
+  readonly returnUrl = signal('/dashboard');
 
   constructor() {
     this.checkInitialStatus();

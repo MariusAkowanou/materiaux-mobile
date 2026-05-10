@@ -1,0 +1,362 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="[--background:transparent] absolute top-0 left-0 right-0 z-20">
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/dashboard/supplier/home"
+        class="[--color:#fff] [--icon-font-size:20px]"
+      />
+    </ion-buttons>
+    <ion-buttons slot="end">
+      @if (order()?.is_paid) {
+        <ion-button (click)="downloadPdf()"
+                    class="[--color:#fff]">
+          <i class="pi pi-file-pdf text-base  mr-2"></i>
+        </ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+
+  <!-- ── SKELETON ─────────────────────────────────────────────────── -->
+  @if (isLoading() && !order()) {
+    <div>
+      <div class="w-full h-32 bg-gray-200 animate-pulse"></div>
+      <div class="px-4 pt-4 flex flex-col gap-3">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="rounded-2xl bg-white p-4 flex flex-col gap-2 shadow-sm">
+            <div class="h-3 w-2/5 bg-gray-100 rounded animate-pulse"></div>
+            <div class="h-5 w-4/5 bg-gray-100 rounded animate-pulse"></div>
+          </div>
+        }
+      </div>
+    </div>
+
+  } @else if (order(); as o) {
+
+    <!-- ── HERO STATUT ───────────────────────────────────────────── -->
+    <div class="relative w-full flex flex-col items-center justify-end pt-16 pb-6 px-4"
+         [style.background]="'linear-gradient(160deg, ' + statusCfg(o.status).color + ' 0%, ' + statusCfg(o.status).color + 'cc 100%)'">
+      <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 mb-3">
+        <i class="pi text-3xl text-white" [class]="statusCfg(o.status).icon"></i>
+      </div>
+      <p class="text-white/80 text-[11px] font-bold uppercase tracking-widest mb-1">
+        {{ o.order_number }}
+      </p>
+      <p class="text-white text-[18px] font-black">{{ statusCfg(o.status).label }}</p>
+      <p class="text-white/70 text-[11px] mt-1">
+        Créée le {{ o.created_at | date:'dd MMM yyyy à HH:mm':'':'fr' }}
+      </p>
+    </div>
+
+    <div class="px-4 pt-4 pb-32 flex flex-col gap-4">
+
+      <!-- ── CLIENT ───────────────────────────────────────────────── 
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2"
+             style="background: color-mix(in srgb, var(--ion-color-primary) 5%, white)">
+          <i class="pi pi-user text-sm" style="color: var(--ion-color-primary)"></i>
+          <span class="text-[12px] font-black uppercase tracking-wider"
+                style="color: var(--ion-color-primary)">Client</span>
+        </div>
+        <div class="px-4 py-4 flex items-center gap-3">
+          <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gray-100">
+            <i class="pi pi-user text-xl text-gray-500"></i>
+          </div>
+          <div>
+            <p class="text-[15px] font-black text-gray-900">
+              {{ o.client_name ?? 'Client' }}
+            </p>
+            @if (o.client_phone) {
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <i class="pi pi-phone text-[11px] text-gray-400"></i>
+                <p class="text-[12px] text-gray-500">{{ o.client_phone }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>-->
+
+      <!-- ── PRODUIT ───────────────────────────────────────────────── -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2">
+          <i class="pi pi-box text-sm text-gray-500"></i>
+          <span class="text-[12px] font-black uppercase tracking-wider text-gray-500">Produit commandé</span>
+        </div>
+        <div class="px-4 py-4 flex flex-col gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-[16px] font-black text-gray-900">
+                {{ o.quote_summary.product_name }}
+              </p>
+              <p class="text-[11px] text-gray-400 font-medium mt-0.5">
+                {{ o.quote_summary.product_category }}
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-[22px] font-black leading-none"
+                 style="color: var(--ion-color-primary)">
+                {{ num(o.quote_summary.total_price) | number:'1.0-0' }}
+              </p>
+              <p class="text-[10px] text-gray-400 font-semibold">FCFA TTC</p>
+            </div>
+          </div>
+
+          <!-- Quantité + progression -->
+          <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
+            <i class="pi pi-sort-amount-up text-gray-400 text-sm"></i>
+            <div class="flex-1">
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Quantité commandée</p>
+              <p class="text-[13px] font-black text-gray-900">
+                {{ num(o.ordered_quantity) | number:'1.0-1' }}
+                <span class="text-gray-400 font-semibold text-[11px]">unité(s)</span>
+              </p>
+            </div>
+            @if (o.completion_pct > 0) {
+              <div class="text-right">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Livré</p>
+                <p class="text-[13px] font-black" style="color: var(--ion-color-primary)">
+                  {{ num(o.delivered_quantity) | number:'1.0-1' }}
+                </p>
+              </div>
+            }
+          </div>
+
+          @if (o.completion_pct > 0 && o.completion_pct < 100) {
+            <div>
+              <div class="flex justify-between text-[10px] font-bold text-gray-400 mb-1">
+                <span>Progression livraison</span>
+                <span style="color: var(--ion-color-primary)">{{ o.completion_pct }}%</span>
+              </div>
+              <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-full rounded-full" style="background: var(--ion-color-primary)"
+                     [style.width.%]="o.completion_pct"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── DÉCOMPOSITION DU PRIX ──────────────────────────────────── -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2">
+          <i class="pi pi-calculator text-sm text-gray-500"></i>
+          <span class="text-[12px] font-black uppercase tracking-wider text-gray-500">Détail du prix</span>
+        </div>
+        <div class="px-4 py-3 flex flex-col gap-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="pi pi-box text-[11px] text-orange-500"></i>
+              </div>
+              <span class="text-[12px] text-gray-500">
+                Matériau ({{ num(o.ordered_quantity) | number:'1.0-1' }} unité(s))
+              </span>
+            </div>
+            <span class="text-[13px] font-bold text-gray-800">
+              {{ num(o.quote_summary.material_cost) | number:'1.0-0' }} FCFA
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="pi pi-truck text-[11px] text-blue-500"></i>
+              </div>
+              <span class="text-[12px] text-gray-500">Transport</span>
+            </div>
+            <span class="text-[13px] font-bold text-gray-800">
+              {{ num(o.quote_summary.transport_cost) | number:'1.0-0' }} FCFA
+            </span>
+          </div>
+          <div class="border-t border-dashed border-gray-100 pt-2.5 flex items-center justify-between">
+            <span class="text-[13px] font-black text-gray-700">Total TTC</span>
+            <span class="text-[20px] font-black" style="color: var(--ion-color-primary)">
+              {{ num(o.quote_summary.total_price) | number:'1.0-0' }}
+              <span class="text-[11px] font-semibold text-gray-400">FCFA</span>
+            </span>
+          </div>
+          @if (o.quote_summary.distance_info?.transport_formula) {
+            <p class="text-[10px] text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
+              <i class="pi pi-info-circle text-[9px] mr-1"></i>
+              {{ o.quote_summary.distance_info!.transport_formula }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- ── LIVRAISON ─────────────────────────────────────────────── -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2">
+          <i class="pi pi-map-marker text-sm text-gray-500"></i>
+          <span class="text-[12px] font-black uppercase tracking-wider text-gray-500">Livraison</span>
+        </div>
+        <div class="px-4 py-3 flex flex-col gap-3">
+          <div class="flex items-start gap-2">
+            <i class="pi pi-map text-[12px] text-gray-400 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">Adresse de livraison</p>
+              <p class="text-[13px] font-semibold text-gray-800">
+                {{ o.quote_summary.delivery_address }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-calendar text-[12px] text-gray-400"></i>
+              <span class="text-[12px] text-gray-500">Date souhaitée</span>
+            </div>
+            <span class="text-[12px] font-bold text-gray-800">
+              {{ o.quote_summary.delivery_datetime | date:'dd MMM yyyy, HH:mm':'':'fr' }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-bolt text-[12px] text-gray-400"></i>
+              <span class="text-[12px] text-gray-500">Vitesse</span>
+            </div>
+            <span class="text-[13px] font-bold text-gray-800">{{ speedLabel(o.delivery_speed) }}</span>
+          </div>
+          @if (o.quote_summary.distance_info) {
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-map-marker text-[12px] text-gray-400"></i>
+                <span class="text-[12px] text-gray-500">Distance</span>
+              </div>
+              <span class="text-[13px] font-bold text-gray-800">
+                {{ num(o.quote_summary.distance_info.distance_km) | number:'1.0-0' }} km
+              </span>
+            </div>
+          }
+          @if (o.assigned_transporter_name) {
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-user text-[12px] text-gray-400"></i>
+                <span class="text-[12px] text-gray-500">Transporteur</span>
+              </div>
+              <span class="text-[13px] font-bold text-gray-800">{{ o.assigned_transporter_name }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── PAIEMENT ──────────────────────────────────────────────── -->
+      <div class="rounded-2xl overflow-hidden border shadow-sm"
+           [style.border-color]="o.is_paid ? '#bbf7d0' : '#fed7aa'"
+           [style.background]="o.is_paid ? '#f0fdf4' : '#fff7ed'">
+        <div class="px-4 py-4 flex items-center gap-3">
+          <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
+               [style.background]="o.is_paid ? '#dcfce7' : '#ffedd5'">
+            <i class="pi text-xl"
+               [class]="o.is_paid ? 'pi-check-circle' : 'pi-credit-card'"
+               [style.color]="o.is_paid ? '#16a34a' : '#f97316'"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-[14px] font-black"
+               [style.color]="o.is_paid ? '#15803d' : '#c2410c'">
+              {{ o.is_paid ? 'Paiement confirmé' : 'En attente de paiement client' }}
+            </p>
+            @if (o.payment_method) {
+              <p class="text-[11px] font-medium mt-0.5"
+                 [style.color]="o.is_paid ? '#16a34a' : '#f97316'">
+                Via {{ o.payment_method }}
+              </p>
+            }
+            @if (o.payment_confirmed_at) {
+              <p class="text-[10px] text-gray-400 mt-0.5">
+                {{ o.payment_confirmed_at | date:'dd MMM yyyy, HH:mm':'':'fr' }}
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  <!-- ── ERREUR ───────────────────────────────────────────────────── -->
+  } @else {
+    <div class="flex flex-col items-center justify-center h-full gap-4 text-gray-400 px-8 pt-32">
+      <i class="pi pi-exclamation-triangle text-[48px]"></i>
+      <p class="text-[15px] text-center font-medium">Commande introuvable</p>
+    </div>
+  }
+
+</ion-content>
+
+<!-- ── CTA STICKY ─────────────────────────────────────────────────── -->
+@if (order(); as o) {
+  <div class="fixed bottom-0 left-0 right-0 z-50 !px-4 !pb-6 !pt-3
+              bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fbee] to-transparent">
+    <div class="flex flex-col gap-2">
+      <div class=" flex space-x-2 ">
+          <!-- Démarrer la course (transport_cost = 0.00 → fournisseur livre lui-même) -->
+      @if (canStart()) {
+        <button
+          (click)="demarrerCourse()"
+          [disabled]="isStarting()"
+          class="flex w-full items-center justify-center gap-2.5 !rounded-2xl !py-2
+                 text-[11px] font-extrabold text-white shadow-xl
+                 active:scale-[0.97] transition-transform disabled:opacity-50"
+          style="background: linear-gradient(135deg, var(--ion-color-primary) 0%,
+                 color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);
+                 box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 40%, transparent);">
+          @if (isStarting()) {
+            <ion-spinner name="crescent" style="color:#fff;width:18px;height:18px;"></ion-spinner>
+            Localisation en cours…
+          } @else {
+            <i class="pi pi-send text-lg"></i>
+            Démarrer la course
+          }
+        </button>
+      }
+
+      <!-- Voir l'itinéraire sur la carte (toujours visible si adresse dispo) -->
+      @if (o.quote_summary?.delivery_address) {
+        <button
+          (click)="voirItineraire()"
+          class="flex w-full items-center justify-center gap-2 !rounded-2xl !py-2
+                 text-[11px] font-bold border-2 transition-all active:scale-[0.98]"
+          style="border-color: var(--ion-color-primary); color: var(--ion-color-primary)">
+          <i class="pi pi-map text-base"></i>
+          Voir l'itinéraire sur la carte
+        </button>
+      }
+
+      </div>
+    
+      <!-- Marquer comme expédié -->
+      @if (canDispatch) {
+        <button
+          (click)="markAsDispatched()"
+          [disabled]="isProcessing()"
+          class="flex w-full items-center justify-center gap-2.5 !rounded-2xl !py-4
+                 text-[15px] font-extrabold text-white shadow-xl
+                 active:scale-[0.97] transition-transform disabled:opacity-50"
+          style="background: linear-gradient(135deg, var(--ion-color-primary) 0%,
+                 color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);
+                 box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 40%, transparent);">
+          @if (isProcessing()) {
+            <ion-spinner name="crescent" style="color:#fff;width:18px;height:18px;"></ion-spinner>
+            Traitement…
+          } @else {
+            <i class="pi pi-send text-lg"></i>
+            Marquer comme expédié
+          }
+        </button>
+      }
+
+      <!-- PDF (si payé)
+      @if (o.is_paid) {
+        <button
+          (click)="downloadPdf()"
+          class="flex w-full items-center justify-center gap-2 !rounded-xl !py-3
+                 text-[13px] font-extrabold text-gray-600 border-2 border-gray-200
+                 bg-white active:scale-95 transition-all">
+          <i class="pi pi-file-pdf text-sm"></i>
+          Télécharger le bon de commande
+        </button>
+      } -->
+
+    </div>
+  </div>
+}

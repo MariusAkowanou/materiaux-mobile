@@ -1,89 +1,140 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="[--background:transparent]">
-    <ion-title class="font-bold text-gray-900 text-xl">Mes Courses</ion-title>
-  </ion-toolbar>
+  <ion-toolbar style="--background: var(--ion-color-primary)">
+    <div class="!px-4 !py-2">
+      <p class="text-white/70 text-[11px] font-semibold uppercase tracking-widest leading-none">
+        Transporteur
+      </p>
+      <h1 class="text-white text-[19px] font-black leading-tight mt-0.5">Mes courses</h1>
+    </div>
 
-  <!-- Onglets statut -->
-  <ion-toolbar class="[--background:white] shadow-sm">
-    <div class="flex">
-      @for (tab of tabs; track tab.key) {
-        <button
-          class="flex-1 py-2.5 text-xs font-semibold transition-all duration-200 relative"
-          [style.color]="activeTab() === tab.key ? 'var(--ion-color-primary)' : '#9ca3af'"
-          [style.border-bottom]="activeTab() === tab.key ? '2px solid var(--ion-color-primary)' : '2px solid transparent'"
-          (click)="activeTab.set($any(tab.key))"
-          style="background: none; border: none; border-bottom-style: solid; cursor: pointer;"
-        >
-          {{ tab.label }}
-          @if (countByTab[tab.key] > 0) {
-            <ion-badge
-              [color]="activeTab() === tab.key ? 'primary' : 'medium'"
-              class="ml-1 text-[10px]"
-            >{{ countByTab[tab.key] }}</ion-badge>
-          }
-        </button>
-      }
+    <!-- ── Onglets filtres ──────────────────────────────────────── -->
+    <div class="flex !px-4 !pb-3 gap-2">
+
+      <!-- ASSIGNED -->
+      <button
+        (click)="setTab('ASSIGNED')"
+        class="flex-1 flex items-center justify-center gap-1.5 !py-2 !rounded-xl
+               text-[12px] font-bold transition-all"
+        [style.background]="activeTab() === 'ASSIGNED' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)'"
+        [style.color]="activeTab() === 'ASSIGNED' ? 'var(--ion-color-primary)' : '#fff'">
+        <i class="pi pi-clock text-[11px]"></i>
+        Assignées
+        @if (countAssigned() > 0) {
+          <span class="flex items-center justify-center w-4 h-4 !rounded-full text-[9px] font-black"
+                [style.background]="activeTab() === 'ASSIGNED' ? 'var(--ion-color-primary)' : 'rgba(255,255,255,0.3)'"
+                [style.color]="activeTab() === 'ASSIGNED' ? '#fff' : '#fff'">
+            {{ countAssigned() }}
+          </span>
+        }
+      </button>
+
+      <!-- IN_PROGRESS -->
+      <button
+        (click)="setTab('IN_PROGRESS')"
+        class="flex-1 flex items-center justify-center gap-1.5 !py-2 !rounded-xl
+               text-[12px] font-bold transition-all"
+        [style.background]="activeTab() === 'IN_PROGRESS' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)'"
+        [style.color]="activeTab() === 'IN_PROGRESS' ? 'var(--ion-color-primary)' : '#fff'">
+        <i class="pi pi-send text-[11px]"></i>
+        En route
+        @if (countInProgress() > 0) {
+          <span class="flex items-center justify-center w-4 h-4 !rounded-full text-[9px] font-black"
+                [style.background]="activeTab() === 'IN_PROGRESS' ? 'var(--ion-color-primary)' : 'rgba(255,255,255,0.3)'"
+                style="color: #fff">
+            {{ countInProgress() }}
+          </span>
+        }
+      </button>
+
+      <!-- DELIVERED -->
+      <button
+        (click)="setTab('DELIVERED')"
+        class="flex-1 flex items-center justify-center gap-1.5 !py-2 !rounded-xl
+               text-[12px] font-bold transition-all"
+        [style.background]="activeTab() === 'DELIVERED' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)'"
+        [style.color]="activeTab() === 'DELIVERED' ? 'var(--ion-color-primary)' : '#fff'">
+        <i class="pi pi-check-circle text-[11px]"></i>
+        Livrées
+        @if (countDelivered() > 0) {
+          <span class="flex items-center justify-center w-4 h-4 !rounded-full text-[9px] font-black"
+                [style.background]="activeTab() === 'DELIVERED' ? 'var(--ion-color-primary)' : 'rgba(255,255,255,0.3)'"
+                style="color: #fff">
+            {{ countDelivered() }}
+          </span>
+        }
+      </button>
+
     </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg-gray-50">
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+<ion-content class="[--background:#f8f9fb]">
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="px-4 pt-3 pb-24 flex flex-col gap-3">
+  <div class="px-4 pt-4 pb-10 flex flex-col gap-3">
 
-    <!-- Squelettes -->
-    @if (isLoading()) {
-      @for (s of [1, 2, 3]; track s) {
-        <div class="rounded-2xl bg-white p-4 flex flex-col gap-3 shadow-sm">
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex flex-col gap-1.5 flex-1">
-              <ion-skeleton-text [animated]="true" style="width:30%;height:11px;border-radius:4px;"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:55%;height:16px;border-radius:4px;"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:40%;height:13px;border-radius:4px;"></ion-skeleton-text>
-            </div>
-            <ion-skeleton-text [animated]="true" style="width:70px;height:22px;border-radius:10px;flex-shrink:0;"></ion-skeleton-text>
-          </div>
-          <ion-skeleton-text [animated]="true" style="width:100%;height:70px;border-radius:12px;"></ion-skeleton-text>
-          <div class="flex items-center justify-between">
-            <ion-skeleton-text [animated]="true" style="width:100px;height:24px;border-radius:6px;"></ion-skeleton-text>
-            <ion-skeleton-text [animated]="true" style="width:90px;height:32px;border-radius:8px;"></ion-skeleton-text>
-          </div>
-        </div>
+    <!-- ── Loading ────────────────────────────────────────────── -->
+    @if (isLoading() && !mesMissions().length) {
+      <div class="flex items-center justify-center gap-2 !py-20 text-gray-400">
+        <ion-spinner name="crescent"
+                     style="width:22px;height:22px;color:var(--ion-color-primary)">
+        </ion-spinner>
+        <span class="text-[13px]">Chargement…</span>
+      </div>
+
+    <!-- ── Liste ──────────────────────────────────────────────── -->
+    } @else if (missionsFiltered().length > 0) {
+      @for (mission of missionsFiltered(); track mission.public_id) {
+        <app-course-card
+          [mission]="mission"
+          (onVoirDetail)="voirDetail($event)"
+        />
       }
 
-    <!-- État vide -->
-    } @else if (activeCourses.length === 0) {
-      <div class="flex flex-col items-center justify-center gap-4 pt-16 px-6 text-center">
-        <div class="flex h-20 w-20 items-center justify-center rounded-3xl"
-             style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);">
-          <i class="pi pi-truck text-4xl" style="color: var(--ion-color-primary);"></i>
+    <!-- ── Empty state ────────────────────────────────────────── -->
+    } @else {
+      <div class="flex flex-col items-center gap-4 !py-20 !px-8 text-center">
+        <div class="w-20 h-20 !rounded-3xl bg-gray-100 flex items-center justify-center">
+          @switch (activeTab()) {
+            @case ('ASSIGNED') {
+              <i class="pi pi-clock text-[32px] text-gray-300"></i>
+            }
+            @case ('IN_PROGRESS') {
+              <i class="pi pi-send text-[32px] text-gray-300"></i>
+            }
+            @default {
+              <i class="pi pi-check-circle text-[32px] text-gray-300"></i>
+            }
+          }
         </div>
         <div>
-          <p class="font-bold text-gray-700 text-base m-0">
-            @if (activeTab() === 'EN_ATTENTE') { Aucune course en attente }
-            @else if (activeTab() === 'EN_COURS') { Aucune course en cours }
-            @else { Aucune course terminée }
-          </p>
-          @if (activeTab() === 'EN_ATTENTE') {
-            <p class="text-sm text-gray-400 m-0 mt-1">
-              Les nouvelles courses vous seront assignées ici.
-            </p>
+          @switch (activeTab()) {
+            @case ('ASSIGNED') {
+              <p class="text-[15px] font-black text-gray-500">Aucune course assignée</p>
+              <p class="text-[13px] text-gray-400 mt-1">
+                Les courses que vous acceptez apparaîtront ici
+              </p>
+            }
+            @case ('IN_PROGRESS') {
+              <p class="text-[15px] font-black text-gray-500">Aucune course en route</p>
+              <p class="text-[13px] text-gray-400 mt-1">
+                Démarrez une course assignée pour la voir apparaître ici
+              </p>
+            }
+            @default {
+              <p class="text-[15px] font-black text-gray-500">Aucune livraison terminée</p>
+              <p class="text-[13px] text-gray-400 mt-1">
+                Vos livraisons complètes s'afficheront ici
+              </p>
+            }
           }
         </div>
       </div>
-
-    <!-- Liste -->
-    } @else {
-      @for (course of activeCourses; track course.id) {
-        <app-course-card
-          [course]="course"
-          (onChangeStatut)="changeStatut($event.course, $event.statut)"
-        />
-      }
     }
 
   </div>
+
 </ion-content>

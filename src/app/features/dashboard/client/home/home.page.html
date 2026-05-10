@@ -1,0 +1,226 @@
+
+
+<ion-content [fullscreen]="true">
+
+  <!-- ── Dégradé hero ───────────────────────────────────────────── -->
+  <div class="relative overflow-hidden"
+       style="background: linear-gradient(145deg, #0d5689 0%, #1e51b8 100%); padding-top: env(safe-area-inset-top)">
+
+    <!-- Cercles décoratifs -->
+    <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full opacity-20"
+         style="background: rgba(255,255,255,0.3)"></div>
+    <div class="absolute top-8 -right-4 w-28 h-28 rounded-full opacity-10"
+         style="background: rgba(255,255,255,0.5)"></div>
+
+    <div class="relative !px-5 !pt-6 !pb-8">
+      <!-- Salutation -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[12px] font-semibold text-orange-100 leading-none mb-1">
+            {{ greeting() }}
+          </p>
+          <h1 class="text-[22px] font-black text-white leading-tight">
+            {{ firstName() }} 👋
+          </h1>
+          <p class="text-[11px] text-orange-100 mt-0.5">
+            Que voulez-vous commander aujourd'hui ?
+          </p>
+        </div>
+
+        <!-- Avatar initiale -->
+        <div class="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+             style="background: rgba(255,255,255,0.2)">
+          <span class="text-[17px] font-black text-white">
+            {{ firstName()[0]?.toUpperCase() || 'M' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Cartes stats ─────────────────────────────────────────── -->
+      <div class="grid grid-cols-2 gap-3 !mt-5">
+        <!-- Devis en attente -->
+        <button (click)="goToDevisCreate()"
+                class="flex flex-col items-start !p-3.5 !rounded-2xl text-left transition-transform active:scale-[0.97]"
+                style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px)">
+          <div class="w-8 h-8 !rounded-xl flex items-center justify-center mb-2"
+               style="background: rgba(255,255,255,0.25)">
+            <i class="pi pi-file-edit text-white text-[13px]"></i>
+          </div>
+          <p class="text-[22px] font-black text-white leading-none">
+            {{ pendingQuotesCount() }}
+          </p>
+          <p class="text-[10px] font-semibold text-orange-100 mt-0.5 leading-tight">
+            Devis en attente
+          </p>
+        </button>
+
+        <!-- Commandes actives -->
+        <button (click)="goToCommandes()"
+                class="flex flex-col items-start !p-3.5 !rounded-2xl text-left transition-transform active:scale-[0.97]"
+                style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px)">
+          <div class="w-8 h-8 !rounded-xl flex items-center justify-center mb-2"
+               style="background: rgba(255,255,255,0.25)">
+            <i class="pi pi-shopping-bag text-white text-[13px]"></i>
+          </div>
+          <p class="text-[22px] font-black text-white leading-none">
+            {{ activeOrdersCount() }}
+          </p>
+          <p class="text-[10px] font-semibold text-orange-100 mt-0.5 leading-tight">
+            Commandes actives
+          </p>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Corps de la page ───────────────────────────────────────── -->
+  <div class="!px-4 !pt-5 !pb-28 flex flex-col gap-6">
+
+    <!-- Bloc CTA principal -->
+    <button (click)="goToDevisCreate()"
+            class="flex items-center gap-4 !rounded-3xl !p-4 w-full text-left
+                   shadow-lg transition-transform active:scale-[0.98]"
+            style="background: linear-gradient(135deg, #0d5689 0%, #1e51b8 100%);
+                   box-shadow: 0 8px 24px rgba(224,123,57,0.35)">
+      <div class="w-14 h-14 !rounded-2xl flex items-center justify-center flex-shrink-0"
+           style="background: rgba(255,255,255,0.2)">
+        <i class="pi pi-plus text-white text-2xl"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[16px] font-black text-white leading-tight">
+          Nouveau devis
+        </p>
+        <p class="text-[11px] text-orange-100 mt-0.5 leading-snug">
+          Sable, gravier, ciment, fer à béton…
+        </p>
+      </div>
+      <i class="pi pi-arrow-right text-white text-[16px] flex-shrink-0"></i>
+    </button>
+
+    <!-- Actions rapides -->
+    <div>
+      <p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest !mb-3">
+        Actions rapides
+      </p>
+      <div class="grid grid-cols-3 gap-3">
+
+        <!-- Catalogue -->
+        <button (click)="goToCatalogue()"
+                class="flex flex-col items-center gap-2 !py-4 !rounded-2xl bg-white shadow-sm
+                       transition-transform active:scale-[0.96]"
+                style="box-shadow: 0 2px 12px rgba(0,0,0,0.06)">
+          <div class="w-10 h-10 !rounded-xl flex items-center justify-center bg-orange-50">
+            <i class="pi pi-th-large text-[16px]" style="color: #0d5689"></i>
+          </div>
+          <span class="text-[11px] font-bold text-gray-700">Catalogue</span>
+        </button>
+
+        <!-- Commandes -->
+        <button (click)="goToCommandes()"
+                class="flex flex-col items-center gap-2 !py-4 !rounded-2xl bg-white shadow-sm
+                       transition-transform active:scale-[0.96]"
+                style="box-shadow: 0 2px 12px rgba(0,0,0,0.06)">
+          <div class="w-10 h-10 !rounded-xl flex items-center justify-center bg-blue-50">
+            <i class="pi pi-list text-[16px] text-blue-500"></i>
+          </div>
+          <span class="text-[11px] font-bold text-gray-700">Commandes</span>
+        </button>
+
+        <!-- Wallet -->
+        <button (click)="goToWallet()"
+                class="flex flex-col items-center gap-2 !py-4 !rounded-2xl bg-white shadow-sm
+                       transition-transform active:scale-[0.96]"
+                style="box-shadow: 0 2px 12px rgba(0,0,0,0.06)">
+          <div class="w-10 h-10 !rounded-xl flex items-center justify-center bg-emerald-50">
+            <i class="pi pi-wallet text-[16px] text-emerald-500"></i>
+          </div>
+          <span class="text-[11px] font-bold text-gray-700">Wallet</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Commandes récentes -->
+    <div>
+      <div class="flex items-center justify-between !mb-3">
+        <p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+          Commandes récentes
+        </p>
+        <button (click)="goToCommandes()"
+                class="text-[11px] font-bold"
+                style="color: #0d5689">
+          Voir tout →
+        </button>
+      </div>
+
+      <!-- Loading -->
+      @if (isLoading()) {
+        <div class="flex flex-col gap-3">
+          @for (_ of [1,2,3]; track $index) {
+            <div class="h-20 !rounded-2xl bg-gray-100 animate-pulse"></div>
+          }
+        </div>
+      }
+
+      <!-- Liste -->
+      @if (!isLoading()) {
+        @if (recentOrders().length === 0) {
+          <div class="flex flex-col items-center justify-center !py-10 !rounded-2xl bg-gray-50 gap-3">
+            <div class="w-14 h-14 !rounded-2xl bg-gray-100 flex items-center justify-center">
+              <i class="pi pi-inbox text-2xl text-gray-300"></i>
+            </div>
+            <div class="text-center">
+              <p class="text-[13px] font-bold text-gray-500">Aucune commande</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">
+                Créez votre premier devis pour commencer
+              </p>
+            </div>
+            <button (click)="goToDevisCreate()"
+                    class="!px-4 !py-2 !rounded-xl text-[12px] font-bold text-white"
+                    style="background: #0d5689">
+              Créer un devis
+            </button>
+          </div>
+        }
+
+        @for (order of recentOrders(); track order.public_id) {
+          <button (click)="goToOrder(order.public_id)"
+                  class="flex items-center gap-3 w-full !p-3.5 !rounded-2xl bg-white !mb-2.5
+                         text-left transition-transform active:scale-[0.99]"
+                  style="box-shadow: 0 2px 12px rgba(0,0,0,0.06)">
+
+            <!-- Icône produit -->
+            <div class="w-11 h-11 flex-shrink-0 !rounded-2xl flex items-center justify-center bg-orange-50">
+              <i class="pi pi-box text-[16px]" style="color: #0d5689"></i>
+            </div>
+
+            <!-- Infos -->
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-bold text-gray-900 leading-tight truncate">
+                {{ order.order_number }}
+              </p>
+              <p class="text-[11px] text-gray-400 mt-0.5 truncate">
+                {{ order.quote_summary?.product_name ?? '—' }}
+                · {{ order.quote_summary?.quantity ?? '—' }}
+              </p>
+            </div>
+
+            <!-- Statut + montant -->
+            <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <span class="text-[9px] font-bold !px-2 !py-0.5 !rounded-lg"
+                    [style.color]="orderStatusCfg(order.status).color"
+                    [style.background]="orderStatusCfg(order.status).bg">
+                {{ orderStatusCfg(order.status).label }}
+              </span>
+              <p class="text-[12px] font-black text-gray-800">
+                {{ order.quote_summary?.total_price | number:'1.0-0' }}<span class="text-[9px] font-semibold text-gray-400"> F</span>
+              </p>
+            </div>
+          </button>
+        }
+      }
+    </div>
+
+  </div>
+
+</ion-content>

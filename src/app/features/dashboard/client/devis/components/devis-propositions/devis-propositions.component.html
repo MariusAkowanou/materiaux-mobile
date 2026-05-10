@@ -1,111 +1,151 @@
-<div class="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
+<div class="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
 
-  <!-- ── En-tête ── -->
-  <div class="flex flex-col gap-1">
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-black text-gray-900">Vos propositions</h2>
-      <span class="rounded-full bg-secondary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">
-        {{ quotes().length }} offres
-      </span>
+  <!-- ── En-tête succès ── -->
+  <div class="flex flex-col items-center gap-3 py-4">
+    <div class="flex h-16 w-16 items-center justify-center rounded-2xl
+                bg-emerald-100 border-2 border-emerald-200">
+      <i class="pi pi-check-circle text-3xl text-emerald-500"></i>
     </div>
-    <p class="text-xs font-medium text-gray-400">
-      Choisissez la meilleure offre pour lancer votre commande. Les prix incluent le transport.
-    </p>
+    <div class="text-center">
+      <h2 class="text-xl font-black text-gray-900">
+        {{ quotes().length }} offre{{ quotes().length > 1 ? 's' : '' }} disponible{{ quotes().length > 1 ? 's' : '' }}
+      </h2>
+      <p class="text-xs font-medium text-gray-400 mt-1">
+        Pour <span class="font-bold text-gray-600">{{ draft().productName }}</span>
+        · {{ draft().quantite | number:'1.0-1' }} {{ draft().uniteVente }}
+      </p>
+    </div>
   </div>
 
-  <!-- ── Liste des Offres ── -->
-  @if (isLoading()) {
-    <div class="flex flex-col gap-4">
-      @for (i of [1,2,3]; track i) {
-        <div class="h-44 w-full animate-pulse rounded-3xl bg-gray-100"></div>
-      }
-    </div>
-  } @else {
-    @if (quotes().length > 0) {
-      <div class="flex flex-col gap-4">
-        @for (quote of quotes(); track quote.public_id) {
-          <div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-xl shadow-gray-200/50 border border-gray-50">
-            <!-- Header Offre -->
-            <div class="flex items-center justify-between bg-gray-50/50 px-5 py-3">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-verified text-blue-500 text-xs"></i>
-                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Offre certifiée</span>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <i class="pi pi-clock text-[10px] text-orange-400"></i>
-                <span class="text-[10px] font-black text-orange-500">Expire sous 2h</span>
-              </div>
+  <!-- ── Cartes devis ── -->
+  @for (q of quotes(); track q.public_id) {
+    <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden
+                animate-in zoom-in-95 duration-200">
+
+      <!-- En-tête fournisseur -->
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-50"
+           style="background: linear-gradient(135deg, #f0fdf4 0%, #f8faff 100%);">
+        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+          <i class="pi pi-building text-base text-emerald-600"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[13px] font-black text-gray-900 truncate">{{ q.supplier_name }}</p>
+          @if (q.distance_info) {
+            <p class="text-[10px] font-medium text-gray-400">
+              <i class="pi pi-map-marker text-[9px]"></i>
+              {{ num(q.distance_info.distance_km) | number:'1.0-1' }} km
+            </p>
+          }
+        </div>
+        <span class="flex-none text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg"
+              [style.background]="q.status === 'PENDING' ? '#dcfce7' : '#fee2e2'"
+              [style.color]="q.status === 'PENDING' ? '#16a34a' : '#dc2626'">
+          {{ q.status === 'PENDING' ? 'En attente' : q.status }}
+        </span>
+      </div>
+
+      <!-- Décomposition des coûts -->
+      <div class="px-4 py-3 flex flex-col gap-2">
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
+              <i class="pi pi-box text-[11px] text-orange-500"></i>
             </div>
+            <span class="text-[12px] text-gray-500">Matériau</span>
+          </div>
+          <span class="text-[13px] font-bold text-gray-800">
+            {{ num(q.material_cost) | number:'1.0-0' }} FCFA
+          </span>
+        </div>
 
-            <!-- Contenu -->
-            <div class="flex flex-col gap-4 p-5">
-              <div class="flex items-start justify-between">
-                <div class="flex flex-col">
-                  <span class="text-sm font-black text-gray-900">{{ quote.product_name }}</span>
-                  <span class="text-[11px] font-bold text-gray-400">Quantité : {{ quote.quantity | number }} m³</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter block mb-0.5">Total TTC</span>
-                  <span class="text-xl font-black text-primary">{{ quote.total_price | number }} F</span>
-                </div>
-              </div>
-
-              <div class="h-px bg-gray-100"></div>
-
-              <!-- Détails techniques -->
-              <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-[9px] font-black uppercase tracking-widest text-gray-300">Fournisseur</span>
-                  <span class="text-[11px] font-bold text-gray-600 truncate">{{ quote.client_name || 'Partenaire Agrégé' }}</span>
-                </div>
-                <div class="flex flex-col gap-0.5 text-right">
-                  <span class="text-[9px] font-black uppercase tracking-widest text-gray-300">Transport</span>
-                  <span class="text-[11px] font-bold text-emerald-500">Inclus dans le prix</span>
-                </div>
-              </div>
-
-              <!-- Actions -->
-              <div class="flex gap-3 pt-1">
-                <button 
-                  (click)="confirmOrder(quote)"
-                  [disabled]="isSubmitting()"
-                  class="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition active:scale-95">
-                  @if (isSubmitting()) {
-                    <ion-spinner name="crescent" class="h-3 w-3"></ion-spinner>
-                  } @else {
-                    <i class="pi pi-check"></i>
-                    <span>Commander</span>
-                  }
-                </button>
-                <button 
-                  (click)="cancelQuote(quote)"
-                  class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400 transition active:scale-95">
-                  <i class="pi pi-trash"></i>
-                </button>
-              </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+              <i class="pi pi-truck text-[11px] text-blue-500"></i>
             </div>
+            <span class="text-[12px] text-gray-500">Transport</span>
+          </div>
+          <span class="text-[13px] font-bold text-gray-800">
+            {{ num(q.transport_cost) | number:'1.0-0' }} FCFA
+          </span>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="border-t border-dashed border-gray-100 pt-2 mt-0.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[13px] font-black text-gray-700">Total</span>
+            <span class="text-[22px] font-black leading-none"
+                  style="color: var(--ion-color-primary)">
+              {{ num(q.total_price) | number:'1.0-0' }}
+              <span class="text-[12px] font-semibold text-gray-400 ml-0.5">FCFA</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Camions nécessaires -->
+        @if (q.trucks_configuration?.length) {
+          <div class="flex items-center gap-2 mt-1 flex-wrap">
+            @for (truck of q.trucks_configuration; track $index) {
+              <span class="flex items-center gap-1 text-[10px] font-semibold
+                           bg-gray-100 text-gray-600 px-2 py-1 rounded-lg">
+                <i class="pi pi-truck text-[9px]"></i>
+                {{ truck }}
+              </span>
+            }
+          </div>
+        }
+
+        <!-- Formule transport -->
+        @if (q.distance_info?.transport_formula) {
+          <p class="text-[10px] text-gray-400 mt-0.5">
+            <i class="pi pi-info-circle text-[9px]"></i>
+            {{ q.distance_info!.transport_formula }}
+          </p>
+        }
+      </div>
+
+      <!-- CTA confirmer -->
+      <div class="px-4 pb-4">
+        @if (q.can_be_ordered) {
+          <button
+            (click)="confirmOrder(q)"
+            [disabled]="isConfirming() !== null"
+            class="flex w-full items-center justify-center gap-2 !rounded-xl !py-3.5
+                   text-[13px] font-extrabold text-white uppercase tracking-wider
+                   transition-all active:scale-[0.97] disabled:opacity-50"
+            style="background: linear-gradient(135deg, var(--ion-color-primary) 0%,
+                   color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);
+                   box-shadow: 0 4px 16px color-mix(in srgb, var(--ion-color-primary) 30%, transparent);"
+          >
+            @if (isConfirming() === q.public_id) {
+              <ion-spinner name="crescent" style="color:#fff;width:16px;height:16px;"></ion-spinner>
+              Confirmation…
+            } @else {
+              <i class="pi pi-check text-sm"></i>
+              Confirmer la commande
+            }
+          </button>
+        } @else {
+          <div class="flex items-center justify-center gap-2 !rounded-xl !py-3
+                      bg-gray-100 text-gray-400 text-[12px] font-semibold">
+            <i class="pi pi-lock text-sm"></i>
+            Non disponible à la commande
           </div>
         }
       </div>
-    } @else {
-      <div class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 p-12 text-center bg-white/50">
-        <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400">
-          <i class="pi pi-inbox text-4xl"></i>
-        </div>
-        <h4 class="text-sm font-black text-gray-900 mb-1">Aucune offre active</h4>
-        <p class="text-xs font-medium text-gray-400 mb-6">Toutes vos demandes sont expirées ou annulées.</p>
-        <button 
-          (click)="createNewDevis()"
-          class="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20">
-          Nouvelle demande
-        </button>
-      </div>
-    }
+    </div>
   }
 
-  <!-- ── Note légale ── -->
-  <div class="rounded-2xl border border-gray-100 bg-white/30 p-4 text-[10px] font-medium leading-relaxed text-gray-400 italic">
-    * Les prix affichés sont valables pour une durée limitée. En cliquant sur "Commander", vous acceptez nos conditions générales de vente et de transport.
-  </div>
+  <!-- ── Bouton nouveau devis ── -->
+  <button
+    (click)="newDevis()"
+    class="flex w-full items-center justify-center gap-2 !rounded-2xl !py-4
+           text-[13px] font-bold text-gray-600 uppercase tracking-wider
+           border-2 border-gray-200 bg-white transition-all active:bg-gray-50"
+  >
+    <i class="pi pi-plus-circle text-base"></i>
+    Nouveau devis
+  </button>
 
 </div>

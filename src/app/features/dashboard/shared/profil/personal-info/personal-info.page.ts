@@ -1,6 +1,5 @@
-import { Component, inject, OnInit, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -40,39 +39,98 @@ export class PersonalInfoPage implements OnInit {
   readonly user = this.authStore.currentUser;
   readonly isLoading = this.authStore.isLoading;
 
-  isEditing = signal(false);
-  isSaving = signal(false);
+  readonly isEditing = signal(false);
+  readonly isSaving = signal(false);
 
   form!: FormGroup;
+
+  readonly hasCompanySection = computed(() => {
+    const u = this.user();
+    if (!u) return false;
+    return !!u.company_name || !!u.ifu || ['COMPANY', 'SUPPLIER', 'TRANSPORTER'].includes(u.primary_role);
+  });
+
+  readonly hasDocumentsSection = computed(() => {
+    const u = this.user();
+    return !!u?.documents_info;
+  });
+
+  constructor() {
+    effect(() => {
+      const u = this.user();
+      if (!u || !this.form) return;
+
+      this.form.patchValue({
+        first_name: u.first_name ?? '',
+        last_name: u.last_name ?? '',
+        email: u.email ?? '',
+        phone: u.phone ?? '',
+        company_name: u.company_name ?? '',
+        ifu: u.ifu ?? '',
+        document_type: u.documents_info?.type ?? '',
+        license_url: u.documents_info?.license_url ?? '',
+        insurance_url: u.documents_info?.insurance_url ?? '',
+      }, { emitEvent: false });
+    });
+  }
 
   ngOnInit() {
     this.initForm();
   }
 
   private initForm() {
-    const u = this.user();
     this.form = this.fb.group({
-      first_name: [u?.first_name ?? '', [Validators.required, Validators.minLength(2)]],
-      last_name: [u?.last_name ?? '', [Validators.required, Validators.minLength(2)]],
-      phone: [u?.phone ?? ''],
+      first_name: ['', [Validators.required, Validators.minLength(2)]],
+      last_name: ['', [Validators.required, Validators.minLength(2)]],
+      email: [{ value: '', disabled: true }],
+      phone: ['', [Validators.required, Validators.minLength(8)]],
+
+      company_name: [''],
+      ifu: [''],
+
+      document_type: [{ value: '', disabled: true }],
+      license_url: [''],
+      insurance_url: [''],
     });
   }
 
   toggleEdit() {
     if (this.isEditing()) {
-      // Annuler — restaurer les valeurs d'origine
-      this.initForm();
+      const u = this.user();
+      if (u) {
+        this.form.patchValue({
+          first_name: u.first_name ?? '',
+          last_name: u.last_name ?? '',
+          email: u.email ?? '',
+          phone: u.phone ?? '',
+          company_name: u.company_name ?? '',
+          ifu: u.ifu ?? '',
+          document_type: u.documents_info?.type ?? '',
+          license_url: u.documents_info?.license_url ?? '',
+          insurance_url: u.documents_info?.insurance_url ?? '',
+        }, { emitEvent: false });
+      }
       this.isEditing.set(false);
-    } else {
-      this.isEditing.set(true);
+      return;
     }
+
+    this.isEditing.set(true);
   }
 
   async saveChanges() {
     if (this.form.invalid || this.isSaving()) return;
 
     this.isSaving.set(true);
-    const dto: UpdateProfileDto = this.form.value;
+
+    const raw = this.form.getRawValue();
+
+    const dto: UpdateProfileDto = {
+      first_name: raw.first_name,
+      last_name: raw.last_name,
+      phone: raw.phone,
+      company_name: raw.company_name || null,
+      ifu: raw.ifu || null,
+    };
 
     this.authStore.updateProfile(dto).subscribe({
       next: async () => {

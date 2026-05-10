@@ -1,171 +1,229 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="[--background:transparent]">
-    <ion-title class="font-bold text-gray-900 text-xl">Mon Wallet</ion-title>
-  </ion-toolbar>
-</ion-header>
 
-<ion-content class="bg-gray-50">
+<ion-content class="[--background:var(--ion-color-surface)]">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="flex flex-col gap-5 px-4 pt-2 pb-8">
+  <div class="flex flex-col gap-5 px-4 pb-8 pt-3">
 
-    <!-- ── Carte de solde ─────────────────────────────────────────── -->
-    <div class="rounded-3xl p-6 flex flex-col gap-4"
-         style="background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));">
+    <!-- Carte solde -->
+    <div class="rounded-3xl bg-primary p-5 shadow-lg shadow-primary/15">
+      <div class="flex flex-col gap-4">
 
-      @if (isLoading() && balance() === 0) {
-        <ion-skeleton-text [animated]="true" style="width:40%;height:14px;border-radius:6px;--background:rgba(255,255,255,0.2);"></ion-skeleton-text>
-        <ion-skeleton-text [animated]="true" style="width:65%;height:36px;border-radius:8px;--background:rgba(255,255,255,0.2);"></ion-skeleton-text>
-      } @else {
-        <div>
-          <p class="text-xs font-medium text-white/70 m-0 uppercase tracking-widest">Solde disponible</p>
-          <p class="text-4xl font-black text-white m-0 mt-1">
-            {{ balance() | number:'1.0-0' }}
-            <span class="text-lg font-semibold text-white/80">FCFA</span>
-          </p>
+        @if (isLoading() && balance() === 0) {
+          <ion-skeleton-text
+            [animated]="true"
+            style="width: 42%; height: 14px; border-radius: 6px; --background: rgba(255,255,255,0.18);"
+          ></ion-skeleton-text>
+
+          <ion-skeleton-text
+            [animated]="true"
+            style="width: 70%; height: 38px; border-radius: 8px; --background: rgba(255,255,255,0.18);"
+          ></ion-skeleton-text>
+        } @else {
+          <div class="flex flex-col gap-1">
+            <p class="m-0 text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">
+              Solde disponible
+            </p>
+
+            <p class="m-0 text-4xl font-black leading-none text-white">
+              {{ balance() | number:'1.0-0' }}
+              <span class="ml-1 text-base font-semibold text-white/80">
+                FCFA
+              </span>
+            </p>
+          </div>
+        }
+
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-white/70">
+            <i class="pi pi-wallet text-sm"></i>
+            <span class="text-xs font-medium">Compte principal</span>
+          </div>
+
+          <ion-button
+            size="small"
+            fill="solid"
+            class="font-semibold"
+            style="--background:white; --color:var(--ion-color-primary); --border-radius:14px; --box-shadow:none;"
+            (click)="showWithdraw.set(true)"
+            [disabled]="balance() <= 0 || isLoading()"
+          >
+            <i class="pi pi-arrow-up-right mr-2"></i>
+            Retirer
+          </ion-button>
         </div>
-      }
-
-      <ion-button
-        size="small"
-        fill="solid"
-        style="--background: rgba(255,255,255,0.2); --color: white; --border-radius: 12px; --box-shadow: none; width: fit-content;"
-        (click)="showWithdraw.set(true)"
-        [disabled]="balance() <= 0 || isLoading()"
-      >
-        <i class="pi pi-arrow-up-right mr-2"></i>
-        Retirer les fonds
-      </ion-button>
+      </div>
     </div>
 
-    <!-- ── Onglets ────────────────────────────────────────────────── -->
-    <div class="flex rounded-2xl bg-white shadow-sm overflow-hidden">
-      <button
-        class="flex-1 py-3 text-sm font-semibold transition-colors duration-200"
-        [style.background]="activeTab() === 'transactions' ? 'var(--ion-color-primary)' : 'transparent'"
-        [style.color]="activeTab() === 'transactions' ? 'white' : '#9ca3af'"
-        (click)="activeTab.set('transactions')"
-        style="border: none; cursor: pointer;"
+    <!-- Segment -->
+    <div class="rounded-2xl bg-white p-1 shadow-sm">
+      <ion-segment
+        [value]="activeTab()"
+        (ionChange)="onSegmentChange($event)"
+        class="[--background:transparent]"
       >
-        <i class="pi pi-list mr-1.5"></i>
-        Transactions
-      </button>
-      <button
-        class="flex-1 py-3 text-sm font-semibold transition-colors duration-200"
-        [style.background]="activeTab() === 'withdrawals' ? 'var(--ion-color-primary)' : 'transparent'"
-        [style.color]="activeTab() === 'withdrawals' ? 'white' : '#9ca3af'"
-        (click)="activeTab.set('withdrawals')"
-        style="border: none; cursor: pointer;"
-      >
-        <i class="pi pi-send mr-1.5"></i>
-        Retraits
-      </button>
+        <ion-segment-button
+          value="transactions"
+          class="min-h-[44px] rounded-xl"
+        >
+          <ion-label class="text-sm font-semibold">
+            Transactions
+          </ion-label>
+        </ion-segment-button>
+
+        <ion-segment-button
+          value="withdrawals"
+          class="min-h-[44px] rounded-xl"
+        >
+          <ion-label class="text-sm font-semibold">
+            Retraits
+          </ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
 
-    <!-- ── TRANSACTIONS ───────────────────────────────────────────── -->
+    <!-- Transactions -->
     @if (activeTab() === 'transactions') {
       @if (isLoading()) {
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
           @for (s of [1,2,3,4]; track s) {
-            <div class="rounded-2xl bg-white p-4 flex items-center gap-3">
-              <ion-skeleton-text [animated]="true" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"></ion-skeleton-text>
-              <div class="flex-1 flex flex-col gap-1.5">
-                <ion-skeleton-text [animated]="true" style="width:60%;height:13px;border-radius:4px;"></ion-skeleton-text>
-                <ion-skeleton-text [animated]="true" style="width:35%;height:11px;border-radius:4px;"></ion-skeleton-text>
+            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm">
+              <ion-skeleton-text
+                [animated]="true"
+                style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"
+              ></ion-skeleton-text>
+
+              <div class="flex flex-1 flex-col gap-1.5">
+                <ion-skeleton-text
+                  [animated]="true"
+                  style="width:60%;height:13px;border-radius:4px;"
+                ></ion-skeleton-text>
+                <ion-skeleton-text
+                  [animated]="true"
+                  style="width:35%;height:11px;border-radius:4px;"
+                ></ion-skeleton-text>
               </div>
-              <ion-skeleton-text [animated]="true" style="width:70px;height:16px;border-radius:4px;flex-shrink:0;"></ion-skeleton-text>
+
+              <ion-skeleton-text
+                [animated]="true"
+                style="width:70px;height:16px;border-radius:4px;flex-shrink:0;"
+              ></ion-skeleton-text>
             </div>
           }
         </div>
       } @else if (transactions().length === 0) {
-        <div class="flex flex-col items-center justify-center gap-3 py-16">
-          <i class="pi pi-inbox" style="font-size:3rem;color:var(--ion-color-medium);"></i>
-          <p class="text-sm text-gray-400 text-center m-0">Aucune transaction pour le moment.</p>
+        <div class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white py-16 shadow-sm">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100">
+            <i class="pi pi-inbox text-2xl text-gray-400"></i>
+          </div>
+          <p class="m-0 text-sm font-medium text-gray-400">
+            Aucune transaction pour le moment.
+          </p>
         </div>
       } @else {
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
           @for (tx of transactions(); track tx.id) {
-            <div class="rounded-2xl bg-white p-4 flex items-center gap-3 shadow-sm">
+            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm">
 
-              <!-- Icône type -->
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                   [style.background]="tx.transaction_type === 'CREDIT'
-                     ? 'color-mix(in srgb, #10b981 12%, white)'
-                     : 'color-mix(in srgb, #ef4444 12%, white)'">
+              <!-- Icône -->
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+                [style.background]="tx.transaction_type === 'CREDIT'
+                  ? 'color-mix(in srgb, #10b981 12%, white)'
+                  : 'color-mix(in srgb, #ef4444 12%, white)'"
+              >
                 <i [class]="transactionIcon(tx.transaction_type) + ' ' + transactionColor(tx.transaction_type)"></i>
               </div>
 
-              <!-- Description + date -->
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-800 m-0 truncate">{{ tx.description }}</p>
-                <p class="text-xs text-gray-400 m-0 mt-0.5">
+              <!-- Libellé -->
+              <div class="min-w-0 flex-1">
+                <p class="m-0 truncate text-sm font-semibold text-gray-800">
+                  {{ tx.description }}
+                </p>
+                <p class="m-0 mt-1 text-xs text-gray-400">
                   {{ tx.created_at | date:'dd MMM yyyy, HH:mm' : '' : 'fr' }}
                 </p>
               </div>
 
               <!-- Montant -->
-              <span class="text-sm font-bold shrink-0" [class]="transactionColor(tx.transaction_type)">
+              <span
+                class="shrink-0 text-sm font-bold"
+                [class]="transactionColor(tx.transaction_type)"
+              >
                 {{ transactionSign(tx.transaction_type) }}{{ tx.amount | number:'1.0-0' }} FCFA
               </span>
-
             </div>
           }
         </div>
       }
     }
 
-    <!-- ── RETRAITS ────────────────────────────────────────────────── -->
+    <!-- Retraits -->
     @if (activeTab() === 'withdrawals') {
       @if (isLoading()) {
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
           @for (s of [1,2,3]; track s) {
-            <div class="rounded-2xl bg-white p-4 flex flex-col gap-2">
-              <ion-skeleton-text [animated]="true" style="width:50%;height:14px;border-radius:4px;"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:30%;height:11px;border-radius:4px;"></ion-skeleton-text>
+            <div class="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-sm">
+              <ion-skeleton-text
+                [animated]="true"
+                style="width:50%;height:14px;border-radius:4px;"
+              ></ion-skeleton-text>
+              <ion-skeleton-text
+                [animated]="true"
+                style="width:30%;height:11px;border-radius:4px;"
+              ></ion-skeleton-text>
             </div>
           }
         </div>
       } @else if (withdrawals().length === 0) {
-        <div class="flex flex-col items-center justify-center gap-3 py-16">
-          <i class="pi pi-send" style="font-size:3rem;color:var(--ion-color-medium);"></i>
-          <p class="text-sm text-gray-400 text-center m-0">Aucune demande de retrait.</p>
+        <div class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white py-16 shadow-sm">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100">
+            <i class="pi pi-send text-2xl text-gray-400"></i>
+          </div>
+          <p class="m-0 text-sm font-medium text-gray-400">
+            Aucune demande de retrait.
+          </p>
         </div>
       } @else {
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
           @for (w of withdrawals(); track w.id) {
-            <div class="rounded-2xl bg-white p-4 flex flex-col gap-2 shadow-sm">
-              <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm">
+
+              <div class="flex items-center justify-between gap-3">
                 <span class="text-base font-bold text-gray-800">
                   {{ w.amount | number:'1.0-0' }} FCFA
                 </span>
-                <ion-badge [color]="withdrawalStatusColor(w.status)">
+
+                <ion-badge class="!rounded-lg !px-2.5 !py-1 font-semibold" [color]="withdrawalStatusColor(w.status)">
                   {{ withdrawalStatusLabel(w.status) }}
                 </ion-badge>
               </div>
-              <div class="flex items-center gap-1.5 text-xs text-gray-400">
+
+              <div class="flex items-center gap-2 text-xs text-gray-400">
                 <i class="pi pi-mobile"></i>
                 <span>{{ w.payment_details }}</span>
               </div>
-              <p class="text-xs text-gray-300 m-0">
+
+              <p class="m-0 text-xs text-gray-300">
                 {{ w.created_at | date:'dd MMM yyyy' : '' : 'fr' }}
               </p>
+
               @if (w.admin_note) {
-                <p class="text-xs text-gray-500 m-0 italic border-t border-gray-100 pt-2">
-                  {{ w.admin_note }}
-                </p>
+                <div class="border-t border-gray-100 pt-2">
+                  <p class="m-0 text-xs italic text-gray-500">
+                    {{ w.admin_note }}
+                  </p>
+                </div>
               }
             </div>
           }
         </div>
       }
     }
-
   </div>
 </ion-content>
 
-<!-- Modal de retrait -->
 <app-withdrawal-modal
   [balance]="balance()"
   [isOpen]="showWithdraw()"

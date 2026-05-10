@@ -5,6 +5,7 @@ import { finalize, map, tap, timeout } from 'rxjs/operators';
 import { AuthApiService } from './auth.api.service';
 import { LoginDto, RegisterDto, UpdateProfileDto, User, UserRole, VerifyOtpDto } from './auth.model';
 import { StorageService } from '../../local/storage.service';
+import { AnyNode } from 'postcss';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStore {
@@ -59,7 +60,7 @@ export class AuthStore {
     );
   }
 
-  verifyOtp(dto: VerifyOtpDto): Observable<User> {
+  verifyOtp(dto: any): Observable<User> {
     this._isLoading.next(true);
     this.isLoading.set(true);
 

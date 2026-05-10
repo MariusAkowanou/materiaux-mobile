@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { AuthStore } from '../../../core/services/api/auth/auth.store';
 import { VerifyOtpDto } from '../../../core/services/api/auth/auth.model';
@@ -28,6 +28,8 @@ export class VerifyOtpPage {
 
   readonly isLoading = this.authStore.isLoading;
 
+  email:string = '';
+
   readonly form: FormGroup = this.fb.group({
     otp_code: ['', [
       Validators.required,
@@ -37,6 +39,17 @@ export class VerifyOtpPage {
     ]],
   });
 
+  private readonly route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['email']) {
+        this.email = params['email'];
+        console.log(this.email);
+      }
+    });
+  }
+
   get otpCode() { return this.form.get('otp_code')!; }
 
   submit() {
@@ -45,12 +58,15 @@ export class VerifyOtpPage {
       return;
     }
 
-    const dto: VerifyOtpDto = this.form.value;
-
+    const dto ={
+      email: this.email,
+      otp_code: this.form.value.otp_code
+    }
+    
     this.authStore.verifyOtp(dto).subscribe({
       next: () => {
         // Redirection vers le dashboard après vérification réussie
-        this.router.navigate(['/dashboard/home']);
+        this.router.navigate(['/auth/login']);
       },
     });
   }

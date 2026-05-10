@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.materiauxexpress.bj/api/v1',
-  wsUrl: 'wss://api.materiauxexpress.bj/ws',
-  googleMapsApiKey: 'YOUR_PROD_API_KEY',
+  apiUrl: 'http://157.230.177.99/api/v1',
+  wsUrl: 'ws://157.230.177.99/ws',
+  googleMapsApiKey: 'AIzaSyA_kVfCRHBLSLyqOAIlmZ1kFsu5pnFH5mA',
 };

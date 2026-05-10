@@ -1,0 +1,219 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: var(--ion-color-primary)">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard/transporter/dashboard"
+                       class="[--color:#fff] [--icon-font-size:20px]" />
+    </ion-buttons>
+   
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+
+  <!-- ── Loading ────────────────────────────────────────────────── -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center gap-2 py-20 text-gray-400">
+      <ion-spinner name="crescent" style="width:22px;height:22px;color:var(--ion-color-primary)"></ion-spinner>
+      <span class="text-[13px]">Chargement…</span>
+    </div>
+
+  } @else if (!mission()) {
+    <!-- ── Erreur ──────────────────────────────────────────────── -->
+    <div class="flex flex-col items-center gap-3 py-20 text-center px-8">
+      <i class="pi pi-exclamation-triangle text-[40px] text-gray-300"></i>
+      <p class="text-[15px] font-bold text-gray-500">Mission introuvable</p>
+      <p class="text-[12px] text-gray-400">Cette mission n'existe pas ou n'est plus accessible.</p>
+    </div>
+
+  } @else {
+    <!-- ── Contenu ─────────────────────────────────────────────── -->
+    <div class="px-4 pt-4 pb-10 flex flex-col gap-4">
+
+      <!-- Badge statut -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px] font-bold text-white"
+             [style.background]="statutColor(mission()!.status)">
+          <div class="w-1.5 h-1.5 rounded-full bg-white/70"></div>
+          {{ statutLabel(mission()!.status) }}
+        </div>
+        @if (mission()!.is_paid) {
+          <div class="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[12px] font-bold
+                      bg-emerald-50 text-emerald-600">
+            <i class="pi pi-check-circle text-[10px]"></i>
+            Payé
+          </div>
+        }
+      </div>
+
+      <!-- ── Infos livraison ────────────────────────────────────── -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm px-4 py-4">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+          Détails de la livraison
+        </p>
+
+        <!-- Produit -->
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+               style="background: color-mix(in srgb, var(--ion-color-primary) 12%, white)">
+            <i class="pi pi-box text-sm" style="color: var(--ion-color-primary)"></i>
+          </div>
+          <div>
+            <p class="text-[13px] font-black text-gray-900">
+              {{ mission()!.quote_summary?.product_name ?? 'Matériaux' }}
+            </p>
+            <p class="text-[11px] text-gray-400">
+              {{ mission()!.quote_summary?.product_category ?? '' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Trajet -->
+        <div class="bg-gray-50 rounded-xl px-3 py-2.5 mb-3">
+          @if (mission()!.quote_summary?.distance_info?.origin_address) {
+            <div class="flex items-center gap-2 mb-1.5">
+              <i class="pi pi-map-marker text-emerald-500 text-[11px]"></i>
+              <span class="text-[11px] text-gray-500 flex-1 truncate">
+                {{ mission()!.quote_summary!.distance_info!.origin_address }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2 my-1 pl-[5px]">
+              <div class="w-3 flex justify-center"><div class="h-3 w-px bg-gray-300"></div></div>
+            </div>
+          }
+          <div class="flex items-center gap-2">
+            <i class="pi pi-flag text-red-500 text-[11px]"></i>
+            <span class="text-[11px] text-gray-700 font-medium flex-1 truncate">
+              {{ mission()!.quote_summary?.delivery_address ?? '—' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Chiffres clés -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-gray-50 rounded-xl px-3 py-2.5">
+            <p class="text-[10px] text-gray-400 font-semibold mb-0.5">Quantité commandée</p>
+            <p class="text-[15px] font-black text-gray-900">{{ mission()!.ordered_quantity }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-xl px-3 py-2.5">
+            <p class="text-[10px] text-gray-400 font-semibold mb-0.5">Quantité restante</p>
+            <p class="text-[15px] font-black text-gray-900">{{ mission()!.remaining_quantity }}</p>
+          </div>
+          @if (mission()!.quote_summary?.transport_cost) {
+            <div class="bg-gray-50 rounded-xl px-3 py-2.5 col-span-2">
+              <p class="text-[10px] text-gray-400 font-semibold mb-0.5">Prix transport</p>
+              <p class="text-[18px] font-black" style="color: var(--ion-color-primary)">
+                {{ mission()!.quote_summary!.transport_cost | number:'1.0-0' }}
+                <span class="text-[11px] text-gray-400 font-semibold">FCFA</span>
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── Progression ────────────────────────────────────────── -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm px-4 py-4">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+          Progression
+        </p>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[13px] text-gray-600 font-semibold">Livraison complète</span>
+          <span class="text-[16px] font-black" style="color: var(--ion-color-primary)">
+            {{ mission()!.completion_pct }}%
+          </span>
+        </div>
+        <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all"
+               style="background: linear-gradient(90deg, var(--ion-color-primary), color-mix(in srgb, var(--ion-color-primary) 75%, #000))"
+               [style.width]="mission()!.completion_pct + '%'">
+          </div>
+        </div>
+        <div class="flex justify-between mt-2 text-[10px] text-gray-400">
+          <span>{{ mission()!.delivered_quantity }} livrée(s)</span>
+          <span>{{ mission()!.remaining_quantity }} restante(s)</span>
+        </div>
+      </div>
+
+      <!-- ── Distance (si disponible) ──────────────────────────── -->
+      @if (mission()!.quote_summary?.distance_info) {
+        <div class="rounded-2xl bg-white border border-gray-100 shadow-sm px-4 py-4">
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+            Itinéraire
+          </p>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <i class="pi pi-map text-[12px] text-gray-400"></i>
+              <span class="text-[13px] font-bold text-gray-700">
+                {{ mission()!.quote_summary!.distance_info!.distance_text }}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <i class="pi pi-clock text-[12px] text-gray-400"></i>
+              <span class="text-[13px] font-bold text-gray-700">
+                {{ mission()!.quote_summary!.distance_info!.duration_text }}
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ── Actions ────────────────────────────────────────────── -->
+      <div class="flex flex-col gap-3 pt-1">
+
+        <!-- Démarrer la course
+             Visible si transport_cost = 0.00 (livraison assurée sans transporteur externe)
+             ET statut démarrable (ASSIGNED ou CONFIRMED) -->
+        @if (canStart()) {
+          <button
+            (click)="demarrerLivraison()"
+            [disabled]="isStarting()"
+            class="flex items-center justify-center gap-2.5 rounded-2xl py-4
+                   text-[15px] font-extrabold text-white transition-all
+                   active:scale-[0.98] disabled:opacity-50"
+            style="background: linear-gradient(135deg, var(--ion-color-primary) 0%,
+                   color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);">
+            @if (isStarting()) {
+              <ion-spinner name="crescent" style="color:#fff;width:18px;height:18px;"></ion-spinner>
+              Localisation en cours…
+            } @else {
+              <i class="pi pi-send text-base"></i>
+              Démarrer la course
+            }
+          </button>
+          <p class="text-[11px] text-gray-400 text-center">
+            <i class="pi pi-map-marker text-[10px] mr-0.5"></i>
+            Votre position GPS sera capturée au démarrage
+          </p>
+        }
+
+        <!-- Voir l'itinéraire sur la carte — toujours visible si adresse disponible -->
+        @if (mission()!.quote_summary?.delivery_address) {
+          <button (click)="ouvrirCarte()"
+                  class="flex items-center justify-center gap-2 rounded-2xl py-4
+                         text-[14px] font-bold border-2 transition-all active:scale-[0.98]"
+                  style="border-color: var(--ion-color-primary); color: var(--ion-color-primary)">
+            <i class="pi pi-map text-base"></i>
+            Voir l'itinéraire sur la carte
+          </button>
+        }
+
+        <!-- Mission livrée -->
+        @if (isDelivered()) {
+          <div class="flex items-center justify-center gap-2 rounded-2xl py-4 bg-emerald-50">
+            <i class="pi pi-check-circle text-emerald-500 text-lg"></i>
+            <span class="text-[14px] font-black text-emerald-600">Mission terminée !</span>
+          </div>
+        }
+
+        <!-- Mission annulée -->
+        @if (isCancelled()) {
+          <div class="flex items-center justify-center gap-2 rounded-2xl py-4 bg-red-50">
+            <i class="pi pi-times-circle text-red-500 text-lg"></i>
+            <span class="text-[14px] font-black text-red-600">Mission annulée</span>
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+
+</ion-content>

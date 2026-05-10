@@ -1,0 +1,273 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: var(--ion-color-primary)">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div>
+        <p class="text-white/70 text-[11px] font-semibold uppercase tracking-widest">Tableau de bord</p>
+        <h1 class="text-white text-[20px] font-black leading-tight">Mes commandes</h1>
+      </div>
+      <button (click)="refresh()"
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
+        <i class="pi pi-refresh text-white text-base" [class.pi-spin]="isLoading()"></i>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="[--background:#f8f9fb]">
+
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ── STATS ──────────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-2 gap-3 !px-4 !pt-4 !pb-2">
+
+    <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm !px-4 !py-3.5 flex flex-col gap-1">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 !rounded-xl bg-orange-50 flex items-center justify-center">
+          <i class="pi pi-clock text-[11px] text-orange-500"></i>
+        </div>
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">En attente</span>
+      </div>
+      <p class="text-[26px] font-black leading-none" style="color: var(--ion-color-primary)">
+        {{ pendingCount() }}
+      </p>
+      <p class="text-[10px] text-gray-400">commande(s) à traiter</p>
+    </div>
+
+    <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm !px-4 !py-3.5 flex flex-col gap-1">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 !rounded-xl bg-blue-50 flex items-center justify-center">
+          <i class="pi pi-truck text-[11px] text-blue-500"></i>
+        </div>
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">En transit</span>
+      </div>
+      <p class="text-[26px] font-black leading-none text-blue-600">
+        {{ inTransitCount() }}
+      </p>
+      <p class="text-[10px] text-gray-400">en cours de livraison</p>
+    </div>
+
+    <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm !px-4 !py-3.5 flex flex-col gap-1">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 !rounded-xl bg-emerald-50 flex items-center justify-center">
+          <i class="pi pi-check-circle text-[11px] text-emerald-500"></i>
+        </div>
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Livrées</span>
+      </div>
+      <p class="text-[26px] font-black leading-none text-emerald-600">
+        {{ deliveredCount() }}
+      </p>
+      <p class="text-[10px] text-gray-400">commandes livrées</p>
+    </div>
+
+    <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm !px-4 !py-3.5 flex flex-col gap-1">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 !rounded-xl bg-purple-50 flex items-center justify-center">
+          <i class="pi pi-list text-[11px] text-purple-500"></i>
+        </div>
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Total</span>
+      </div>
+      <p class="text-[26px] font-black leading-none text-purple-600">
+        {{ totalCount() }}
+      </p>
+      <p class="text-[10px] text-gray-400">toutes commandes</p>
+    </div>
+
+  </div>
+
+  <!-- ── TABS ───────────────────────────────────────────────────────── -->
+  <div class="flex gap-1 !mx-4 !mt-3 !bg-gray-100 !rounded-2xl !p-1">
+    <button
+      (click)="activeTab.set('active')"
+      class="flex-1 flex items-center justify-center gap-1.5 !py-2.5 !rounded-xl
+             text-[12px] font-extrabold transition-all duration-150"
+      [style.background]="activeTab() === 'active' ? 'var(--ion-color-primary)' : 'transparent'"
+      [style.color]="activeTab() === 'active' ? '#fff' : '#6b7280'"
+    >
+      <i class="pi pi-bolt text-xs"></i>
+      En cours
+      @if (activeOrders().length) {
+        <span class="flex h-4 min-w-4 items-center justify-center rounded-full text-[9px] font-black px-1"
+              [style.background]="activeTab() === 'active' ? 'rgba(255,255,255,0.3)' : 'var(--ion-color-primary)'"
+              [style.color]="activeTab() === 'active' ? '#fff' : '#fff'">
+          {{ activeOrders().length }}
+        </span>
+      }
+    </button>
+    <button
+      (click)="activeTab.set('history')"
+      class="flex-1 flex items-center justify-center gap-1.5 !py-2.5 !rounded-xl
+             text-[12px] font-extrabold transition-all duration-150"
+      [style.background]="activeTab() === 'history' ? 'var(--ion-color-primary)' : 'transparent'"
+      [style.color]="activeTab() === 'history' ? '#fff' : '#6b7280'"
+    >
+      <i class="pi pi-history text-xs"></i>
+      Historique
+    </button>
+  </div>
+
+  <div class="!px-4 !pt-3 !pb-8">
+
+    <!-- ── SKELETON ───────────────────────────────────────────────── -->
+    @if (isLoading()) {
+      <div class="flex flex-col gap-3">
+        @for (i of [1,2,3]; track i) {
+          <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm !p-4 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between">
+              <ion-skeleton-text [animated]="true" style="width:120px;height:14px;border-radius:6px;"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:70px;height:20px;border-radius:8px;"></ion-skeleton-text>
+            </div>
+            <ion-skeleton-text [animated]="true" style="width:80%;height:18px;border-radius:6px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width:50%;height:12px;border-radius:6px;"></ion-skeleton-text>
+          </div>
+        }
+      </div>
+
+    <!-- ── LISTE EN COURS ─────────────────────────────────────────── -->
+    } @else if (activeTab() === 'active') {
+      @if (!activeOrders().length) {
+        <div class="flex flex-col items-center justify-center gap-4 text-gray-300 !pt-16">
+          <i class="pi pi-inbox text-[52px]"></i>
+          <div class="text-center">
+            <p class="text-[15px] font-bold text-gray-400">Aucune commande en cours</p>
+            <p class="text-[12px] text-gray-300 mt-1">Les nouvelles commandes apparaîtront ici</p>
+          </div>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (order of activeOrders(); track order.public_id) {
+            <div class="!rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden
+                        active:scale-[0.99] transition-transform cursor-pointer"
+                 (click)="goToDetail(order)">
+              <!-- Bande statut
+              <div class="h-1 w-full" [style.background]="statusCfg(order.status).color"></div>
+             -->
+              <div class="!px-4 !py-4">
+                <!-- Ligne 1: numéro + badge statut -->
+                <div class="flex items-start justify-between gap-2 mb-2.5">
+                  <div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider leading-none mb-0.5">
+                      {{ order.order_number }}
+                    </p>
+                    <p class="text-[15px] font-black text-gray-900 leading-tight">
+                      {{ order.quote_summary.product_name }}
+                    </p>
+                  </div>
+                  <span class="flex-none flex items-center gap-1 !px-2.5 !py-1 !rounded-xl text-[10px] font-bold"
+                        [style.background]="statusCfg(order.status).bg"
+                        [style.color]="statusCfg(order.status).color">
+                    <i class="pi text-[9px]" [class]="statusCfg(order.status).icon"></i>
+                    {{ statusCfg(order.status).label }}
+                  </span>
+                </div>
+
+                <!-- Ligne 2: client + prix -->
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                      <i class="pi pi-user text-[10px] text-gray-500"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-[11px] font-bold text-gray-400 leading-none">Client</p>
+                      <!-- <p class="text-[12px] font-semibold text-gray-700 truncate">
+                        {{ order.client_name ?? 'Client' }}
+                      </p> -->
+                    </div>
+                  </div>
+                  <div class="text-right flex-shrink-0">
+                    <p class="text-[18px] font-black leading-none" style="color: var(--ion-color-primary)">
+                      {{ num(order.quote_summary.total_price) | number:'1.0-0' }}
+                    </p>
+                    <p class="text-[9px] font-bold text-gray-400">FCFA</p>
+                  </div>
+                </div>
+
+                <!-- Ligne 3: quantité + date + paiement -->
+                <div class="flex items-center gap-3 !mt-3 !pt-3 !border-t !border-gray-50">
+                  <div class="flex items-center gap-1.5">
+                    <i class="pi pi-sort-amount-up text-[11px] text-gray-400"></i>
+                    <span class="text-[11px] text-gray-500 font-medium">
+                      {{ num(order.ordered_quantity) | number:'1.0-1' }} unité(s)
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <i class="pi pi-calendar text-[11px] text-gray-400"></i>
+                    <span class="text-[11px] text-gray-500 font-medium">
+                      {{ order.created_at | date:'dd MMM':'':'fr' }}
+                    </span>
+                  </div>
+                  <div class="ml-auto flex items-center gap-1">
+                    @if (order.is_paid) {
+                      <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600
+                                   bg-emerald-50 !px-2 !py-0.5 !rounded-lg">
+                        <i class="pi pi-check-circle text-[9px]"></i> Payé
+                      </span>
+                    } @else {
+                      <span class="flex items-center gap-1 text-[10px] font-bold text-orange-500
+                                   bg-orange-50 !px-2 !py-0.5 !rounded-lg">
+                        <i class="pi pi-clock text-[9px]"></i> Impayé
+                      </span>
+                    }
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    <!-- ── HISTORIQUE ─────────────────────────────────────────────── -->
+    } @else {
+      @if (!completedOrders().length) {
+        <div class="flex flex-col items-center justify-center gap-4 text-gray-300 !pt-16">
+          <i class="pi pi-history text-[52px]"></i>
+          <p class="text-[15px] font-bold text-gray-400">Aucun historique</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (order of completedOrders(); track order.public_id) {
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden
+                        active:scale-[0.99] transition-transform cursor-pointer"
+                 (click)="goToDetail(order)">
+              <div class="h-1 w-full" [style.background]="statusCfg(order.status).color"></div>
+
+              <div class="px-4 py-4">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider leading-none mb-0.5">
+                      {{ order.order_number }}
+                    </p>
+                    <p class="text-[15px] font-black text-gray-900 leading-tight">
+                      {{ order.quote_summary.product_name }}
+                    </p>
+                  </div>
+                  <span class="flex-none flex items-center gap-1 !px-2.5 !py-1 !rounded-xl text-[10px] font-bold"
+                        [style.background]="statusCfg(order.status).bg"
+                        [style.color]="statusCfg(order.status).color">
+                    <i class="pi text-[9px]" [class]="statusCfg(order.status).icon"></i>
+                    {{ statusCfg(order.status).label }}
+                  </span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <!-- <div class="flex items-center gap-1.5">
+                    <i class="pi pi-user text-[11px] text-gray-400"></i>
+                    <span class="text-[12px] text-gray-500">{{ order.client_name ?? 'Client' }}</span>
+                  </div> -->
+                  <p class="text-[15px] font-black" style="color: var(--ion-color-primary)">
+                    {{ num(order.quote_summary.total_price) | number:'1.0-0' }}
+                    <span class="text-[10px] font-semibold text-gray-400">FCFA</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+
+</ion-content>

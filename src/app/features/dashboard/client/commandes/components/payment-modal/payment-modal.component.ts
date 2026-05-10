@@ -1,47 +1,39 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import {
-  IonModal, IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButton, IonButtons, IonInput, IonSpinner, IonItem,
-} from '@ionic/angular/standalone';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonSpinner } from '@ionic/angular/standalone';
 import { OrderResponse } from 'src/app/core/services/api/devis/devis.model';
 
 @Component({
   selector: 'app-payment-modal',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule, ReactiveFormsModule,
-    IonModal, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonButton, IonButtons, IonInput, IonSpinner, IonItem,
-  ],
+  imports: [CommonModule, DecimalPipe, FormsModule, IonSpinner],
   templateUrl: './payment-modal.component.html',
 })
 export class PaymentModalComponent {
-  @Input({ required: true }) order!: OrderResponse;
-  @Input() isOpen = false;
-  @Input() isSubmitting = false;
+  @Input() order!: OrderResponse;
+  @Input() isLoading = false;
 
-  @Output() onSubmit  = new EventEmitter<string>(); // émet le numéro de téléphone
-  @Output() onDismiss = new EventEmitter<void>();
+  @Output() payMoneroo  = new EventEmitter<void>();
+  @Output() payPaydunya = new EventEmitter<string>();
+  @Output() dismissed   = new EventEmitter<void>();
 
-  form: FormGroup = new FormBuilder().group({
-    phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{8,15}$/)]],
-  });
+  readonly tab = signal<'moneroo' | 'paydunya'>('moneroo');
+  phone = '';
 
-  dismiss() {
-    this.form.reset();
-    this.onDismiss.emit();
+  /** Montant total depuis le devis imbriqué (string → number) */
+  get totalPrice(): number {
+    return parseFloat(this.order?.quote_summary?.total_price ?? '0');
   }
 
-  submit() {
-    if (this.form.invalid) return;
-    this.onSubmit.emit(this.form.value.phone!);
+  get phoneValid(): boolean {
+    return /^\+?[0-9]{8,15}$/.test(this.phone.trim());
   }
 
-  get phoneInvalid(): boolean {
-    const ctrl = this.form.get('phone');
-    return !!(ctrl?.invalid && ctrl.touched);
+  submitPaydunya(): void {
+    if (!this.phoneValid) return;
+    this.payPaydunya.emit(this.phone.trim());
   }
+
+  close(): void { this.dismissed.emit(); }
 }

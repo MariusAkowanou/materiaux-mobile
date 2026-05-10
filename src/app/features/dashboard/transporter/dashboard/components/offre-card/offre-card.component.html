@@ -1,0 +1,113 @@
+<div class="!rounded-2xl !bg-white !border !shadow-sm overflow-hidden transition-all"
+     [style.border-color]="offre._takenByOther ? '#fecaca' : offre._acceptedByMe ? '#bbf7d0' : '#e5e7eb'"
+     [style.opacity]="offre._takenByOther || offre._acceptedByMe ? '0.65' : '1'">
+
+  <div class="!px-4 !py-4">
+
+    <!-- ── LIGNE 1 : numéro + badge ──────────────────────────────── -->
+    <div class="flex items-start justify-between gap-2 mb-3">
+      <div class="min-w-0">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">
+          {{ offre.order.order_number }}
+        </p>
+        <p class="text-[15px] font-black text-gray-900 leading-tight truncate">
+          Livraison de matériaux
+        </p>
+      </div>
+
+      @if (offre._takenByOther) {
+        <span class="flex-none flex items-center gap-1 !px-2.5 !py-1 !rounded-xl bg-red-50 text-red-500 text-[10px] font-bold">
+          <i class="pi pi-times-circle text-[9px]"></i> Déjà prise
+        </span>
+      } @else if (offre._acceptedByMe) {
+        <span class="flex-none flex items-center gap-1 !px-2.5 !py-1 !rounded-xl bg-emerald-50 text-emerald-600 text-[10px] font-bold">
+          <i class="pi pi-check-circle text-[9px]"></i> Acceptée
+        </span>
+      } @else {
+        <span class="flex-none flex items-center gap-1 !px-2.5 !py-1 !rounded-xl text-[10px] font-bold"
+              style="background: color-mix(in srgb, var(--ion-color-primary) 10%, white);
+                     color: var(--ion-color-primary)">
+          <i class="pi pi-bolt text-[9px]"></i> Nouvelle
+        </span>
+      }
+    </div>
+
+    <!-- ── TRAJET ─────────────────────────────────────────────────── -->
+    <div class="bg-gray-50 !rounded-xl !px-3 !py-2.5 !mb-3">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-map-marker text-emerald-500 text-[11px]"></i>
+        <span class="text-[11px] text-gray-500 flex-1 truncate">
+          {{ offre.order.quote.origin_address || 'Carrière de départ' }}
+        </span>
+      </div>
+      <div class="flex items-center gap-2 my-1 !pl-[5px]">
+        <div class="w-3 flex justify-center"><div class="h-3 w-px bg-gray-300"></div></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <i class="pi pi-flag text-red-500 text-[11px]"></i>
+        <span class="text-[11px] text-gray-700 font-medium flex-1 truncate">
+          {{ offre.order.quote.delivery_address }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ── CHIFFRES ───────────────────────────────────────────────── -->
+    <div class="flex items-center gap-4 mb-3">
+      <div class="flex items-center gap-1.5">
+        <i class="pi pi-map text-[11px] text-gray-400"></i>
+        <span class="text-[12px] text-gray-600 font-semibold">
+          {{ offre.order.quote.distance_km | number:'1.0-1' }} km
+        </span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <i class="pi pi-box text-[11px] text-gray-400"></i>
+        <span class="text-[12px] text-gray-600 font-semibold">
+          {{ offre.order.quote.quantity | number:'1.0-0' }} t
+        </span>
+      </div>
+      @if (offre.order.quote.transport_cost) {
+        <div class="ml-auto flex items-baseline gap-0.5">
+          <span class="text-[18px] font-black" style="color: var(--ion-color-primary)">
+            {{ offre.order.quote.transport_cost | number:'1.0-0' }}
+          </span>
+          <span class="text-[10px] text-gray-400 font-semibold">FCFA</span>
+        </div>
+      }
+    </div>
+
+    <!-- ── ACTIONS ────────────────────────────────────────────────── -->
+    @if (!offre._takenByOther && !offre._acceptedByMe) {
+      <div class="flex gap-2">
+
+        <!-- Voir détail 
+        <button
+          (click)="onVoirDetail.emit(offre)"
+          class="flex flex-1 items-center justify-center gap-1.5 rounded-2xl py-3
+                 text-[13px] font-bold border-2 transition-all active:scale-[0.98]"
+          style="border-color: var(--ion-color-primary); color: var(--ion-color-primary)">
+          <i class="pi pi-eye text-sm"></i>
+          Détail
+        </button>-->
+
+        <!-- Accepter -->
+        <button
+          (click)="onAccepter.emit(offre)"
+          [disabled]="isSubmitting"
+          class="flex flex-[2] items-center justify-center gap-1.5 !rounded-2xl !py-3
+                 text-[13px] font-extrabold text-white transition-all active:scale-[0.98]
+                 disabled:opacity-50"
+          style="background: linear-gradient(135deg, var(--ion-color-primary) 0%,
+                 color-mix(in srgb, var(--ion-color-primary) 80%, #000) 100%);">
+          @if (isSubmitting) {
+            <ion-spinner name="crescent" style="color:#fff;width:14px;height:14px;"></ion-spinner>
+          } @else {
+            <i class="pi pi-check-circle text-sm"></i>
+          }
+          Accepter
+        </button>
+
+      </div>
+    }
+
+  </div>
+</div>

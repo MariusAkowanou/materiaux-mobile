@@ -13,6 +13,7 @@ export class MateriauxStore {
 
   // ── État ──────────────────────────────────────────────────────────
   readonly mesCarrieres  = signal<Carriere[]>([]);
+  readonly carrieres     = signal<Carriere[]>([]);
   readonly mesOffres     = signal<OffreFournisseur[]>([]);
   readonly camionTypes   = signal<CamionType[]>([]);
   readonly isLoading     = signal(false);
@@ -35,6 +36,16 @@ export class MateriauxStore {
     try {
       const list = await firstValueFrom(this.api.getMesCarrieres());
       this.mesCarrieres.set(list);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+   async loadCarrieres(): Promise<void> {
+    this.isLoading.set(true);
+    try {
+      const list = await firstValueFrom(this.api.getCarrieres());
+      this.carrieres.set(list);
     } finally {
       this.isLoading.set(false);
     }
@@ -74,7 +85,7 @@ export class MateriauxStore {
     this.isLoading.set(true);
     try {
       const list = await firstValueFrom(this.api.getMesOffres());
-      this.mesOffres.set(list);
+      this.mesOffres.set(list.map((o) => this.normalizeOffre(o)));
     } finally {
       this.isLoading.set(false);
     }
@@ -83,7 +94,7 @@ export class MateriauxStore {
   async createOffre(dto: OffreFournisseurCreate): Promise<OffreFournisseur> {
     this.isSubmitting.set(true);
     try {
-      const o = await firstValueFrom(this.api.createOffre(dto));
+      const o = this.normalizeOffre(await firstValueFrom(this.api.createOffre(dto)));
       this.mesOffres.update((list) => [o, ...list]);
       return o;
     } finally {
@@ -94,7 +105,7 @@ export class MateriauxStore {
   async updateOffre(id: number, dto: OffreFournisseurUpdate): Promise<void> {
     this.isSubmitting.set(true);
     try {
-      const updated = await firstValueFrom(this.api.updateOffre(id, dto));
+      const updated = this.normalizeOffre(await firstValueFrom(this.api.updateOffre(id, dto)));
       this.mesOffres.update((list) =>
         list.map((o) => (o.id === id ? updated : o)),
       );
@@ -104,7 +115,7 @@ export class MateriauxStore {
   }
 
   async updateOffreStatut(id: number, statut: OffreStatut): Promise<void> {
-    const updated = await firstValueFrom(this.api.updateOffreStatut(id, statut));
+    const updated = this.normalizeOffre(await firstValueFrom(this.api.updateOffreStatut(id, statut)));
     this.mesOffres.update((list) =>
       list.map((o) => (o.id === id ? updated : o)),
     );
@@ -123,5 +134,43 @@ export class MateriauxStore {
       const list = await firstValueFrom(this.api.getCamionTypes());
       this.camionTypes.set(list);
     } catch { /* non bloquant */ }
+  }
+
+  private normalizeOffre(raw: any): OffreFournisseur {
+    return {
+      id: Number(raw?.id ?? 0),
+      public_id: String(raw?.public_id ?? ''),
+      materiau_id: Number(raw?.materiau_id ?? 0),
+      materiau_nom: String(raw?.materiau_nom ?? ''),
+      materiau_unite: String(raw?.materiau_unite ?? ''),
+      carriere_id: Number(raw?.carriere_id ?? 0),
+      carriere_nom: String(raw?.carriere_nom ?? ''),
+      prix_unitaire: this.toNumber(raw?.prix_unitaire),
+      camion_type_id: raw?.camion_type_id ?? null,
+      camion_libelle: raw?.camion_libelle ?? raw?.camion_type ?? null,
+      transport_propre: Boolean(raw?.transport_propre),
+      prix_transport_sep: this.toNullableNumber(raw?.prix_transport_sep),
+      quantite_min_commande: this.toNullableNumber(raw?.quantite_min_commande),
+      delai_livraison_jours: this.toNullableNumber(raw?.delai_livraison_jours),
+      statut: this.normalizeStatut(raw?.statut),
+      created_at: String(raw?.created_at ?? ''),
+    };
+  }
+
+  private normalizeStatut(value: unknown): OffreStatut {
+    const s = String(value ?? '').toUpperCase();
+    if (s === 'EN_RUPTURE' || s === 'ARCHIVEE') return s;
+    return 'ACTIVE';
+  }
+
+  private toNumber(value: unknown): number {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  private toNullableNumber(value: unknown): number | null {
+    if (value == null) return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
   }
 }
