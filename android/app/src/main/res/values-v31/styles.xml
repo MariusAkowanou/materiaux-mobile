@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Android 12+ (API 31+) : remplacement du splash système par défaut.
+        Sans ce fichier, Android affiche un fond blanc avec l'icône de lancement.
+        Ici on impose la couleur primaire de l'application (#E07B39) et l'icône foreground.
+    -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <!-- Couleur de fond du splash (correspond à backgroundColor dans capacitor.config.ts) -->
+        <item name="android:windowSplashScreenBackground">#E07B39</item>
+        <!-- Icône centrée sur le fond (foreground de l'adaptive icon) -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <!-- Thème appliqué après la disparition du splash -->
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+    </style>
+</resources>

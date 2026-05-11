@@ -1,6 +1,6 @@
 export type DeliverySpeed = 'NORMAL' | 'RAPIDE' | 'ULTRA_RAPIDE';
 
-export type QuoteStatus = 'PENDING' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED';
+export type QuoteStatus = 'PENDING' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED'| 'COMPLETED';
 
 export type OrderStatus =
   | 'CONFIRMED'                // Commande créée — en attente de paiement
@@ -10,7 +10,8 @@ export type OrderStatus =
   | 'IN_PROGRESS'
   | 'PARTIALLY_DELIVERED'
   | 'DELIVERED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'COMPLETED';
 
 export type DisputeCategory =
   | 'QUANTITE_MANQUANTE'

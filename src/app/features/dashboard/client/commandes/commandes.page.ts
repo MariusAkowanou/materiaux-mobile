@@ -42,12 +42,12 @@ export class CommandesPage implements OnInit {
 
   readonly activeOrders = computed(() =>
     this.devisStore.myOrders().filter(
-      (o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED',
+      (o) => o.status !== 'DELIVERED' && o.status !== 'CANCELLED' && o.status !== 'COMPLETED',
     ),
   );
   readonly completedOrders = computed(() =>
     this.devisStore.myOrders().filter(
-      (o) => o.status === 'DELIVERED' || o.status === 'CANCELLED',
+      (o) => o.status === 'DELIVERED' || o.status === 'CANCELLED' || o.status === 'COMPLETED',
     ),
   );
 

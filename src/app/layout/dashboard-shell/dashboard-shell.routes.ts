@@ -178,6 +178,16 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../../features/dashboard/admin/retraits/retraits.page').then(m => m.RetraitsPage),
       },
       {
+        path: 'profil',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/profil/profil.page').then(m => m.ProfilPage),
+      },
+      {
+        path: 'profile/personal-info',
+        loadComponent: () =>
+          import('../../features/dashboard/shared/profil/personal-info/personal-info.page').then(m => m.PersonalInfoPage),
+      },
+      {
         path: '',
         redirectTo: 'utilisateurs',
         pathMatch: 'full',

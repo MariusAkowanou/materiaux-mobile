@@ -73,6 +73,7 @@ export class DashboardShellComponent {
       { tab: 'utilisateurs', route: '/dashboard/admin/utilisateurs', icon: 'pi pi-users',        label: 'Utilisateurs' },
       { tab: 'partenariats', route: '/dashboard/admin/partenariats', icon: 'pi pi-briefcase',    label: 'Partenariats' },
       { tab: 'retraits',     route: '/dashboard/admin/retraits',     icon: 'pi pi-money-bill',   label: 'Retraits'     },
+      { tab: 'profil',     route: '/dashboard/profil',              icon: 'pi pi-user',          label: 'Profil'     },
     ],
     COLLABORATOR: [
       { tab: 'home',       route: '/dashboard/home',                icon: 'pi pi-home',          label: 'Accueil'    },

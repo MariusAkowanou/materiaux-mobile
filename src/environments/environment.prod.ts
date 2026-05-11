@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://157.230.177.99/api/v1',
-  wsUrl: 'ws://157.230.177.99/ws',
+  apiUrl: 'https://matexafrica.com/api/v1',
+  wsUrl: 'wss://matexafrica.com/api/v1/ws',
   googleMapsApiKey: 'AIzaSyA_kVfCRHBLSLyqOAIlmZ1kFsu5pnFH5mA',
 };

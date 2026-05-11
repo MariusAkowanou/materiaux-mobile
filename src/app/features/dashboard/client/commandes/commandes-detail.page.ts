@@ -53,8 +53,8 @@ export class CommandesDetailPage implements OnInit {
 
   get canPay():    boolean { const o = this.order(); return !!o && !o.is_paid  }
   get canCancel(): boolean { const o = this.order(); return !!o && ['CONFIRMED','PENDING_PAYMENT'].includes(o.status); }
-  get canClose():  boolean { const o = this.order(); return !!o && ['PARTIALLY_DELIVERED','DELIVERED'].includes(o.status); }
-  get canDispute():boolean { const o = this.order(); return !!o && ['IN_PROGRESS','PARTIALLY_DELIVERED','DELIVERED'].includes(o.status); }
+  get canClose():  boolean { const o = this.order(); return !!o && ['PARTIALLY_DELIVERED','DELIVERED', 'COMPLETED'].includes(o.status); }
+  get canDispute():boolean { const o = this.order(); return !!o && ['IN_PROGRESS','PARTIALLY_DELIVERED','DELIVERED', 'COMPLETED'].includes(o.status); }
 
   statusCfg(status: string): { label: string; bg: string; color: string; icon: string } {
     const map: Record<string, { label: string; bg: string; color: string; icon: string }> = {
@@ -63,6 +63,7 @@ export class CommandesDetailPage implements OnInit {
       IN_PROGRESS:                { label: 'En transit',             bg: '#ecfeff', color: '#0891b2', icon: 'pi-truck' },
       DELIVERED:                 { label: 'Livré',                  bg: '#f0fdf4', color: '#16a34a', icon: 'pi-check-circle' },
       CANCELLED:                 { label: 'Annulé',                 bg: '#fef2f2', color: '#dc2626', icon: 'pi-times-circle' },
+      COMPLETED:                 { label: 'Clôturé',                 bg: '#f0fdf4', color: '#16a34a', icon: 'pi-check-circle' },
     };
     return map[status] ?? { label: status, bg: '#f3f4f6', color: '#6b7280', icon: 'pi-info-circle' };
   }

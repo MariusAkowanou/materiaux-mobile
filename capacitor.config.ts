@@ -4,6 +4,10 @@ const config: CapacitorConfig = {
   appId: 'bj.materiauxexpress.app',
   appName: 'Matériaux Express',
   webDir: 'www',
+  server: {
+    androidScheme: 'https',
+    allowNavigation: ['matexafrica.com', '*.matexafrica.com']
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,
@@ -11,6 +15,7 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
   },
+  
 };
 
 export default config;
